@@ -1,15 +1,12 @@
-// Flutter code sample for material.AppBar.1
-
-// This sample shows an [AppBar] with two simple actions. The first action
-// opens a [SnackBar], while the second action navigates to a new page.
-
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 
 void main() => runApp(MyApp());
 
 /// This Widget is the main application widget.
 class MyApp extends StatelessWidget {
-  static const String _title = 'Flutter Code Sample';
+  static const String _title = 'Let\'s Eat';
 
   @override
   Widget build(BuildContext context) {
@@ -23,17 +20,41 @@ class MyApp extends StatelessWidget {
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 final SnackBar snackBar = const SnackBar(content: Text('Showing Snackbar'));
 
+GoogleMapController mapController;
+//final LatLng _center = const LatLng(45.521563, -122.677433);
+
+void _onMapCreated(GoogleMapController controller) {
+  mapController = controller;
+}
+
+
+
 void openPage(BuildContext context) {
+  var currentLocation = LocationData;
+  var location = new Location();
+  var lat = 33.783022;
+  var lon = -118.112858;
+  var center = LatLng(lat, lon);
+  location.onLocationChanged().listen((LocationData currentLocation) {
+    lat = currentLocation.latitude;
+    lon = currentLocation.longitude;
+    center = LatLng(lat, lon);
+  });
+
   Navigator.push(context, MaterialPageRoute(
     builder: (BuildContext context) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Next page'),
-        ),
-        body: const Center(
-          child: Text(
-            'This is the next page',
-            style: TextStyle(fontSize: 24),
+      return MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(
+            title: Text('Maps Sample App'),
+            backgroundColor: Colors.green[700],
+          ),
+          body: GoogleMap(
+            onMapCreated: _onMapCreated,
+            initialCameraPosition: CameraPosition(
+              target: center,
+              zoom: 11.0,
+            ),
           ),
         ),
       );
@@ -108,6 +129,7 @@ void signIn(BuildContext context) {
 /// This is the stateless widget that the main application instantiates.
 class MyStatelessWidget extends StatelessWidget {
   MyStatelessWidget({Key key}) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
