@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'maps.dart';
 
 void main() => runApp(MyApp());
 
@@ -19,48 +20,6 @@ class MyApp extends StatelessWidget {
 
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 final SnackBar snackBar = const SnackBar(content: Text('Showing Snackbar'));
-
-GoogleMapController mapController;
-//final LatLng _center = const LatLng(45.521563, -122.677433);
-
-void _onMapCreated(GoogleMapController controller) {
-  mapController = controller;
-}
-
-
-
-void openPage(BuildContext context) {
-  var currentLocation = LocationData;
-  var location = new Location();
-  var lat = 33.783022;
-  var lon = -118.112858;
-  var center = LatLng(lat, lon);
-  location.onLocationChanged().listen((LocationData currentLocation) {
-    lat = currentLocation.latitude;
-    lon = currentLocation.longitude;
-    center = LatLng(lat, lon);
-  });
-
-  Navigator.push(context, MaterialPageRoute(
-    builder: (BuildContext context) {
-      return MaterialApp(
-        home: Scaffold(
-          appBar: AppBar(
-            title: Text('Maps Sample App'),
-            backgroundColor: Colors.green[700],
-          ),
-          body: GoogleMap(
-            onMapCreated: _onMapCreated,
-            initialCameraPosition: CameraPosition(
-              target: center,
-              zoom: 11.0,
-            ),
-          ),
-        ),
-      );
-    },
-  ));
-}
 
 void signIn(BuildContext context) {
   Navigator.push(context, MaterialPageRoute(
@@ -183,7 +142,8 @@ class MyStatelessWidget extends StatelessWidget {
             icon: const Icon(Icons.navigate_next),
             tooltip: 'Next page',
             onPressed: () {
-              openPage(context);
+              //openPage(context);
+              Navigator.push(context, Maps());
             },
           ),
         ],
