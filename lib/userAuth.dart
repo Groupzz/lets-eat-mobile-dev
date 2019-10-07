@@ -1,3 +1,12 @@
+/**
+ * Signs in or registers a user via Firebase/Firestore
+ * Taken from: https://medium.com/swlh/flutter-login-registration-using-firebase-1bef34007b91
+ * Source Code: https://github.com/pr-Mais/flutter_firebase_login
+ * Credit goes to Mais Ayman
+ *
+ * This is for temporary usage, and should not be a part of our finalized project
+ */
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
