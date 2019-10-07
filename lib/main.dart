@@ -4,7 +4,10 @@ import 'package:location/location.dart';
 import 'maps.dart';
 import 'Restaurants.dart';
 import 'server.dart';
+import 'userAuth.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'home.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,11 +19,25 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: _title,
-      home: MyStatelessWidget(),
+        home: Home(),
+//      home: new StreamBuilder(
+//        stream: auth.onAuthStateChanged,
+//        builder: (context, snapshot) {
+//          if (snapshot.hasData) {
+//            return Home();
+//          }
+//          return Home();
+//        },
+//      ),
+      routes: <String, WidgetBuilder>{
+        '/home': (BuildContext context) => new Home(),
+        '/login': (BuildContext context) => new UserAuth()
+      },
     );
   }
 }
 
+final FirebaseAuth auth = FirebaseAuth.instance;
 
 class YelpSearch extends StatelessWidget {
   final Repository repository;
