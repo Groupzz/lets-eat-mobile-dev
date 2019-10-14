@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:lets_eat/About.dart';
 import 'package:location/location.dart';
 import 'maps.dart';
 import 'Restaurants.dart';
@@ -8,6 +9,7 @@ import 'userAuth.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'home.dart';
+import 'About.dart';
 
 void main() => runApp(MyApp());
 
@@ -255,7 +257,6 @@ void signIn(BuildContext context) {
 class MyStatelessWidget extends StatelessWidget {
   MyStatelessWidget({Key key}) : super(key: key);
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -264,6 +265,11 @@ class MyStatelessWidget extends StatelessWidget {
           child: new ListView(
             children: <Widget> [
               new DrawerHeader(child: new Text('Menu'),),
+              new ListTile(
+                title: new Text('Help'),
+                onTap: () {
+                },
+              ),
               new ListTile(
                 title: new Text('Sign In / Sign Up'),
                 onTap: () {
@@ -279,7 +285,12 @@ class MyStatelessWidget extends StatelessWidget {
               new Divider(),
               new ListTile(
                 title: new Text('About'),
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => About())
+                );
+                  },
               ),
             ],
           )

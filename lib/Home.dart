@@ -5,6 +5,7 @@ import 'server.dart';
 import 'main.dart';
 import 'maps.dart';
 import 'userAuth.dart';
+import 'About.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -40,7 +41,12 @@ class _HomeState extends State<Home> {
                 new Divider(),
                 new ListTile(
                   title: new Text('About'),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => About())
+                    );
+                  },
                 ),
               ],
             )
