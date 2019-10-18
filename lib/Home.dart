@@ -5,6 +5,9 @@ import 'server.dart';
 import 'main.dart';
 import 'maps.dart';
 import 'userAuth.dart';
+import 'root_page.dart';
+import 'accounts.dart';
+import 'authentication.dart';
 import 'About.dart';
 
 class Home extends StatefulWidget {
@@ -25,9 +28,10 @@ class _HomeState extends State<Home> {
                 new ListTile(
                   title: new Text('Sign In / Sign Up'),
                   onTap: () {
-                    Route route = MaterialPageRoute(builder: (context) => UserAuth());
+                    Route route = MaterialPageRoute(builder: (context) => RootPage(auth: new Auth()));
+//                    Route route = MaterialPageRoute(builder: (context) => UserAuth());
                     Navigator.push(context, route);
-//                    signIn(context);
+                    //signIn(context);
 //                    return UserAuth().createState().build(context);
                   },
                 ),
