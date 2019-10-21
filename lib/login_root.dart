@@ -1,15 +1,20 @@
+/**
+ * References: https://medium.com/@abeythilakeudara3/firebase-authentication-with-flutter-d403bf39a029
+ * https://medium.com/flutterpub/flutter-how-to-do-user-login-with-firebase-a6af760b14d5
+ * https://github.com/delay/flutter_firebase_auth_example
+ */
 import 'package:flutter/material.dart';
-import 'signIn.dart';
+import 'LoginSignUp.dart';
 import 'authentication.dart';
 import 'accounts.dart';
 
-class RootPage extends StatefulWidget {
-  RootPage({this.auth});
+class LoginRootPage extends StatefulWidget {
+  LoginRootPage({this.auth});
 
   final BaseAuth auth;
 
   @override
-  State<StatefulWidget> createState() => new _RootPageState();
+  State<StatefulWidget> createState() => new _LoginRootPageState();
 }
 
 enum AuthStatus {
@@ -18,7 +23,7 @@ enum AuthStatus {
   LOGGED_IN,
 }
 
-class _RootPageState extends State<RootPage> {
+class _LoginRootPageState extends State<LoginRootPage> {
   AuthStatus authStatus = AuthStatus.NOT_DETERMINED;
   String _userId = "";
 

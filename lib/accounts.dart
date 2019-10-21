@@ -19,6 +19,7 @@ class _AccountsState extends State<Accounts> {
 
   final FirebaseDatabase _database = FirebaseDatabase.instance;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  DatabaseReference itemRef;
 
   final TextEditingController _emailFilter = new TextEditingController();
   final TextEditingController _passwordFilter = new TextEditingController();
@@ -75,6 +76,7 @@ class _AccountsState extends State<Accounts> {
   @override
   void initState() {
     super.initState();
+    itemRef = _database.reference().child('users');
     _checkEmailVerification();
   }
 
