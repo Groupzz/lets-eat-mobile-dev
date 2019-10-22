@@ -82,7 +82,9 @@ class _HomeState extends State<Home> {
               tooltip: 'Next page',
               onPressed: () {
                 //openPage(context);
-                Navigator.push(context, Maps());
+                Route route = MaterialPageRoute(builder: (context) => Map());
+                Navigator.push(context, route);
+//                Navigator.push(context, Maps());
                 //runApp(Server());
               },
             ),
