@@ -4,7 +4,7 @@ import 'package:lets_eat/About.dart';
 import 'package:location/location.dart';
 import 'maps.dart';
 import 'Restaurants.dart';
-import 'server.dart';
+import 'YelpRepository.dart';
 import 'userAuth.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';

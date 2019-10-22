@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'userAuth.dart';
-import 'server.dart';
+import 'YelpRepository.dart';
 import 'main.dart';
 import 'maps.dart';
 import 'userAuth.dart';
