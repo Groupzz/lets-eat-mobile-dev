@@ -54,7 +54,7 @@ class YelpSearch extends StatelessWidget {
         appBar: AppBar(title: Text("Yelp Test")),
         body: Center(
           child: FutureBuilder<List<Restaurants>>(
-            future: repository.getBusinesses(),
+            future: Repository().createState().getBusinesses(),//repository.getBusinesses(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return Padding(
@@ -117,14 +117,13 @@ final SnackBar snackBar = const SnackBar(content: Text('Showing Snackbar'));
 
 void search(BuildContext context)
 {
-  Repository repository;
   Navigator.push(context, MaterialPageRoute(
     builder: (BuildContext context) {
       return Scaffold(
         appBar: AppBar(title: Text("Yelp Search")),
         body: Center(
           child: FutureBuilder<List<Restaurants>>(
-            future: repository.getBusinesses(),
+            future: Repository().createState().getBusinesses(),//repository.getBusinesses(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return Padding(

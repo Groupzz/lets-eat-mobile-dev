@@ -38,7 +38,9 @@ class _HomeState extends State<Home> {
                 new ListTile(
                   title: new Text('Find me a restaurant'),
                   onTap: () {
-                    Route route = MaterialPageRoute(builder: (context) => YelpSearch(repository : Repository.get()));
+                    //Repository repo = new Repository();
+                    Route route = MaterialPageRoute(builder: (context) => YelpSearch(repository: Repository()));
+//                    Route route = MaterialPageRoute(builder: (context) => Repository());
                     Navigator.push(context, route);
                   },
                 ),
