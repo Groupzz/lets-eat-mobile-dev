@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'authentication.dart';
+import 'package:dbcrypt/dbcrypt.dart';
 
 class LoginSignUpPage extends StatefulWidget {
   LoginSignUpPage({this.auth, this.onSignedIn});
@@ -45,6 +46,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
       String userId = "";
       try {
         if (_formMode == FormMode.LOGIN) {
+          //_password = new DBCrypt().hashpw(_password, new DBCrypt().gensalt());
           userId = await widget.auth.signIn(_email, _password);
           print('Signed in: $userId');
         } else {

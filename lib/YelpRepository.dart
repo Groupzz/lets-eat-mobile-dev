@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'Restaurants.dart';
+import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:location/location.dart';
@@ -22,6 +24,7 @@ class ParsedResponse<T> {
 const int CODE_OK = 200;
 const int CODE_REDIRECTION = 300;
 const int CODE_NOT_FOUND = 404;
+final _random = new Random();
 
 class Repository extends StatefulWidget {
   Repository();
@@ -69,7 +72,7 @@ class _RepositoryState extends State<Repository>
     var currentLocation = await location.getLocation();
     latitude = currentLocation.latitude;
     longitude = currentLocation.longitude;
-      
+
     webAddress = "https://api.yelp.com/v3/businesses/search?latitude=" + latitude.toString() + "&longitude=" + longitude.toString(); //-118.112858";
 
     //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
@@ -102,7 +105,97 @@ class _RepositoryState extends State<Repository>
     //print("Businesses: " + businesses.toString());
 
     return businesses;
+
   }
+
+
+  Future<Restaurants> findRandomRestaurant() async {
+    String webAddress;
+    var latitude;
+    var longitude;
+    var currentLocation = await location.getLocation();
+    latitude = currentLocation.latitude;
+    longitude = currentLocation.longitude;
+
+    webAddress = "https://api.yelp.com/v3/businesses/search?latitude=" + latitude.toString() + "&longitude=" + longitude.toString(); //-118.112858";
+
+    //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
+    print("latitude = " + latitude.toString() + "; longitude = " +
+        longitude.toString());
+    http.Response response;
+    Map<String, dynamic> map;
+    response =
+    await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {});
+
+    //Map<String, dynamic> map;
+    // Error handling
+    //    response == null
+    //    ? response = await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {})
+    //    : map = json.decode(response.body);
+    if (response == null || response.statusCode < CODE_OK ||
+        response.statusCode >= CODE_REDIRECTION) {
+      return Future.error(response.body);
+    }
+
+    //    Map<String, dynamic> map = json.decode(response.body);
+    map = json.decode(response.body);
+    Iterable jsonList = map["businesses"];
+    List<Restaurants> businesses = jsonList.map((model) =>
+        Restaurants.fromJson(model)).toList();
+    print(jsonList.toString());
+    for (Restaurants restaurant in businesses) {
+      print("Restaurant: " + restaurant.name);
+    }
+    //print("Businesses: " + businesses.toString());
+
+    int min = 0;
+    int max = businesses.length;
+    int i = min + _random.nextInt(max - min);
+    return businesses[i];
+
+  }
+
+//  Future<Restaurants> getBusinesses() async {
+//    String webAddress;
+//    var latitude;
+//    var longitude;
+//    var currentLocation = await location.getLocation();
+//    latitude = currentLocation.latitude;
+//    longitude = currentLocation.longitude;
+//
+//    webAddress = "https://api.yelp.com/v3/businesses/search?latitude=" + latitude.toString() + "&longitude=" + longitude.toString(); //-118.112858";
+//
+//    //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
+//    print("latitude = " + latitude.toString() + "; longitude = " +
+//        longitude.toString());
+//    http.Response response;
+//    Map<String, dynamic> map;
+//    response =
+//    await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {});
+//
+//    //Map<String, dynamic> map;
+//    // Error handling
+//    //    response == null
+//    //    ? response = await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {})
+//    //    : map = json.decode(response.body);
+//    if (response == null || response.statusCode < CODE_OK ||
+//        response.statusCode >= CODE_REDIRECTION) {
+//      return Future.error(response.body);
+//    }
+//
+//    //    Map<String, dynamic> map = json.decode(response.body);
+//    map = json.decode(response.body);
+//    Iterable jsonList = map["businesses"];
+//    List<Restaurants> businesses = jsonList.map((model) =>
+//        Restaurants.fromJson(model)).toList();
+//    print(jsonList.toString());
+//    for (Restaurants restaurant in businesses) {
+//      print("Restaurant: " + restaurant.name);
+//    }
+//    //print("Businesses: " + businesses.toString());
+//
+//    return businesses[0];
+//  }
 
 
   static _RepositoryState get() {

@@ -9,6 +9,7 @@ import 'login_root.dart';
 import 'accounts.dart';
 import 'authentication.dart';
 import 'About.dart';
+import 'YelpSearch.dart';
 
 class Home extends StatefulWidget {
   @override

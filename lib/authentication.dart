@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+//import 'package:dbcrypt/dbcrypt.dart';
+// https://github.com/delay/flutter_firebase_auth_example/blob/master/lib/util/auth.dart
 abstract class BaseAuth {
   Future<String> signIn(String email, String password);
 
@@ -26,7 +28,48 @@ abstract class BaseAuth {
 class Auth implements BaseAuth {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
+
+//  static void addUserSettingsDB(User user) async {
+//    checkUserExist(user.userId).then((value) {
+//      if (!value) {
+//        print("user ${user.firstName} ${user.email} added");
+//        Firestore.instance
+//            .document("users/${user.userId}")
+//            .setData(user.toJson());
+//        _addSettings(new Settings(
+//          settingsId: user.userId,
+//        ));
+//      } else {
+//        print("user ${user.firstName} ${user.email} exists");
+//      }
+//    });
+//  }
+//
+//  static void _addSettings(Settings settings) async {
+//    Firestore.instance
+//        .document("settings/${settings.settingsId}")
+//        .setData(settings.toJson());
+//  }
+
+  static Future<bool> checkUserExist(String userId) async {
+    bool exists = false;
+    try {
+      await Firestore.instance.document("users/$userId").get().then((doc) {
+        if (doc.exists)
+          exists = true;
+        else
+          exists = false;
+      });
+      return exists;
+    } catch (e) {
+      return false;
+    }
+  }
+
+
   Future<String> signIn(String email, String password) async {
+    //password = new DBCrypt().hashpw(password, null);
+    print("Password = " + password);
     FirebaseUser user = (await FirebaseAuth.instance
         .signInWithEmailAndPassword(email: email, password: password)).user;
     return user.uid;

@@ -41,75 +41,76 @@ class MyApp extends StatelessWidget {
 
 final FirebaseAuth auth = FirebaseAuth.instance;
 
-class YelpSearch extends StatelessWidget {
-  final Repository repository;
-
-  YelpSearch({Key key, this.repository}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "Yelp Test",
-      home: Scaffold(
-        appBar: AppBar(title: Text("Yelp Test")),
-        body: Center(
-          child: FutureBuilder<List<Restaurants>>(
-            future: Repository().createState().getBusinesses(),//repository.getBusinesses(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ListView.builder(
-                        itemCount: snapshot.data.length,
-                        itemBuilder: (context, index) {
-                          return Center(
-                            child: Card(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  Padding(padding: const EdgeInsets.all(8.0)),
-                                  ListTile(
-                                    leading: Image.network(snapshot.data[index].imageUrl, width: 80, height: 80,),
-                                    title: Text('${snapshot.data[index].name}'),
-                                    subtitle: Text('${snapshot.data[index].distance.toStringAsFixed(2)} distance'),
-                                  ),
-                                  ButtonTheme.bar(
-                                    // make buttons use the appropriate styles for cards
-                                    child: ButtonBar(
-                                      children: <Widget>[
-                                        FlatButton(
-                                          child: const Text('WEBSITE'),
-                                          onPressed: () {
-                                            _launchURL(snapshot.data[index].url);
-                                          },
-                                        ),
-                                        FlatButton(
-                                          child: const Text('NAVIGATE'),
-                                          onPressed: () {
-                                            //todo: launch using google/apple maps
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }));
-              } else if (snapshot.hasError) {
-                return Padding(padding: const EdgeInsets.symmetric(horizontal: 15.0), child: Text("${snapshot.error}"));
-              }
-
-              // By default, show a loading spinner
-              return CircularProgressIndicator();
-            },
-          ),
-        ),
-      ),
-    );
-  }
-}
+//class YelpSearch extends StatelessWidget {
+//  final Repository repository;
+//
+//  YelpSearch({Key key, this.repository}) : super(key: key);
+//
+//  @override
+//  Widget build(BuildContext context) {
+//    return MaterialApp(
+//      title: "Yelp Test",
+//      home: Scaffold(
+//        appBar: AppBar(title: Text("Yelp Test")),
+//        body: Center(
+////          child: FutureBuilder<List<Restaurants>>(
+//          child: FutureBuilder<List<Restaurants>>(
+//            future: Repository().createState().getBusinesses(),//repository.getBusinesses(),
+//            builder: (context, snapshot) {
+//              if (snapshot.hasData) {
+//                return Padding(
+//                    padding: const EdgeInsets.all(8.0),
+//                    child: ListView.builder(
+//                        itemCount: snapshot.data.length,
+//                        itemBuilder: (context, index) {
+//                          return Center(
+//                            child: Card(
+//                              child: Column(
+//                                mainAxisSize: MainAxisSize.min,
+//                                children: <Widget>[
+//                                  Padding(padding: const EdgeInsets.all(8.0)),
+//                                  ListTile(
+//                                    leading: Image.network(snapshot.data[index].imageUrl, width: 80, height: 80,),
+//                                    title: Text('${snapshot.data[index].name}'),
+//                                    subtitle: Text('${snapshot.data[index].distance.toStringAsFixed(2)} distance'),
+//                                  ),
+//                                  ButtonTheme.bar(
+//                                    // make buttons use the appropriate styles for cards
+//                                    child: ButtonBar(
+//                                      children: <Widget>[
+//                                        FlatButton(
+//                                          child: const Text('WEBSITE'),
+//                                          onPressed: () {
+//                                            _launchURL(snapshot.data[index].url);
+//                                          },
+//                                        ),
+//                                        FlatButton(
+//                                          child: const Text('NAVIGATE'),
+//                                          onPressed: () {
+//                                            //todo: launch using google/apple maps
+//                                          },
+//                                        ),
+//                                      ],
+//                                    ),
+//                                  ),
+//                                ],
+//                              ),
+//                            ),
+//                          );
+//                        }));
+//              } else if (snapshot.hasError) {
+//                return Padding(padding: const EdgeInsets.symmetric(horizontal: 15.0), child: Text("${snapshot.error}"));
+//              }
+//
+//              // By default, show a loading spinner
+//              return CircularProgressIndicator();
+//            },
+//          ),
+//        ),
+//      ),
+//    );
+//  }
+//}
 
 
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
