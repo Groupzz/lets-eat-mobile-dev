@@ -117,7 +117,7 @@ class _RepositoryState extends State<Repository>
     latitude = currentLocation.latitude;
     longitude = currentLocation.longitude;
 
-    webAddress = "https://api.yelp.com/v3/businesses/search?latitude=" + latitude.toString() + "&longitude=" + longitude.toString(); //-118.112858";
+    webAddress = "https://api.yelp.com/v3/businesses/search?latitude=" + latitude.toString() + "&longitude=" + longitude.toString() + "&limit=50"; //-118.112858";
 
     //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
     print("latitude = " + latitude.toString() + "; longitude = " +

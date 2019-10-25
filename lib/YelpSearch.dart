@@ -39,7 +39,7 @@ class YelpSearch extends StatelessWidget {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 print("Selected Restaurant = " + snapshot.data.name);
-                print("It is located in " + snapshot.data.city + " at " + snapshot.data.address1 + " " + snapshot.data.address2 + " " + snapshot.data.address3);
+                print("It is located in " + snapshot.data.city + " at " + snapshot.data?.address1??"" + " " + snapshot.data?.address2??"" + " " + snapshot.data?.address3??"");
                 double miles = snapshot.data.distance * 0.000621371;
                 return Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -59,7 +59,7 @@ class YelpSearch extends StatelessWidget {
                                         text: TextSpan(
                                             style: Theme.of(context).textTheme.body1,
                                             children: [
-                                              TextSpan(text: '${snapshot.data.address1} ${snapshot.data.address2} ${snapshot.data.city}'
+                                              TextSpan(text: '${snapshot.data?.address1??""} ${snapshot.data?.address2??""} ${snapshot.data.city}'
                                         '\n${snapshot.data.price}        ${miles.toStringAsFixed(2)} mi.           ${snapshot.data.rating}'),
                                               WidgetSpan(
                                                 child: Padding(
