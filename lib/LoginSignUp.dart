@@ -105,7 +105,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
     _isIos = Theme.of(context).platform == TargetPlatform.iOS;
     return new Scaffold(
         appBar: new AppBar(
-          title: new Text('Flutter Firebase Authentication'),
+          title: new Text('Firebase Authentication'),
         ),
         body: Stack(
           children: <Widget>[

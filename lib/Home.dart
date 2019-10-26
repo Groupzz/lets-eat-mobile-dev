@@ -85,7 +85,7 @@ class _HomeState extends State<Home> {
               tooltip: 'Next page',
               onPressed: () {
                 //openPage(context);
-                Route route = MaterialPageRoute(builder: (context) => Map());
+                Route route = MaterialPageRoute(builder: (context) => MapView());
                 Navigator.push(context, route);
 //                Navigator.push(context, Maps());
                 //runApp(Server());
@@ -101,7 +101,7 @@ class _HomeState extends State<Home> {
             ),
             new Container(
               decoration: new BoxDecoration(
-                image: new DecorationImage(image: new AssetImage("assets/logo.gif"), fit: BoxFit.contain,),
+                image: new DecorationImage(image: new AssetImage("assets/mobileHome.JPG"), fit: BoxFit.fill,),
               ),
             ),
 //          new Center(

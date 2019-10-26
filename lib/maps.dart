@@ -3,15 +3,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'Restaurants.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 
-class Map extends StatefulWidget {
+class MapView extends StatefulWidget {
   @override
-  State<Map> createState() => MapState();
+  State<MapView> createState() => MapViewState();
 }
 
-class MapState extends State<Map> {
+class MapViewState extends State<MapView> {
   Completer<GoogleMapController> _controller = Completer();
+  static const String API_KEY = "p8eXXM3q_ks6WY_FWc2KhV-EmLhSpbJf0P-SATBhAIM4dNCgsp3sH8ogzJPezOT6LzFQlb_vcFfxziHbHuNt8RwxtWY0-vRpx7C0nPz5apIT4A5LYGmaVfuwPrf3WXYx";
+  static const Map<String, String> AUTH_HEADER = {"Authorization": "Bearer $API_KEY"};
   var currentLocation = LocationData;
   //Future<LocationData> currentLocation;
 
@@ -19,6 +24,10 @@ class MapState extends State<Map> {
   CameraPosition _currentPosition;
   var latitude;
   var longitude;
+  var CODE_OK = 200;
+  var CODE_REDIRECTION = 300;
+  var CODE_NOT_FOUND = 404;
+  Iterable markers = [];
 
 //  Future _getLocation() async {
 //    try {
@@ -53,6 +62,7 @@ class MapState extends State<Map> {
   @override
   void initState() {
     _getLocation();
+    getBusinesses();
 //    print('test');
 //    print('TestLatitude:$latitude');
 //    print('TestLongitude:$longitude');
@@ -62,6 +72,61 @@ class MapState extends State<Map> {
 //      zoom: 14.4746,
 //    );
     super.initState();
+  }
+
+  getBusinesses() async {
+    String webAddress;
+    var latitude;
+    var longitude;
+    var currentLocation = await location.getLocation();
+    latitude = currentLocation.latitude;
+    longitude = currentLocation.longitude;
+
+    webAddress = "https://api.yelp.com/v3/businesses/search?latitude=" +
+        latitude.toString() + "&longitude=" +
+        longitude.toString() + "&limit=50"; //-118.112858";
+
+    //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
+    print("latitude = " + latitude.toString() + "; longitude = " +
+        longitude.toString());
+    http.Response response;
+    Map<String, dynamic> map;
+    response =
+    await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {});
+
+    //Map<String, dynamic> map;
+    // Error handling
+    //    response == null
+    //    ? response = await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {})
+    //    : map = json.decode(response.body);
+    if (response == null || response.statusCode < CODE_OK ||
+        response.statusCode >= CODE_REDIRECTION) {
+      return Future.error(response.body);
+    }
+
+    //    Map<String, dynamic> map = json.decode(response.body);
+    map = json.decode(response.body);
+    List results = map["businesses"];
+    List<Restaurants> businesses = results.map((model) =>
+        Restaurants.fromJson(model)).toList();
+
+    Iterable _markers = Iterable.generate(50, (index) {
+      Map result = results[index];
+      LatLng latLngMarker = LatLng(businesses[index].latitude, businesses[index].longitude);
+
+      return Marker(
+          markerId: MarkerId("marker$index"),
+          position: latLngMarker,
+          infoWindow: InfoWindow(
+            title: businesses[index].name,
+          ),);
+    });
+
+    setState(() {
+      markers = _markers;
+    });
+
+
   }
 
 
@@ -92,6 +157,9 @@ class MapState extends State<Map> {
       body: latitude == null || longitude == null
           ? Container()
           : GoogleMap(
+        markers: Set.from(
+          markers,
+        ),
         mapType: MapType.hybrid,
         myLocationButtonEnabled: true,
         myLocationEnabled: true,

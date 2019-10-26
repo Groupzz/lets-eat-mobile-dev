@@ -41,6 +41,21 @@ class YelpSearch extends StatelessWidget {
                 print("Selected Restaurant = " + snapshot.data.name);
                 print("It is located in " + snapshot.data.city + " at " + snapshot.data?.address1??"" + " " + snapshot.data?.address2??"" + " " + snapshot.data?.address3??"");
                 double miles = snapshot.data.distance * 0.000621371;
+
+                Iterable markers = [];
+                Iterable _markers = Iterable.generate(1, (index) {
+                  LatLng markerLoc = LatLng(snapshot.data.latitude, snapshot.data.longitude);
+                  return Marker(
+                    markerId: MarkerId("marker$index"),
+                    position: markerLoc,
+                    infoWindow: InfoWindow(
+                      title: snapshot.data.name,
+                    ),
+                  );
+                });
+
+                markers = _markers;
+
                 return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ListView.builder(
@@ -92,15 +107,18 @@ class YelpSearch extends StatelessWidget {
                                     ),
                                   ),
                                   SizedBox(
-                                    width: 300.0,
+                                    width: 400.0,
                                     height: 400.0,
                                   child: GoogleMap(
+                                    markers: Set.from(markers, ),
+                                    zoomGesturesEnabled: true,
+                                    minMaxZoomPreference: MinMaxZoomPreference.unbounded,
                                     mapType: MapType.normal,
                                     myLocationButtonEnabled: true,
                                     myLocationEnabled: true,
                                     initialCameraPosition: CameraPosition(
                                       target: LatLng(snapshot.data.latitude, snapshot.data.longitude),
-                                      zoom: 14.0,
+                                      zoom: 12.3,
                                     ),
                                   )
                                   )
