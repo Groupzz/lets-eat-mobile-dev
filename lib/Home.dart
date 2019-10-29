@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lets_eat/UserYelpPreferences.dart';
 import 'package:lets_eat/search.dart';
+import 'package:lets_eat/signUpPage.dart';
 import 'userAuth.dart';
 import 'YelpRepository.dart';
 import 'main.dart';
@@ -13,6 +14,8 @@ import 'authentication.dart';
 import 'About.dart';
 import 'YelpSearch.dart';
 import 'UserYelpPreferences.dart';
+import 'LoginSignUp.dart';
+import 'signUpPage.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -39,7 +42,7 @@ class _HomeState extends State<Home> {
                 new ListTile(
                   title: new Text('Sign In / Sign Up'),
                   onTap: () {
-                    Route route = MaterialPageRoute(builder: (context) => LoginRootPage(auth: new Auth()));
+                    Route route = MaterialPageRoute(builder: (context) => SignupPage());
 //                    Route route = MaterialPageRoute(builder: (context) => UserAuth());
                     Navigator.push(context, route);
                     //signIn(context);
