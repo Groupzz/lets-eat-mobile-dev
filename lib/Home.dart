@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lets_eat/UserYelpPreferences.dart';
+import 'package:lets_eat/search.dart';
 import 'userAuth.dart';
 import 'YelpRepository.dart';
 import 'main.dart';
@@ -49,7 +50,8 @@ class _HomeState extends State<Home> {
                   title: new Text('Find me a restaurant'),
                   onTap: () {
                     //Repository repo = new Repository();
-                    Route route = MaterialPageRoute(builder: (context) => YelpSearch(repository: Repository()));
+                    //Route route = MaterialPageRoute(builder: (context) => YelpSearch(repository: Repository()));
+                    Route route = MaterialPageRoute(builder: (context) => tempSearch());
 //                    Route route = MaterialPageRoute(builder: (context) => Repository());
                     Navigator.push(context, route);
                   },
@@ -90,8 +92,8 @@ class _HomeState extends State<Home> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.navigate_next),
-              tooltip: 'Next page',
+              icon: const Icon(Icons.my_location),
+              tooltip: 'Nearby Restaurants',
               onPressed: () {
                 //openPage(context);
                 Route route = MaterialPageRoute(builder: (context) => MapView());
