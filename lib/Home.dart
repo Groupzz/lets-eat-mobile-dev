@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lets_eat/UserYelpPreferences.dart';
 import 'userAuth.dart';
 import 'YelpRepository.dart';
 import 'main.dart';
@@ -10,6 +11,7 @@ import 'accounts.dart';
 import 'authentication.dart';
 import 'About.dart';
 import 'YelpSearch.dart';
+import 'UserYelpPreferences.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -26,6 +28,13 @@ class _HomeState extends State<Home> {
             child: new ListView(
               children: <Widget> [
                 new DrawerHeader(child: new Text('Menu'),),
+                new ListTile(
+                  title: new Text('Choose My Preferences'),
+                  onTap: () {
+                    Route route = MaterialPageRoute(builder: (context) => UserYelpPreferences());
+                    Navigator.push(context, route);
+                  },
+                ),
                 new ListTile(
                   title: new Text('Sign In / Sign Up'),
                   onTap: () {
