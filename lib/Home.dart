@@ -42,8 +42,9 @@ class _HomeState extends State<Home> {
                 new ListTile(
                   title: new Text('Sign In / Sign Up'),
                   onTap: () {
-                    Route route = MaterialPageRoute(builder: (context) => SignupPage());
-//                    Route route = MaterialPageRoute(builder: (context) => UserAuth());
+                    //Route route = MaterialPageRoute(builder: (context) => SignupPage());
+                   // Route route = MaterialPageRoute(builder: (context) => UserAuth());
+                    Route route = MaterialPageRoute(builder: (context) => LoginRootPage(auth: new Auth()));
                     Navigator.push(context, route);
                     //signIn(context);
 //                    return UserAuth().createState().build(context);

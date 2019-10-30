@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'authentication.dart';
 import 'package:dbcrypt/dbcrypt.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginSignUpPage extends StatefulWidget {
   LoginSignUpPage({this.auth, this.onSignedIn});
@@ -51,6 +52,10 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
           print('Signed in: $userId');
         } else {
           userId = await widget.auth.signUp(_email, _password);
+          Firestore.instance.collection('users').add({ // Add user to firestore w/ generated userID
+            "email": _email,
+            "id": userId
+          });
           widget.auth.sendEmailVerification();
           _showVerifyEmailSentDialog();
           print('Signed up user: $userId');

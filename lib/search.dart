@@ -90,6 +90,7 @@ class tempSearchState extends State<tempSearch> {
           .of(context)
           .platform == TargetPlatform.iOS;
       return new Scaffold(
+          resizeToAvoidBottomPadding: false,
           appBar: new AppBar(
             title: new Text('Find a Restaurant'),
           ),
