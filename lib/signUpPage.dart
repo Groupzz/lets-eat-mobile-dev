@@ -100,7 +100,7 @@ class _SignupPageState extends State<SignupPage> {
       appBar: AppBar(
         title: Text("Sign Up"),
       ),
-      body: Stack(
+      body: ListView(
         children: <Widget>[
           _showFirstName(),
           _showLastName(),

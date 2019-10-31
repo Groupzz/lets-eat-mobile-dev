@@ -52,10 +52,25 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
           print('Signed in: $userId');
         } else {
           userId = await widget.auth.signUp(_email, _password);
-          Firestore.instance.collection('users').add({ // Add user to firestore w/ generated userID
-            "email": _email,
-            "id": userId
+//          Firestore.instance.collection('users').add({ // Add user to firestore w/ generated userID
+//            "email": _email,
+//            "id": userId
+//          });
+
+          // Create entry in Friends collection w/ newlly created ID
+          Firestore.instance.collection('friends').add({ // Add user to firestore w/ generated userID
+            "userID": userId,
+            "friends": [" "]
+          }).then((doc) {
+            print("Friend ID = " + doc.documentID);
+            // Add new user to Users collection & include Friends Document ID
+            Firestore.instance.collection('users').add({ // Add user to firestore w/ generated userID
+              "email": _email,
+              "id": userId,
+              "friendsDocID": doc.documentID  // Document ID for current user's Friends document
+            });
           });
+
           widget.auth.sendEmailVerification();
           _showVerifyEmailSentDialog();
           print('Signed up user: $userId');
