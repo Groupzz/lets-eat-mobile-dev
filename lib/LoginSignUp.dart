@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'authentication.dart';
 import 'package:dbcrypt/dbcrypt.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'signUpPage.dart';
 
 class LoginSignUpPage extends StatefulWidget {
   LoginSignUpPage({this.auth, this.onSignedIn});
@@ -49,7 +50,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
         if (_formMode == FormMode.LOGIN) {
           //_password = new DBCrypt().hashpw(_password, new DBCrypt().gensalt());
           userId = await widget.auth.signIn(_email, _password);
-          print('Signed in: $userId');
+          print('Signed In: $userId');
         } else {
           userId = await widget.auth.signUp(_email, _password);
 //          Firestore.instance.collection('users').add({ // Add user to firestore w/ generated userID
@@ -60,7 +61,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
           // Create entry in Friends collection w/ newlly created ID
           Firestore.instance.collection('friends').add({ // Add user to firestore w/ generated userID
             "userID": userId,
-            "friends": [" "]
+            "friends": [],
           }).then((doc) {
             print("Friend ID = " + doc.documentID);
             // Add new user to Users collection & include Friends Document ID
@@ -74,6 +75,8 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
           widget.auth.sendEmailVerification();
           _showVerifyEmailSentDialog();
           print('Signed up user: $userId');
+          Route route = MaterialPageRoute(builder: (context) => SignupPage());
+          Navigator.push(context, route);
         }
         setState(() {
           _isLoading = false;
