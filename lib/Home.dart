@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:lets_eat/Friends.dart';
+import 'package:lets_eat/FriendsPage.dart';
 import 'package:lets_eat/UserYelpPreferences.dart';
 import 'package:lets_eat/search.dart';
 import 'package:lets_eat/signUpPage.dart';
