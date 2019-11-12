@@ -35,6 +35,30 @@ class _FriendsPageState extends State<FriendsPage> {
     super.initState();
   }
 
+  Future<void> addAndConfirmFriend(QuerySnapshot data) async {
+    Firestore.instance.collection("friends").document(data.documents[0]['friendsDocID'])
+        .updateData({'friends':FieldValue.arrayUnion([controller.text])});
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Friend Added!"),
+          content: new Text("${controller.text} has been added as a friend"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Dismiss"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void addFriend() async  // Adds friend to friends db via username
   {
     bool success = true;
@@ -52,8 +76,10 @@ class _FriendsPageState extends State<FriendsPage> {
                   'id', isEqualTo: uid // Get current user id
               ).snapshots().listen(
                 // Update Friends collection that contains current user ID
-                      (data)=> Firestore.instance.collection("friends").document(data.documents[0]['friendsDocID'])
-                          .updateData({'friends':FieldValue.arrayUnion([controller.text])})
+                      (data)=>
+                          addAndConfirmFriend(data)
+//                          Firestore.instance.collection("friends").document(data.documents[0]['friendsDocID'])
+//                          .updateData({'friends':FieldValue.arrayUnion([controller.text])})
               )
               // If not, show error message
               : showDialog(
@@ -253,7 +279,7 @@ class _FriendsPageState extends State<FriendsPage> {
   Widget _showPrimaryButton() {
     //getCurrentUserInfo();
     return new Padding(
-        padding: EdgeInsets.fromLTRB(300.0, 70.0, 0.0, 0.0),
+        padding: EdgeInsets.fromLTRB(280.0, 70.0, 0.0, 0.0),
         child: SizedBox(
           height: 40.0,
           child: new RaisedButton(

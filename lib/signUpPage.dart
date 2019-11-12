@@ -97,6 +97,7 @@ class _SignupPageState extends State<SignupPage> {
               child: new Text("Dismiss"),
               onPressed: () {
                 Navigator.of(context).pop();
+                Navigator.of(context).pop();
               },
             ),
           ],
