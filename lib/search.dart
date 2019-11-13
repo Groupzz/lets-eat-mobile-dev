@@ -118,10 +118,10 @@ class tempSearchState extends State<tempSearch> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(270.0, 240.0, 0.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(270.0, 250.0, 0.0, 0.0),
                 child: Text(
                   'Price Preferences',
-                  textScaleFactor: 1.6,
+                  textScaleFactor: 1.3,
                   textAlign: TextAlign.left,
                 ),
               ),

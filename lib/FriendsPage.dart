@@ -209,7 +209,7 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 
-  Future<Friends> getFriends() {  // Get friends list for current user
+  Future<Friends> getFriends() async{  // Get friends list for current user
     getCurrentUserInfo();
 //    final FirebaseUser user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
 //    final uid = user.uid;
@@ -234,6 +234,7 @@ class _FriendsPageState extends State<FriendsPage> {
 //
 
 //    print("FID = " + fid);
+    await Future.delayed(const Duration(milliseconds: 700), (){});  // Wait for promise to return friendsID
     return Firestore.instance.collection("friends").document(friendsID).get() // Get friends document for current user
         .then((snapshot) {
       try {
@@ -279,7 +280,7 @@ class _FriendsPageState extends State<FriendsPage> {
   Widget _showPrimaryButton() {
     //getCurrentUserInfo();
     return new Padding(
-        padding: EdgeInsets.fromLTRB(280.0, 70.0, 0.0, 0.0),
+        padding: EdgeInsets.fromLTRB(270.0, 70.0, 10.0, 0.0),
         child: SizedBox(
           height: 40.0,
           child: new RaisedButton(
