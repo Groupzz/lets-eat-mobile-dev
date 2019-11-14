@@ -33,6 +33,7 @@ class _SignupPageState extends State<SignupPage> {
   final zipController = TextEditingController();
   final phoneController = TextEditingController();
   FirebaseUser user;
+  QuerySnapshot userData;
 
 
   @override
@@ -56,8 +57,9 @@ class _SignupPageState extends State<SignupPage> {
         'id', isEqualTo: _userId // Get current user id
     ).snapshots().listen(
       // Update Friends collection that contains current user ID
-            (data) =>
-        userDocID = data.documents[0].documentID);
+            (data) => userData = data);
+        //userDocID = data.documents[0].documentID);
+    userDocID = userData.documents[0].documentID;
 
   }
 

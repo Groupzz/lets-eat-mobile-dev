@@ -5,6 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
+import 'signUpPage.dart';
 
 class Accounts extends StatefulWidget {
   Accounts({Key key, this.auth, this.userId, this.username, this.onSignedOut})
@@ -34,23 +35,23 @@ class _AccountsState extends State<Accounts> {
 //  Future<FirebaseUser> user = FirebaseAuth.instance.currentUser();
 //  FirebaseUser c =
 
-  void getCurrentUserInfo() async{
-    user = await FirebaseAuth.instance.currentUser();
-    await Future.delayed(const Duration(milliseconds: 700), (){});
-    //user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
-
-
-    print("UID = " + widget.userId);
-
-    Firestore.instance.collection('users').where(
-        'id', isEqualTo: uid // Get current user id
-    ).snapshots().listen(
-      // Update Friends collection that contains current user ID
-            (data) =>
-        username = data.documents[0]['username']);
-    await Future.delayed(const Duration(milliseconds: 700), (){});
-    print("username = " + username);
-  }
+//  void getCurrentUserInfo() async{
+//    user = await FirebaseAuth.instance.currentUser();
+//    await Future.delayed(const Duration(milliseconds: 700), (){});
+//    //user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
+//
+//
+//    print("UID = " + widget.userId);
+//
+//    Firestore.instance.collection('users').where(
+//        'id', isEqualTo: uid // Get current user id
+//    ).snapshots().listen(
+//      // Update Friends collection that contains current user ID
+//            (data) =>
+//        username = data.documents[0]['username']);
+//    await Future.delayed(const Duration(milliseconds: 700), (){});
+//    print("username = " + username);
+//  }
 
   String _email = "";
   String _password = "";
@@ -101,7 +102,7 @@ class _AccountsState extends State<Accounts> {
 
   @override
   void initState() {
-    getCurrentUserInfo();
+    //getCurrentUserInfo();
     super.initState();
     //print("usernameefw =" + widget.username);
     //getCurrentUserInfo();
@@ -196,6 +197,7 @@ class _AccountsState extends State<Accounts> {
       child: new ListView(
         children: <Widget>[
           _showChangeEmailContainer(),
+          _changeUserInfoContainer(),
           new SizedBox(
             height: 40.0,
           ),
@@ -215,12 +217,13 @@ class _AccountsState extends State<Accounts> {
 
   @override
   Widget build(BuildContext context){
-    getCurrentUserInfo();
+    //getCurrentUserInfo();
 
     print("userid = " + widget.userId);
     return new Scaffold(
       appBar: new AppBar(
         title: new Text('Hello, ' + widget.username),
+//        title: new Text('Hello, '),
         actions: <Widget>[
           new FlatButton(
               child: new Text('Logout',
@@ -416,6 +419,25 @@ class _AccountsState extends State<Accounts> {
         "Delete My Account",
         textAlign: TextAlign.center,
       ),
+    );
+  }
+
+  _changeUserInfoContainer() {
+    return new MaterialButton(
+      shape:
+        RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+      onPressed: (){
+        Route route = MaterialPageRoute(builder: (context) => SignupPage());
+        Navigator.push(context, route);
+      },
+      minWidth: MediaQuery.of(context).size.width,
+    padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+    color: Colors.blue,
+    textColor: Colors.white,
+    child: Text(
+    "Change User Info",
+    textAlign: TextAlign.center,
+    ),
     );
   }
 }
