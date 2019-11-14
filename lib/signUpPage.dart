@@ -32,6 +32,7 @@ class _SignupPageState extends State<SignupPage> {
   final cityController = TextEditingController();
   final zipController = TextEditingController();
   final phoneController = TextEditingController();
+  FirebaseUser user;
 
 
   @override
@@ -49,7 +50,7 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   void _getCurrentUser() async {
-    final FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    user = await FirebaseAuth.instance.currentUser();
     _userId = user.uid;
     Firestore.instance.collection('users').where(
         'id', isEqualTo: _userId // Get current user id
@@ -60,7 +61,7 @@ class _SignupPageState extends State<SignupPage> {
 
   }
 
-  void _updateData() {
+  void _updateData() async{
 //    Firestore.instance.collection('users').where(
 //        'id', isEqualTo: _userId // Get current user id
 //    ).snapshots().listen(
@@ -81,6 +82,9 @@ class _SignupPageState extends State<SignupPage> {
       "zip" : zipController.text,
     }
     );
+    UserUpdateInfo updateInfo = UserUpdateInfo();
+    updateInfo.displayName = uNameController.text;
+    user.updateProfile(updateInfo);
 
     _showSuccess();
 }

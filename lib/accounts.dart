@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'authentication.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 
 class Accounts extends StatefulWidget {
-  Accounts({Key key, this.auth, this.userId, this.onSignedOut})
+  Accounts({Key key, this.auth, this.userId, this.username, this.onSignedOut})
       : super(key: key);
 
   final BaseAuth auth;
   final VoidCallback onSignedOut;
   final String userId;
+  final String username;
 
   @override
   State<StatefulWidget> createState() => new _AccountsState();
@@ -20,11 +24,33 @@ class _AccountsState extends State<Accounts> {
   final FirebaseDatabase _database = FirebaseDatabase.instance;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   DatabaseReference itemRef;
-
   final TextEditingController _emailFilter = new TextEditingController();
   final TextEditingController _passwordFilter = new TextEditingController();
   final TextEditingController _resetPasswordEmailFilter =
   new TextEditingController();
+  FirebaseUser user;
+  String uid;
+  String username;
+//  Future<FirebaseUser> user = FirebaseAuth.instance.currentUser();
+//  FirebaseUser c =
+
+  void getCurrentUserInfo() async{
+    user = await FirebaseAuth.instance.currentUser();
+    await Future.delayed(const Duration(milliseconds: 700), (){});
+    //user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
+
+
+    print("UID = " + widget.userId);
+
+    Firestore.instance.collection('users').where(
+        'id', isEqualTo: uid // Get current user id
+    ).snapshots().listen(
+      // Update Friends collection that contains current user ID
+            (data) =>
+        username = data.documents[0]['username']);
+    await Future.delayed(const Duration(milliseconds: 700), (){});
+    print("username = " + username);
+  }
 
   String _email = "";
   String _password = "";
@@ -69,13 +95,16 @@ class _AccountsState extends State<Accounts> {
   StreamSubscription<Event> _onTodoAddedSubscription;
   StreamSubscription<Event> _onTodoChangedSubscription;
 
-  Query _todoQuery;
+  //Query _todoQuery;
 
   bool _isEmailVerified = false;
 
   @override
   void initState() {
+    getCurrentUserInfo();
     super.initState();
+    //print("usernameefw =" + widget.username);
+    //getCurrentUserInfo();
     itemRef = _database.reference().child('users');
     _checkEmailVerification();
   }
@@ -185,10 +214,13 @@ class _AccountsState extends State<Accounts> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
+    getCurrentUserInfo();
+
+    print("userid = " + widget.userId);
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text('Flutter login demo'),
+        title: new Text('Hello, ' + widget.username),
         actions: <Widget>[
           new FlatButton(
               child: new Text('Logout',
@@ -219,10 +251,10 @@ class _AccountsState extends State<Accounts> {
 
   _showChangeEmailContainer() {
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: new BorderRadius.circular(30.0),
-        color: Colors.amberAccent,
-      ),
+//      decoration: BoxDecoration(
+//        borderRadius: new BorderRadius.circular(30.0),
+//        color: Colors.amberAccent,
+//      ),
       padding: EdgeInsets.fromLTRB(10, 20, 10, 20),
       child: Column(
         children: <Widget>[
@@ -300,10 +332,10 @@ class _AccountsState extends State<Accounts> {
 
   _showChangePasswordContainer() {
     return Container(
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30.0),
-          color: Colors.brown
-      ),
+//      decoration: BoxDecoration(
+//          borderRadius: BorderRadius.circular(30.0),
+//          color: Colors.brown
+//      ),
       padding: EdgeInsets.fromLTRB(10, 20, 10, 20),
       child: Column(
         children: <Widget>[
@@ -381,7 +413,7 @@ class _AccountsState extends State<Accounts> {
       color: Colors.red,
       textColor: Colors.white,
       child: Text(
-        "Remove User",
+        "Delete My Account",
         textAlign: TextAlign.center,
       ),
     );

@@ -211,6 +211,7 @@ class _FriendsPageState extends State<FriendsPage> {
 
   Future<Friends> getFriends() async{  // Get friends list for current user
     getCurrentUserInfo();
+
 //    final FirebaseUser user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
 //    final uid = user.uid;
 //    String friendsID;

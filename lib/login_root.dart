@@ -26,6 +26,7 @@ enum AuthStatus {
 class _LoginRootPageState extends State<LoginRootPage> {
   AuthStatus authStatus = AuthStatus.NOT_DETERMINED;
   String _userId = "";
+  String _username = "";
 
   @override
   void initState() {
@@ -34,6 +35,7 @@ class _LoginRootPageState extends State<LoginRootPage> {
       setState(() {
         if (user != null) {
           _userId = user?.uid;
+          _username = user?.displayName;
         }
         authStatus =
         user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
@@ -45,6 +47,7 @@ class _LoginRootPageState extends State<LoginRootPage> {
     widget.auth.getCurrentUser().then((user){
       setState(() {
         _userId = user.uid.toString();
+        _username = user.displayName;
       });
     });
     setState(() {
@@ -85,6 +88,7 @@ class _LoginRootPageState extends State<LoginRootPage> {
         if (_userId.length > 0 && _userId != null) {
           return new Accounts(
             userId: _userId,
+            username: _username,
             auth: widget.auth,
             onSignedOut: _onSignedOut,
           );
