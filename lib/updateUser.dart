@@ -85,9 +85,6 @@ class _UpdatePageState extends State<UpdatePage> {
       "zip" : zipController.text.isEmpty? userData.documents[0]["zip"].toString() : zipController.text,
     }
     );
-    UserUpdateInfo updateInfo = UserUpdateInfo();
-    updateInfo.displayName = uNameController.text;
-    user.updateProfile(updateInfo);
 
     _showSuccess();
   }
