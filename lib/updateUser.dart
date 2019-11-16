@@ -79,7 +79,6 @@ class _UpdatePageState extends State<UpdatePage> {
     Firestore.instance.collection('users').document(userDocID).updateData({
       "firstname": fNameController.text.isEmpty? userData.documents[0]["firstname"].toString(): fNameController.text,
       "lastname": lNameController.text.isEmpty? userData.documents[0]["lastname"].toString() : lNameController.text,
-      "username": uNameController.text.isEmpty? userData.documents[0]["username"] : uNameController.text,
       "phone": phoneController.text.isEmpty? userData.documents[0]["phone"].toString() : phoneController.text,
       "dateofbirth": dobController.text.isEmpty? userData.documents[0]["dateofbirth"].toString() : dobController.text,
       "city": cityController.text.isEmpty? userData.documents[0]["city"].toString() : cityController.text,
