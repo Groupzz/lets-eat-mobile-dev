@@ -12,13 +12,13 @@ enum AuthStatus {
   LOGGED_IN,
 }
 
-class SignupPage extends StatefulWidget {
+class UpdatePage extends StatefulWidget {
 
   @override
-  _SignupPageState createState() => _SignupPageState();
+  _UpdatePageState createState() => _UpdatePageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _UpdatePageState extends State<UpdatePage> {
   String _fname;
   String _lname;
   String userDocID;
@@ -59,7 +59,8 @@ class _SignupPageState extends State<SignupPage> {
     ).snapshots().listen(
       // Update Friends collection that contains current user ID
             (data) => userData = data);
-        //userDocID = data.documents[0].documentID);
+    //userDocID = data.documents[0].documentID);
+    await Future.delayed(const Duration(milliseconds: 700), (){});
     userDocID = userData.documents[0].documentID;
 
   }
@@ -90,15 +91,15 @@ class _SignupPageState extends State<SignupPage> {
     user.updateProfile(updateInfo);
 
     _showSuccess();
-}
+  }
   void _showSuccess() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
-          title: new Text("Your Account Has Been Created!"),
-          content: new Text("Link to verify account has been sent to your email"),
+          title: new Text("Your Account Has Been Updated!"),
+          //content: new Text("Link to verify account has been sent to your email"),
           actions: <Widget>[
             new FlatButton(
               child: new Text("Dismiss"),
@@ -144,38 +145,38 @@ class _SignupPageState extends State<SignupPage> {
         keyboardType: TextInputType.text,
         autofocus: false,
         decoration: new InputDecoration(
-            hintText: 'Last Name',
+          hintText: 'Last Name',
 //            icon: new Icon(
 //              Icons.,
 //              color: Colors.grey,
 //            )
-            ),
+        ),
         validator: (value) => value.isEmpty ? 'Last Name can\'t be empty' : null,
         onSaved: (value) => _fname = value.trim(),
       ),
     );
   }
 
-  Widget _showUserName(){
-    return Padding(
-      padding: EdgeInsets.fromLTRB(5.0, 15.0, 0.0, 0.0),
-      child: new TextFormField(
-        controller: uNameController,
-        maxLines: 1,
-        keyboardType: TextInputType.text,
-        autofocus: false,
-        decoration: new InputDecoration(
-            hintText: 'Username',
-            //prefixText: userData.documents[0]["username"],
-            icon: new Icon(
-              Icons.perm_identity,
-              color: Colors.grey,
-            )),
-        validator: (value) => value.isEmpty ? 'Uame can\'t be empty' : null,
-        onSaved: (value) => _fname = value.trim(),
-      ),
-    );
-  }
+//  Widget _showUserName(){
+//    return Padding(
+//      padding: EdgeInsets.fromLTRB(5.0, 15.0, 0.0, 0.0),
+//      child: new TextFormField(
+//        controller: uNameController,
+//        maxLines: 1,
+//        keyboardType: TextInputType.text,
+//        autofocus: false,
+//        decoration: new InputDecoration(
+//            hintText: 'Username',
+//            //prefixText: userData.documents[0]["username"],
+//            icon: new Icon(
+//              Icons.perm_identity,
+//              color: Colors.grey,
+//            )),
+//        validator: (value) => value.isEmpty ? 'Uame can\'t be empty' : null,
+//        onSaved: (value) => _fname = value.trim(),
+//      ),
+//    );
+//  }
 
   Widget _showDOB(){
     return Padding(
@@ -186,7 +187,7 @@ class _SignupPageState extends State<SignupPage> {
         keyboardType: TextInputType.datetime,
         autofocus: false,
         decoration: new InputDecoration(
-          hintText: 'Birthday',
+            hintText: 'Birthday',
             icon: new Icon(
               Icons.calendar_today,
               color: Colors.grey,
@@ -270,7 +271,7 @@ class _SignupPageState extends State<SignupPage> {
             elevation: 5.0,
             shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
             color: Colors.blue,
-            child: new Text('Register',
+            child: new Text('Update Account',
                 style: new TextStyle(fontSize: 20.0, color: Colors.white)),
             onPressed: _updateData,
           ),
@@ -282,23 +283,23 @@ class _SignupPageState extends State<SignupPage> {
     _getCurrentUser();
     // TODO: implement build
     return new Scaffold(
-      resizeToAvoidBottomPadding: false,
-      appBar: AppBar(
-        title: Text("Sign Up"),
-      ),
-      body: ListView(
-        children: <Widget>[
-          _showFirstName(),
-          _showLastName(),
-          _showUserName(),
-          _showPhone(),
-          _showDOB(),
-          _showCity(),
-          _showZIP(),
-          _showPrimaryButton(),
-          //_showCircularProgress(),
-        ],
-      )
+        resizeToAvoidBottomPadding: false,
+        appBar: AppBar(
+          title: Text("Update Account"),
+        ),
+        body: ListView(
+          children: <Widget>[
+            _showFirstName(),
+            _showLastName(),
+//          _showUserName(),
+            _showPhone(),
+            _showDOB(),
+            _showCity(),
+            _showZIP(),
+            _showPrimaryButton(),
+            //_showCircularProgress(),
+          ],
+        )
     );
   }
 //  @override
@@ -446,5 +447,5 @@ class _SignupPageState extends State<SignupPage> {
 //              )),
 //        ])
 //    );
- // }
+// }
 }

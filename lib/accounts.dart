@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:lets_eat/updateUser.dart';
 import 'authentication.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
+import 'updateUName.dart';
 import 'signUpPage.dart';
 
 class Accounts extends StatefulWidget {
@@ -26,12 +28,12 @@ class _AccountsState extends State<Accounts> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   DatabaseReference itemRef;
   final TextEditingController _emailFilter = new TextEditingController();
-  final TextEditingController _passwordFilter = new TextEditingController();
+  final TextEditingController _usernameFilter = new TextEditingController();
   final TextEditingController _resetPasswordEmailFilter =
   new TextEditingController();
   FirebaseUser user;
   String uid;
-  String username;
+  //String username;
 //  Future<FirebaseUser> user = FirebaseAuth.instance.currentUser();
 //  FirebaseUser c =
 
@@ -54,8 +56,9 @@ class _AccountsState extends State<Accounts> {
 //  }
 
   String _email = "";
-  String _password = "";
+  String _username = "";
   String _resetPasswordEmail = "";
+  String _userId;
 
   String _errorMessage;
   bool _isIos;
@@ -63,7 +66,7 @@ class _AccountsState extends State<Accounts> {
 
   _AccountsState() {
     _emailFilter.addListener(_emailListen);
-    _passwordFilter.addListener(_passwordListen);
+    //_usernameFilter.addListener(_usernameListen);
     _resetPasswordEmailFilter.addListener(_resetPasswordEmailListen);
   }
 
@@ -83,13 +86,13 @@ class _AccountsState extends State<Accounts> {
     }
   }
 
-  void _passwordListen() {
-    if (_passwordFilter.text.isEmpty) {
-      _password = "";
-    } else {
-      _password = _passwordFilter.text;
-    }
-  }
+//  void _usernameListen() {
+//    if (_usernameFilter.text.isEmpty) {
+//      _username = "";
+//    } else {
+//      _username = _usernameFilter.text;
+//    }
+//  }
 
   final _textEditingController = TextEditingController();
 
@@ -111,6 +114,7 @@ class _AccountsState extends State<Accounts> {
   }
 
   void _checkEmailVerification() async {
+    user = await FirebaseAuth.instance.currentUser();
     _isEmailVerified = await widget.auth.isEmailVerified();
     if (!_isEmailVerified) {
       _showVerifyEmailDialog();
@@ -201,7 +205,7 @@ class _AccountsState extends State<Accounts> {
           new SizedBox(
             height: 40.0,
           ),
-          _showChangePasswordContainer(),
+          _showChangeUsernameContainer(),
           new SizedBox(
             height: 40.0,
           ),
@@ -311,13 +315,21 @@ class _AccountsState extends State<Accounts> {
     }
   }
 
-  void _changePassword() {
-    if (_password != null && _password.isNotEmpty) {
-      print("============>" + _password);
-      widget.auth.changePassword(_password);
-    } else {
-      print("password feild empty");
-    }
+  void _changeUsername() async{
+    String userDoc;
+    Firestore.instance.collection('users').where(
+        'id', isEqualTo: widget.userId // Get current user id
+    ).snapshots().listen(
+      // Update Friends collection that contains current user ID
+            (data) => userDoc = data.documents[0].documentID
+    );
+
+    Firestore.instance.collection("users").document(userDoc)
+        .updateData({'username': _usernameFilter.text});
+    UserUpdateInfo updateInfo = UserUpdateInfo();
+    updateInfo.displayName = _usernameFilter.text;
+    user.updateProfile(updateInfo);
+
   }
 
   void _removeUser() {
@@ -333,7 +345,7 @@ class _AccountsState extends State<Accounts> {
     }
   }
 
-  _showChangePasswordContainer() {
+  _showChangeUsernameContainer() {
     return Container(
 //      decoration: BoxDecoration(
 //          borderRadius: BorderRadius.circular(30.0),
@@ -342,27 +354,28 @@ class _AccountsState extends State<Accounts> {
       padding: EdgeInsets.fromLTRB(10, 20, 10, 20),
       child: Column(
         children: <Widget>[
-          new TextFormField(
-            controller: _passwordFilter,
-            decoration: new InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-              hintText: "Enter New Password",
-              border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(22.0)),
-            ),
-          ),
+//          new TextFormField(
+//            controller: _usernameFilter,
+//            decoration: new InputDecoration(
+//              contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+//              hintText: "Enter New Username",
+//              border:
+//              OutlineInputBorder(borderRadius: BorderRadius.circular(22.0)),
+//            ),
+//          ),
           new MaterialButton(
             shape: RoundedRectangleBorder(
                 borderRadius: new BorderRadius.circular(30.0)),
             onPressed: () {
-              _changePassword();
+              Route route = MaterialPageRoute(builder: (context) => UpdateUNamePage());
+              Navigator.push(context, route);
             },
             minWidth: MediaQuery.of(context).size.width,
             padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
             color: Colors.blueAccent,
             textColor: Colors.white,
             child: Text(
-              "Change Password",
+              "Change Username",
               textAlign: TextAlign.center,
             ),
           ),
@@ -427,7 +440,7 @@ class _AccountsState extends State<Accounts> {
       shape:
         RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
       onPressed: (){
-        Route route = MaterialPageRoute(builder: (context) => SignupPage());
+        Route route = MaterialPageRoute(builder: (context) => UpdatePage());
         Navigator.push(context, route);
       },
       minWidth: MediaQuery.of(context).size.width,
