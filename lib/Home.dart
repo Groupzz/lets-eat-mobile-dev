@@ -56,7 +56,7 @@ class _HomeState extends State<Home> {
                   onTap: () {
                     //Repository repo = new Repository();
                     //Route route = MaterialPageRoute(builder: (context) => YelpSearch(repository: Repository()));
-                    Route route = MaterialPageRoute(builder: (context) => tempSearch());
+                    Route route = MaterialPageRoute(builder: (context) => searchPage());
 //                    Route route = MaterialPageRoute(builder: (context) => Repository());
                     Navigator.push(context, route);
                   },

@@ -3,15 +3,15 @@ import 'YelpSearch.dart';
 import 'YelpRepository.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
 
-class tempSearch extends StatefulWidget
+class searchPage extends StatefulWidget
 {
   @override
-  tempSearchState createState() {
-    return tempSearchState();
+  searchPageState createState() {
+    return searchPageState();
   }
 }
 
-class tempSearchState extends State<tempSearch> {
+class searchPageState extends State<searchPage> {
   // Create a global key that uniquely identifies the Form widget
   // and allows validation of the form.
   //
@@ -22,29 +22,47 @@ class tempSearchState extends State<tempSearch> {
   String _query;
   bool _isIos;
   var cuisineListEthnic = ["American","Mexican","Japanese","Korean","Chinese","Indian","Thai","Mediterranean","Italian","French"];
+  var dietaryRestrictions = ["Vegetarian","Vegan","Halal","Pescetarian"];
   var pricepointList = [1,2,3,4];
 
   List<String> userCuisinePref = [];
-
-  bool American = false;
-  bool Mexican = false;
-  bool Japanese = false;
-  bool Korean = false;
-  bool Chinese = false;
-  bool Indian = false;
-  bool Thai = false;
-  bool Mediterranean = false;
-  bool Italian = false;
-  bool French = false;
-
-  bool price1 = false;
-  bool price2 = false;
-  bool price3 = false;
-  bool price4 = false;
+  List<String> userPricePref = [];
+  List<String> userDietPref = [];
 
   void updatePref(){
-    print(userCuisinePref);
-    //pass string list to yelp repo
+    String webAddress;
+
+    //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=" + latitude.toString() + "&longitude=" + longitude.toString(); //-118.112858";
+
+    //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
+
+  }
+
+  void parsePrice(){ //Converts dollar signs to string ints
+    List<String> userPricePrefTemp = new List(userPricePref.length);
+    if(userPricePref.isNotEmpty == true) {
+      for (var i = 0; i < userPricePref.length; i++) {
+        switch(userPricePref[i].length){
+          case 1: {
+            userPricePrefTemp[i] = "1";
+          }
+          break;
+          case 2: {
+            userPricePrefTemp[i] = "2";
+          }
+          break;
+          case 3: {
+            userPricePrefTemp[i] = "3";
+          }
+          break;
+          case 4: {
+            userPricePrefTemp[i] = "4";
+          }
+          break;
+        }
+      }
+    }
+    userPricePref = userPricePrefTemp;
   }
 
   Widget _showSearchInput() {
@@ -94,7 +112,8 @@ class tempSearchState extends State<tempSearch> {
           appBar: new AppBar(
             title: new Text('Find a Restaurant'),
           ),
-          body: Stack(
+          body: SingleChildScrollView(
+            child: Stack(
             children: <Widget>[
               _showSearchInput(),
 //              Divider(
@@ -121,8 +140,8 @@ class tempSearchState extends State<tempSearch> {
                 padding: const EdgeInsets.fromLTRB(270.0, 250.0, 0.0, 0.0),
                 child: Text(
                   'Price Preferences',
-                  textScaleFactor: 1.3,
-                  textAlign: TextAlign.left,
+                  textScaleFactor: 1.6,
+                  textAlign: TextAlign.center,
                 ),
               ),
               Padding(
@@ -204,6 +223,8 @@ class tempSearchState extends State<tempSearch> {
                 ),
               ),
             ],
-          ));
+          )
+          )
+      );
     }
 }

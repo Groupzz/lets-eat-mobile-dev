@@ -1,118 +1,217 @@
 
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'authentication.dart';
 import 'YelpRepository.dart';
 
-class UserInput {
-
-}
-
 var cuisineListEthnic = ["American","Mexican","Japanese","Korean","Chinese","Indian","Thai","Mediterranean","Italian","French"];
+var dietaryRestrictions = ["Vegetarian","Vegan","Halal","Pescetarian"];
 var pricepointList = [1,2,3,4];
 
 List<String> userCuisinePref = [];
+List<String> userDietPref = [];
+List<String> userPricePref = [];
 
-bool American = false;
-bool Mexican = false;
-bool Japanese = false;
-bool Korean = false;
-bool Chinese = false;
-bool Indian = false;
-bool Thai = false;
-bool Mediterranean = false;
-bool Italian = false;
-bool French = false;
-
-bool price1 = false;
-bool price2 = false;
-bool price3 = false;
-bool price4 = false;
+String cuisineURL;
+String dietURL;
+String priceURL;
 
 class UserYelpPreferences extends StatelessWidget{
 
-  void updatePref(){
-    print(userCuisinePref);
-    //pass string list to yelp repo
+  void getCurrentPrefandUpdate() async{
+    final FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    final String uid = user.uid;
+
+    cuisineURL = parseCuisine();
+
+    try {
+      Firestore.instance
+          .collection('users')
+          .where('id', isEqualTo: uid)
+          .snapshots()
+          .listen((data) => updatePref(data))
+          ;
+    }catch(e){
+      print("Could not find user");
+    }
+
+
+//      document.reference.updateData({
+//        'userCuisinePref': document['userCuisinePref'] + userCuisinePref,
+//      });
+
+    //pass string to firebase
+  }
+  
+  Future<void> updatePref(QuerySnapshot snap)async{
+    Firestore.instance
+        .collection('users')
+        .document(snap.documents[0]['userCuisinePref'])
+        .updateData({'userCuisinePref':cuisineURL});
+  }
+  
+  String parsePrice(){ //Converts dollar signs to string ints and return URL ready string
+    List<String> userPricePrefTemp = new List(userPricePref.length);
+    if(userPricePref.isNotEmpty == true) {
+      for (var i = 0; i < userPricePref.length; i++) {
+        switch(userPricePref[i].length){
+          case 1: {
+            userPricePrefTemp[i] = "1";
+          }
+          break;
+          case 2: {
+            userPricePrefTemp[i] = "2";
+          }
+          break;
+          case 3: {
+            userPricePrefTemp[i] = "3";
+          }
+          break;
+          case 4: {
+            userPricePrefTemp[i] = "4";
+          }
+          break;
+        }
+      }
+    }
+    userPricePref = userPricePrefTemp;
+    String temp;
+    for(int i = 0; i<userPricePref.length;i++){
+      if(i==0){
+        temp = temp+userPricePref[i];
+      }
+      if(i!=0){
+        temp = temp + "+" + userPricePref[i];
+      }
+    }
+    return temp;
+  }
+
+  //Converts cuisine list into URL ready string
+  String parseCuisine(){
+    String temp = "";
+    for(int i = 0; i<userCuisinePref.length;i++){
+      if(i==0){
+        temp = temp+userCuisinePref[i];
+      }
+      if(i!=0){
+        temp = temp + "+" + userCuisinePref[i];
+      }
+    }
+    return temp;
+  }
+  //Converts diet list into URL ready string
+  String parseDiet(){
+    String temp;
+    for(int i = 0; i<userDietPref.length;i++){
+      if(i==0){
+        temp = temp+userDietPref[i];
+      }
+      if(i!=0){
+        temp = temp + "+" + userDietPref[i];
+      }
+    }
+    return temp;
   }
 
   @override
   Widget build(BuildContext context){
     return new Scaffold(
 
-      appBar: AppBar(
-        title: Text("Choose My Preferences"),
-      ),
-      body: SingleChildScrollView(
-      child:Column(
-        children: <Widget>[
-          Divider(
-            thickness: 10.0,
-          ),
-          Text(
-            'Cuisine Preferences',
-            textScaleFactor: 2.0,
-            textAlign: TextAlign.center,
+        appBar: AppBar(
+          title: Text("Choose My Preferences"),
+        ),
+        body: SingleChildScrollView(
+            child:Column(
+                children: <Widget>[
+                  Divider(
+                    thickness: 10.0,
+                  ),
+                  Text(
+                    'Cuisine Preferences',
+                    textScaleFactor: 2.0,
+                    textAlign: TextAlign.center,
 
-          ),
-          Divider(
-            thickness: 10.0,
-          ),
-          CheckboxGroup(
-            labels: cuisineListEthnic,
-            onSelected: (List<String> selected) => userCuisinePref = selected,
-          ),
+                  ),
+                  Divider(
+                    thickness: 10.0,
+                  ),
+                  CheckboxGroup(
+                    labels: cuisineListEthnic,
+                    onSelected: (List<String> selected) => userCuisinePref = selected,
+                  ),
 
 
-          Divider(
-            thickness: 10.0,
-          ),
-          Text(
-            'Price Preferences',
-            textScaleFactor: 2.0,
-            textAlign: TextAlign.left,
+                  Divider(
+                    thickness: 10.0,
+                  ),
+                  Text(
+                    'Price Preferences',
+                    textScaleFactor: 2.0,
+                    textAlign: TextAlign.left,
 
-          ),
-          Divider(
-            thickness: 10.0,
-          ),
-          CheckboxGroup(
-            labels: <String>[
-              "\$","\$\$","\$\$\$","\$\$\$\$"
-            ],
-            //onSelected: (List<String> selected) =>print(selected.toString()),
-          ),
-          Divider(
-            thickness: 10.0,
-          ),
-          RaisedButton(
-            onPressed: (){updatePref();},
-            textColor: Colors.white,
-            padding: const EdgeInsets.all(0.0),
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: <Color>[
-                    Color(0xFF0D47A1),
-                    Color(0xFF1976D2),
-                    Color(0xFF42A5F5),
-                  ],
-                )
-              ),
-              padding: const EdgeInsets.all(10.0),
-              child: const Text(
-                'Update My Preferences',
-                style: TextStyle(fontSize: 20),
-              )
-            ),
-          ),
-          Divider(
-            thickness: 10.0,
-          ),
-        ]
-      )
-      )
+                  ),
+                  Divider(
+                    thickness: 10.0,
+                  ),
+                  CheckboxGroup(
+                    labels: <String>[
+                      "\$","\$\$","\$\$\$","\$\$\$\$"
+                    ],
+                    onSelected: (List<String> selected) => userPricePref = selected,
+                  ),
+                  Divider(
+                    thickness: 10.0,
+                  ),
+
+                  Text(
+                    'Dietary Restrictions',
+                    textScaleFactor: 2.0,
+                    textAlign: TextAlign.left,
+
+                  ),
+                  Divider(
+                    thickness: 10.0,
+                  ),
+                  CheckboxGroup(
+                    labels: dietaryRestrictions,
+                    onSelected: (List<String> selected) => userDietPref = selected,
+                  ),
+                  Divider(
+                    thickness: 10.0,
+                  ),
+                  RaisedButton(
+                    onPressed: (){getCurrentPrefandUpdate();},
+                    textColor: Colors.white,
+                    padding: const EdgeInsets.all(0.0),
+                    child: Container(
+                        decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: <Color>[
+                                Color(0xFF0D47A1),
+                                Color(0xFF1976D2),
+                                Color(0xFF42A5F5),
+                              ],
+                            )
+                        ),
+                        padding: const EdgeInsets.all(10.0),
+                        child: const Text(
+                          'Update My Preferences',
+                          style: TextStyle(fontSize: 20),
+                        )
+                    ),
+                  ),
+                  Divider(
+                    thickness: 10.0,
+                  ),
+                ]
+            )
+        )
     );
   }
 }
