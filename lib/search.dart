@@ -28,14 +28,41 @@ class searchPageState extends State<searchPage> {
   List<String> userCuisinePref = [];
   List<String> userPricePref = [];
   List<String> userDietPref = [];
+  String cuisineURL;
 
   void updatePref(){
     String webAddress;
+    cuisineURL = parseCuisine();
+    //String query = controller.text + "+" + cuisineURL;
+    if(controller.text.isEmpty)
+      {
+        String query = cuisineURL;
+        Route route = MaterialPageRoute(builder: (context) => YelpSearch(query));
+//                    Route route = MaterialPageRoute(builder: (context) => Repository());
+        Navigator.push(context, route);
+      }
+    else
+      {
+        String query = controller.text + "+" + cuisineURL;
+        Route route = MaterialPageRoute(builder: (context) => YelpSearch(query));
+//                    Route route = MaterialPageRoute(builder: (context) => Repository());
+        Navigator.push(context, route);
+      }
 
-    //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=" + latitude.toString() + "&longitude=" + longitude.toString(); //-118.112858";
+  }
 
-    //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
-
+  //Converts cuisine list into URL ready string
+  String parseCuisine(){
+    String temp = "";
+    for(int i = 0; i<userCuisinePref.length;i++){
+      if(i==0){
+        temp = temp+userCuisinePref[i];
+      }
+      if(i!=0){
+        temp = temp + "+" + userCuisinePref[i];
+      }
+    }
+    return temp;
   }
 
   void parsePrice(){ //Converts dollar signs to string ints
@@ -150,7 +177,7 @@ class searchPageState extends State<searchPage> {
                   labels: <String>[
                     "\$","\$\$","\$\$\$","\$\$\$\$"
                   ],
-                  //onSelected: (List<String> selected) =>print(selected.toString()),
+                  onSelected: (List<String> selected) =>print(selected.toString()),
                 ),
               ),
 
@@ -214,10 +241,10 @@ class searchPageState extends State<searchPage> {
                     // otherwise.
 
                       // If the form is valid, display a Snackbar.
-                    Route route = MaterialPageRoute(builder: (context) => YelpSearch(controller.text));
-//                    Route route = MaterialPageRoute(builder: (context) => Repository());
-                    Navigator.push(context, route);
-
+//                    Route route = MaterialPageRoute(builder: (context) => YelpSearch(controller.text));
+////                    Route route = MaterialPageRoute(builder: (context) => Repository());
+//                    Navigator.push(context, route);
+                    updatePref();
                   },
                   child: Icon(Icons.search),
                 ),
