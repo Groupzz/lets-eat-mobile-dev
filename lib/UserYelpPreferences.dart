@@ -49,9 +49,10 @@ class UserYelpPreferences extends StatelessWidget{
   }
   
   Future<void> updatePref(QuerySnapshot snap)async{
+    String docId = snap.documents[0].documentID;
     Firestore.instance
         .collection('users')
-        .document(snap.documents[0]['userCuisinePref'])
+        .document(docId)
         .updateData({'userCuisinePref':cuisineURL});
   }
   
