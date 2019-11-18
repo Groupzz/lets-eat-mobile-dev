@@ -28,6 +28,8 @@ class UserYelpPreferences extends StatelessWidget{
     final String uid = user.uid;
 
     cuisineURL = parseCuisine();
+    dietURL = parseDiet();
+    priceURL = parsePrice();
 
     try {
       Firestore.instance
@@ -40,20 +42,17 @@ class UserYelpPreferences extends StatelessWidget{
       print("Could not find user");
     }
 
-
-//      document.reference.updateData({
-//        'userCuisinePref': document['userCuisinePref'] + userCuisinePref,
-//      });
-
-    //pass string to firebase
   }
   
   Future<void> updatePref(QuerySnapshot snap)async{
-    String docId = snap.documents[0].documentID;
     Firestore.instance
         .collection('users')
-        .document(docId)
-        .updateData({'userCuisinePref':cuisineURL});
+        .document(snap.documents[0].documentID)
+        .updateData({
+          'userCuisinePref':cuisineURL,
+          'userDietPref':dietURL,
+          'userPricePref':priceURL
+          });
   }
   
   String parsePrice(){ //Converts dollar signs to string ints and return URL ready string
@@ -81,7 +80,7 @@ class UserYelpPreferences extends StatelessWidget{
       }
     }
     userPricePref = userPricePrefTemp;
-    String temp;
+    String temp = "";
     for(int i = 0; i<userPricePref.length;i++){
       if(i==0){
         temp = temp+userPricePref[i];
@@ -108,7 +107,7 @@ class UserYelpPreferences extends StatelessWidget{
   }
   //Converts diet list into URL ready string
   String parseDiet(){
-    String temp;
+    String temp = "";
     for(int i = 0; i<userDietPref.length;i++){
       if(i==0){
         temp = temp+userDietPref[i];
