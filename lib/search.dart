@@ -28,15 +28,24 @@ class searchPageState extends State<searchPage> {
   List<String> userCuisinePref = [];
   List<String> userPricePref = [];
   List<String> userDietPref = [];
-  String cuisineURL;
+  String cuisineURL="";
+  String priceURL="";
 
   void updatePref(){
     String webAddress;
     cuisineURL = parseCuisine();
-    //String query = controller.text + "+" + cuisineURL;
+    priceURL = parsePrice();
+    //print("price = " + priceURL);
+//    String query = controller.text + "+" + cuisineURL;
     if(controller.text.isEmpty)
       {
         String query = cuisineURL;
+        if(priceURL.isNotEmpty)
+          {
+            query += "&price=" + priceURL;
+          }
+        //query += "+price"
+        print("query = " + query);
         Route route = MaterialPageRoute(builder: (context) => YelpSearch(query));
 //                    Route route = MaterialPageRoute(builder: (context) => Repository());
         Navigator.push(context, route);
@@ -44,6 +53,11 @@ class searchPageState extends State<searchPage> {
     else
       {
         String query = controller.text + "+" + cuisineURL;
+        if(priceURL.isNotEmpty)
+        {
+          query += "&price=" + priceURL;
+        }
+        print("query = " + query);
         Route route = MaterialPageRoute(builder: (context) => YelpSearch(query));
 //                    Route route = MaterialPageRoute(builder: (context) => Repository());
         Navigator.push(context, route);
@@ -65,31 +79,64 @@ class searchPageState extends State<searchPage> {
     return temp;
   }
 
-  void parsePrice(){ //Converts dollar signs to string ints
-    List<String> userPricePrefTemp = new List(userPricePref.length);
+  String parsePrice(){ //Converts dollar signs to string ints and return URL ready string
+    //List<String> userPricePrefTemp = new List(userPricePref.length);
+    String prices = "1,";
+    List<String> priceList = ["\$", "\$\$", "\$\$\$", "\$\$\$\$"];
+    if(userPricePref[0] != "1"){
+      prices = "";
+    }
+    print("userPricePref = " + userPricePref.toString());
     if(userPricePref.isNotEmpty == true) {
-      for (var i = 0; i < userPricePref.length; i++) {
-        switch(userPricePref[i].length){
-          case 1: {
-            userPricePrefTemp[i] = "1";
+      for (int i = 0; i < userPricePref.length; i++) {
+        //print("i = " + "\$"*3);
+        for(int j = 1; j<5; j++ ){
+          print("userPricePref[i] = " + userPricePref[i] + "\nPRICE = " + "\$"*j);
+          if(userPricePref[i] == "\$"*j){
+            prices += (j.toString() + ",");
           }
-          break;
-          case 2: {
-            userPricePrefTemp[i] = "2";
-          }
-          break;
-          case 3: {
-            userPricePrefTemp[i] = "3";
-          }
-          break;
-          case 4: {
-            userPricePrefTemp[i] = "4";
-          }
-          break;
         }
       }
+      print("prices = " + prices);
+      if(prices.endsWith(",")){
+        prices = prices.substring(0, prices.length-1);
+      }
     }
-    userPricePref = userPricePrefTemp;
+    //prices += "test";
+
+//    userPricePref = userPricePrefTemp;
+//    String temp = "";
+//    for(int i = 0; i<userPricePref.length;i++){
+//      if(i==0){
+//        temp += userPricePref[i];
+//      }
+//      if(i!=0){
+//        temp += userPricePref[i];
+//      }
+//    }
+
+//    var result = "";
+//    if(prices.isNotEmpty) {
+//     // print("user price pref = " + temp);
+//      var resultList = prices.split("");
+//      result = "";
+//      if (resultList.isNotEmpty) {
+//        result = resultList[0];
+//        for (int i = 1; i < resultList.length; i++) {
+//          result += ", " + resultList[i];
+//        }
+////        print("result =" + result);
+////        return result;
+//      }
+//    }
+//    else{
+//      //return "1, 2, 3, 4";
+//      result = "1, 2, 3, 4";
+//    }
+    if(prices.isEmpty){
+      prices = "1, 2, 3, 4";
+    }
+    return prices;
   }
 
   Widget _showSearchInput() {
@@ -131,6 +178,7 @@ class searchPageState extends State<searchPage> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> _checked = [];
       _isIos = Theme
           .of(context)
           .platform == TargetPlatform.iOS;
@@ -169,15 +217,30 @@ class searchPageState extends State<searchPage> {
                   'Price Preferences',
                   textScaleFactor: 1.6,
                   textAlign: TextAlign.center,
+
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(250.0, 300.0, 0.0, 0.0),
                 child: CheckboxGroup(
+
+                  //checked: [],
                   labels: <String>[
                     "\$","\$\$","\$\$\$","\$\$\$\$"
                   ],
-                  onSelected: (List<String> selected) =>print(selected.toString()),
+
+                  onSelected: (List<String> selected) => userPricePref = selected,
+                  itemBuilder: (Checkbox cb, Text txt, int i){
+                    return Column(
+                      children: <Widget>[
+                        //Icon(Icons.polymer),
+                        cb,
+                        txt,
+                      ],
+                    );
+                  },
+
+
                 ),
               ),
 

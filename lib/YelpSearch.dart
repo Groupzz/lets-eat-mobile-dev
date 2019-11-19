@@ -47,7 +47,7 @@ class YelpSearch extends StatelessWidget {
     latitude = currentLocation.latitude;
     longitude = currentLocation.longitude;
 
-    webAddress = "https://api.yelp.com/v3/businesses/search?term=" + _query + "&latitude=" + latitude.toString() + "&longitude=" + longitude.toString() + "&limit=50"; //-118.112858";
+    webAddress = "https://api.yelp.com/v3/businesses/search?term=" + _query + "&latitude=" + latitude.toString() + "&longitude=" + longitude.toString() + "&limit=50&radius=40000"; //-118.112858";
 
     //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
     print("latitude = " + latitude.toString() + "; longitude = " +
