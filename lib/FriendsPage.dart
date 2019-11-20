@@ -24,6 +24,7 @@ class _FriendsPageState extends State<FriendsPage> {
   String _friendUName;
   String uid;
   String friendsID;
+  String fDocID;
   final controller = TextEditingController();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
@@ -38,6 +39,20 @@ class _FriendsPageState extends State<FriendsPage> {
   Future<void> addAndConfirmFriend(QuerySnapshot data) async {
     Firestore.instance.collection("friends").document(data.documents[0]['friendsDocID'])
         .updateData({'friends':FieldValue.arrayUnion([controller.text])});
+
+    Firestore.instance.collection("users").where(
+      'username', isEqualTo: controller.text).snapshots().listen(
+        (data) => fDocID = data.documents[0]['friendsDocID']
+    );
+
+    await Future.delayed(const Duration(milliseconds: 700), (){});
+    print("fDocID = " + fDocID);
+    FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
+    String username = currentUser.displayName;
+    print("username = " + username);
+    Firestore.instance.collection("friends").document(fDocID).updateData(
+      {'friends':FieldValue.arrayUnion([username])}
+    );
 
     showDialog(
       context: context,
