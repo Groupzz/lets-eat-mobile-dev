@@ -19,6 +19,7 @@ class searchPageState extends State<searchPage> {
   // not a GlobalKey<MyCustomFormState>.
   final _formKey = GlobalKey<FormState>();
   final controller = TextEditingController();
+  final locationController = TextEditingController();
   String _query;
   bool _isIos;
   var cuisineListEthnic = ["American","Mexican","Japanese","Korean","Chinese","Indian","Thai","Mediterranean","Italian","French"];
@@ -31,6 +32,7 @@ class searchPageState extends State<searchPage> {
   List<String> userDietPref = [];
   String cuisineURL="";
   String priceURL="";
+  String _picked = "";
 
   void updatePref(){
     String webAddress;
@@ -49,6 +51,14 @@ class searchPageState extends State<searchPage> {
           {
             query += "&price=" + priceURL;
           }
+
+        if(_picked == "Open Now"){
+          query += "&open_now=true";
+        }
+
+        if(locationController.text.isNotEmpty){
+          query += "&location="+locationController.text;
+        }
 
         //query += "+price"
         double meters = _sliderValue.toInt()*1609.34;
@@ -72,6 +82,15 @@ class searchPageState extends State<searchPage> {
         {
           query += "&price=" + priceURL;
         }
+
+        if(_picked == "Open Now"){
+          query += "&open_now=true";
+        }
+
+        if(locationController.text.isNotEmpty){
+          query += "&location="+locationController.text;
+        }
+
         double meters = _sliderValue.toInt()*1609.34;
         if(meters > 40000.0){
           meters = 40000;
@@ -164,7 +183,7 @@ class searchPageState extends State<searchPage> {
 
   Widget _showSearchInput() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
+      padding: const EdgeInsets.fromLTRB(5.0, 15.0, 0.0, 0.0),
       child: new TextFormField(
         controller: controller,
         maxLines: 1,
@@ -182,9 +201,29 @@ class searchPageState extends State<searchPage> {
     );
   }
 
+  Widget _showLocationInput() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(5.0, 70.0, 0.0, 0.0),
+      child: new TextFormField(
+        controller: locationController,
+        maxLines: 1,
+        obscureText: false,
+        autofocus: false,
+        decoration: new InputDecoration(
+            hintText: 'Where? (Leave blank to use current location)',
+            icon: new Icon(
+              Icons.location_on,
+              color: Colors.grey,
+            )),
+        //validator: (value) => value.isEmpty ? value = "" : value = value,
+        onSaved: (value) => _query = value.trim(),
+      ),
+    );
+  }
+
   Widget _showDistanceSlider(){
     return Padding(
-      padding: const EdgeInsets.fromLTRB(200, 310, 5.0, 0.0),
+      padding: const EdgeInsets.fromLTRB(180, 290, 30.0, 0.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -224,6 +263,24 @@ class searchPageState extends State<searchPage> {
     ],
     ));
   }
+
+  Widget _showPrimaryButton() {
+    return new Padding(
+        padding: EdgeInsets.fromLTRB(225.0, 470.0, 0.0, 0.0),
+        child: SizedBox(
+          height: 40.0,
+          width: 160.0,
+          child: new RaisedButton(
+            elevation: 5.0,
+            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+            color: Colors.blue,
+            child: new Text('Search',
+                style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+            onPressed: updatePref
+          ),
+        ));
+  }
+
 
 //  Padding(
 //  padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -271,33 +328,57 @@ class searchPageState extends State<searchPage> {
 //                thickness: 10.0,
 //              ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(0.0, 100.0, 0.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(0.0, 125.0, 0.0, 0.0),
                 child: CheckboxGroup(
                   labels: cuisineListEthnic,
                   onSelected: (List<String> selected) => userCuisinePref = selected,
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(210.0, 300.0, 5.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(200.0, 270.0, 5.0, 0.0),
                 child: Text(
-                  'Max Distance',
+                  'Max Distance:',
                   textScaleFactor: 1.3,
                   textAlign: TextAlign.left,
 
                 ),
               ),
               _showDistanceSlider(),
+              _showLocationInput(),
               Padding(
-                padding: const EdgeInsets.fromLTRB(210.0, 170.0, 5.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(260.0, 370, 5.0, 0.0),
+                child: RadioButtonGroup(
+                  orientation: GroupedButtonsOrientation.VERTICAL,
+                  margin: const EdgeInsets.only(left: 12.0),
+                  onSelected: (String selected) => setState((){
+                    _picked = selected;
+                  }),
+                  labels: <String>[
+                    "Open Now"
+                  ],
+                  picked: _picked,
+                  itemBuilder: (Radio rb, Text txt, int i){
+                    return Column(
+                      children: <Widget>[
+                        //Icon(Icons.public),
+                        rb,
+                        txt,
+                      ],
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(190.0, 140.0, 5.0, 0.0),
                 child: Text(
-                  'Price Preferences',
+                  'Price Preferences:',
                   textScaleFactor: 1.3,
                   textAlign: TextAlign.left,
 
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(200.0, 190.0, 5.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(180.0, 160.0, 5.0, 0.0),
                 child: CheckboxGroup(
 
                   //checked: [],
@@ -372,23 +453,24 @@ class searchPageState extends State<searchPage> {
 //              Divider(
 //                thickness: 10.0,
 //              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(300.0, 100.0, 0.0, 0.0),
-                child: RaisedButton(
-                  onPressed: () {
-                    //print("puery = " + _query);
-                    // Validate returns true if the form is valid, or false
-                    // otherwise.
-
-                      // If the form is valid, display a Snackbar.
-//                    Route route = MaterialPageRoute(builder: (context) => YelpSearch(controller.text));
-////                    Route route = MaterialPageRoute(builder: (context) => Repository());
-//                    Navigator.push(context, route);
-                    updatePref();
-                  },
-                  child: Icon(Icons.search),
-                ),
-              ),
+            _showPrimaryButton(),
+//              Padding(
+//                padding: const EdgeInsets.fromLTRB(300.0, 500.0, 0.0, 0.0),
+//                child: RaisedButton(
+//                  onPressed: () {
+//                    //print("puery = " + _query);
+//                    // Validate returns true if the form is valid, or false
+//                    // otherwise.
+//
+//                      // If the form is valid, display a Snackbar.
+////                    Route route = MaterialPageRoute(builder: (context) => YelpSearch(controller.text));
+//////                    Route route = MaterialPageRoute(builder: (context) => Repository());
+////                    Navigator.push(context, route);
+//                    updatePref();
+//                  },
+//                  child: Icon(Icons.search),
+//                ),
+//              ),
             ],
           )
           )
