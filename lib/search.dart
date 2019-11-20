@@ -24,6 +24,7 @@ class searchPageState extends State<searchPage> {
   var cuisineListEthnic = ["American","Mexican","Japanese","Korean","Chinese","Indian","Thai","Mediterranean","Italian","French"];
   var dietaryRestrictions = ["Vegetarian","Vegan","Halal","Pescetarian"];
   var pricepointList = [1,2,3,4];
+  double _sliderValue = 10.0;
 
   List<String> userCuisinePref = [];
   List<String> userPricePref = [];
@@ -48,7 +49,13 @@ class searchPageState extends State<searchPage> {
           {
             query += "&price=" + priceURL;
           }
+
         //query += "+price"
+        double meters = _sliderValue.toInt()*1609.34;
+        if(meters > 40000.0){
+          meters = 40000;
+        }
+        query += "&radius=" + meters.toInt().toString();
         print("query = " + query);
         Route route = MaterialPageRoute(builder: (context) => YelpSearch(query));
 //                    Route route = MaterialPageRoute(builder: (context) => Repository());
@@ -65,6 +72,11 @@ class searchPageState extends State<searchPage> {
         {
           query += "&price=" + priceURL;
         }
+        double meters = _sliderValue.toInt()*1609.34;
+        if(meters > 40000.0){
+          meters = 40000;
+        }
+        query += "&radius=" + meters.toInt().toString();
         print("query = " + query);
         Route route = MaterialPageRoute(builder: (context) => YelpSearch(query));
 //                    Route route = MaterialPageRoute(builder: (context) => Repository());
@@ -170,6 +182,49 @@ class searchPageState extends State<searchPage> {
     );
   }
 
+  Widget _showDistanceSlider(){
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(200, 310, 5.0, 0.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+      Flexible(
+        flex: 1,
+        // A slider, like many form elements, needs to know its
+        // own value and how to update that value.
+        //
+        // The slider will call onChanged whenever the value
+        // changes. But it will only repaint when its value property
+        // changes in the state using setState.
+        //
+        // The workflow is:
+        // 1. User drags the slider.
+        // 2. onChanged is called.
+        // 3. The callback in onChanged sets the sliderValue state.
+        // 4. Flutter repaints everything that relies on sliderValue,
+        // in this case, just the slider at its new value.
+        child: Slider(
+          activeColor: Colors.indigoAccent,
+          min: 1.0,
+          max: 25.0,
+          divisions: 5,
+          onChanged: (newRating) {
+            setState(() => _sliderValue = newRating);
+          },
+          value: _sliderValue,
+        ),
+      ),
+    Container(
+    width: 50.0,
+    alignment: Alignment.center,
+    child: Text('${_sliderValue.toInt()} mi.',
+    style: Theme.of(context).textTheme.display1,
+    textScaleFactor: .6),
+    ),
+    ],
+    ));
+  }
+
 //  Padding(
 //  padding: const EdgeInsets.symmetric(vertical: 16.0),
 //  child: RaisedButton(
@@ -223,7 +278,17 @@ class searchPageState extends State<searchPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(250.0, 200.0, 5.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(210.0, 300.0, 5.0, 0.0),
+                child: Text(
+                  'Max Distance',
+                  textScaleFactor: 1.3,
+                  textAlign: TextAlign.left,
+
+                ),
+              ),
+              _showDistanceSlider(),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(210.0, 170.0, 5.0, 0.0),
                 child: Text(
                   'Price Preferences',
                   textScaleFactor: 1.3,
@@ -232,10 +297,11 @@ class searchPageState extends State<searchPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(250.0, 225.0, 0.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(200.0, 190.0, 5.0, 0.0),
                 child: CheckboxGroup(
 
                   //checked: [],
+                  orientation: GroupedButtonsOrientation.HORIZONTAL,
                   labels: <String>[
                     "\$","\$\$","\$\$\$","\$\$\$\$"
                   ],
