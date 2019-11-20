@@ -39,7 +39,11 @@ class searchPageState extends State<searchPage> {
 //    String query = controller.text + "+" + cuisineURL;
     if(controller.text.isEmpty)
       {
-        String query = cuisineURL;
+        String query = "";
+        if(cuisineURL.isNotEmpty){
+          query = cuisineURL;
+        }
+
         if(priceURL.isNotEmpty)
           {
             query += "&price=" + priceURL;
@@ -52,7 +56,11 @@ class searchPageState extends State<searchPage> {
       }
     else
       {
-        String query = controller.text + "+" + cuisineURL;
+        String query = controller.text;
+        if(cuisineURL.isNotEmpty){
+          query += "+" + cuisineURL;
+        }
+        //+ "+" + cuisineURL;
         if(priceURL.isNotEmpty)
         {
           query += "&price=" + priceURL;
@@ -81,6 +89,9 @@ class searchPageState extends State<searchPage> {
 
   String parsePrice(){ //Converts dollar signs to string ints and return URL ready string
     //List<String> userPricePrefTemp = new List(userPricePref.length);
+    if(userPricePref.isEmpty){
+      return "1, 2, 3, 4";
+    }
     String prices = "1,";
     List<String> priceList = ["\$", "\$\$", "\$\$\$", "\$\$\$\$"];
     if(userPricePref[0] != "1"){
@@ -212,16 +223,16 @@ class searchPageState extends State<searchPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(270.0, 250.0, 0.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(250.0, 200.0, 5.0, 0.0),
                 child: Text(
                   'Price Preferences',
-                  textScaleFactor: 1.6,
-                  textAlign: TextAlign.center,
+                  textScaleFactor: 1.3,
+                  textAlign: TextAlign.left,
 
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(250.0, 300.0, 0.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(250.0, 225.0, 0.0, 0.0),
                 child: CheckboxGroup(
 
                   //checked: [],

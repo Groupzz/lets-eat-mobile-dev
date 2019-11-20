@@ -329,14 +329,15 @@ class _UpdateUNamePageState extends State<UpdateUNamePage> {
   Widget _showPrimaryButton() {
     //getCurrentUserInfo();
     return new Padding(
-      padding: EdgeInsets.fromLTRB(270.0, 70.0, 10.0, 0.0),
+      padding: EdgeInsets.fromLTRB(275.0, 70.0, 0.0, 0.0),
       child: SizedBox(
         height: 40.0,
+        width: 100.0,
         child: new RaisedButton(
             elevation: 5.0,
             shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
             color: Colors.blue,
-            child: new Text('Update Usermame',
+            child: new Text('Update',
                 style: new TextStyle(fontSize: 16.0, color: Colors.white)),
             onPressed: _checkUsername
         ),

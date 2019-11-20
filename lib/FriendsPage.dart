@@ -197,7 +197,7 @@ class _FriendsPageState extends State<FriendsPage> {
         keyboardType: TextInputType.text,
         autofocus: false,
         decoration: new InputDecoration(
-            hintText: 'Enter Username of the Friend You Want To Add',
+            hintText: 'Enter Friend\'s username',
             icon: new Icon(
               Icons.person_add,
               color: Colors.grey,
@@ -284,6 +284,7 @@ class _FriendsPageState extends State<FriendsPage> {
         padding: EdgeInsets.fromLTRB(270.0, 70.0, 10.0, 0.0),
         child: SizedBox(
           height: 40.0,
+          width: 150,
           child: new RaisedButton(
             elevation: 5.0,
             shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
