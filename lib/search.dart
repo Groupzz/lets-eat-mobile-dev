@@ -210,7 +210,7 @@ class searchPageState extends State<searchPage> {
         obscureText: false,
         autofocus: false,
         decoration: new InputDecoration(
-            hintText: 'Where? (Leave blank to use current location)',
+            hintText: 'Where? (Leave blank for current location)',
             icon: new Icon(
               Icons.location_on,
               color: Colors.grey,
@@ -266,7 +266,7 @@ class searchPageState extends State<searchPage> {
 
   Widget _showPrimaryButton() {
     return new Padding(
-        padding: EdgeInsets.fromLTRB(225.0, 470.0, 0.0, 0.0),
+        padding: EdgeInsets.fromLTRB(200.0, 450.0, 0.0, 0.0),
         child: SizedBox(
           height: 40.0,
           width: 160.0,
@@ -335,7 +335,7 @@ class searchPageState extends State<searchPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(200.0, 270.0, 5.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(190.0, 270.0, 5.0, 0.0),
                 child: Text(
                   'Max Distance:',
                   textScaleFactor: 1.3,
@@ -346,7 +346,7 @@ class searchPageState extends State<searchPage> {
               _showDistanceSlider(),
               _showLocationInput(),
               Padding(
-                padding: const EdgeInsets.fromLTRB(260.0, 370, 5.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(235.0, 370, 5.0, 0.0),
                 child: RadioButtonGroup(
                   orientation: GroupedButtonsOrientation.VERTICAL,
                   margin: const EdgeInsets.only(left: 12.0),
@@ -378,7 +378,7 @@ class searchPageState extends State<searchPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(180.0, 160.0, 5.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(170.0, 160.0, 5.0, 0.0),
                 child: CheckboxGroup(
 
                   //checked: [],
