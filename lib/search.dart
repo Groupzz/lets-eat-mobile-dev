@@ -266,7 +266,7 @@ class searchPageState extends State<searchPage> {
 
   Widget _showPrimaryButton() {
     return new Padding(
-        padding: EdgeInsets.fromLTRB(200.0, 450.0, 0.0, 0.0),
+        padding: EdgeInsets.fromLTRB(200.0, 450.0, 5.0, 0.0),
         child: SizedBox(
           height: 40.0,
           width: 160.0,

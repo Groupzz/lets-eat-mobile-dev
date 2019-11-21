@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lets_eat/FriendsPage.dart';
+import 'package:lets_eat/GroupVotePage.dart';
 import 'package:lets_eat/UserYelpPreferences.dart';
 import 'package:lets_eat/search.dart';
 import 'package:lets_eat/signUpPage.dart';
@@ -43,8 +44,6 @@ class _HomeState extends State<Home> {
                 new ListTile(
                   title: new Text('Sign In / Sign Up'),
                   onTap: () {
-//                    Route route = MaterialPageRoute(builder: (context) => SignupPage());
-                   // Route route = MaterialPageRoute(builder: (context) => UserAuth());
                     Route route = MaterialPageRoute(builder: (context) => LoginRootPage(auth: new Auth()));
                     Navigator.push(context, route);
                     //signIn(context);
@@ -57,6 +56,16 @@ class _HomeState extends State<Home> {
                     //Repository repo = new Repository();
                     //Route route = MaterialPageRoute(builder: (context) => YelpSearch(repository: Repository()));
                     Route route = MaterialPageRoute(builder: (context) => searchPage());
+//                    Route route = MaterialPageRoute(builder: (context) => Repository());
+                    Navigator.push(context, route);
+                  },
+                ),
+                new ListTile(
+                  title: new Text('Group Voting'),
+                  onTap: () {
+                    //Repository repo = new Repository();
+                    //Route route = MaterialPageRoute(builder: (context) => YelpSearch(repository: Repository()));
+                    Route route = MaterialPageRoute(builder: (context) => GroupVotePage(auth: new Auth()));
 //                    Route route = MaterialPageRoute(builder: (context) => Repository());
                     Navigator.push(context, route);
                   },

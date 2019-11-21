@@ -151,6 +151,12 @@ class YelpSearch extends StatelessWidget {
                                     child: ButtonBar(
                                       children: <Widget>[
                                         FlatButton(
+                                          child: const Text('Save Restaurant'),
+                                          onPressed: () {
+                                            //_launchURL(snapshot.data[index].url);
+                                          },
+                                        ),
+                                        FlatButton(
                                           child: const Text('WEBSITE'),
                                           onPressed: () {
                                             _launchURL(snapshot.data.url);
@@ -161,6 +167,7 @@ class YelpSearch extends StatelessWidget {
                                           child: const Text('NAVIGATE'),
                                           onPressed: () {
                                             //todo: launch using google/apple maps
+                                            //_launchURL(snapshot.data.)
                                           },
                                         ),
                                       ],
