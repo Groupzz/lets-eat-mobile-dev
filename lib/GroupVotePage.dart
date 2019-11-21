@@ -89,6 +89,7 @@ class _GroupVotePageState extends State<GroupVotePage> {
             groups.add(Group.fromSnapshot(snap));
           });
     });
+    await Future.delayed(const Duration(milliseconds: 700), (){});
     return groups;
 
 //        .getDocuments().then(
