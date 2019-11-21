@@ -5,7 +5,7 @@ import 'authentication.dart';
 import 'package:dbcrypt/dbcrypt.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'Friends.dart';
+import '../Friends.dart';
 
 class UpdateUNamePage extends StatefulWidget {
   UpdateUNamePage({this.auth});

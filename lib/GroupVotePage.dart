@@ -1,7 +1,7 @@
 import 'dart:async' as prefix0;
 
 import 'package:flutter/material.dart';
-import 'authentication.dart';
+import 'Accounts/authentication.dart';
 import 'package:dbcrypt/dbcrypt.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -162,7 +162,8 @@ class _GroupVotePageState extends State<GroupVotePage> {
                                           children: <Widget>[
                                             //Padding(padding: const EdgeInsets.all(8.0)),
                                             ListTile(
-                                              title: Text('${data.data[index].participants.toString()}'),
+                                              title: Text('${data.data[index].participants.toString().substring(1,
+                                                  data.data[index].participants.toString().length - 1)}'),
                                               onTap: (){
 
                                               },
@@ -176,8 +177,11 @@ class _GroupVotePageState extends State<GroupVotePage> {
                   }
                   else if (data.hasError) {
                     print("error: " + data.error.toString());
-                    return Padding(padding: const EdgeInsets.all(8.0), child: Text("No Groups Found"));
+                    return Padding(padding: const EdgeInsets.all(8.0), child: Text("You must be logged in to participate in Group Votes"));
                   }
+//                  else {
+//                    return Padding(padding: const EdgeInsets.all(8.0), child: Text("No Groups Found"));
+//                  }
 
                   // By default, show a loading spinner
                   return CircularProgressIndicator();

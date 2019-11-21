@@ -1,7 +1,7 @@
 import 'dart:async' as prefix0;
 
 import 'package:flutter/material.dart';
-import 'authentication.dart';
+import 'Accounts/authentication.dart';
 import 'package:dbcrypt/dbcrypt.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

@@ -2,22 +2,24 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lets_eat/FriendsPage.dart';
 import 'package:lets_eat/GroupVotePage.dart';
-import 'package:lets_eat/UserYelpPreferences.dart';
+import 'package:lets_eat/Accounts/UserYelpPreferences.dart';
 import 'package:lets_eat/search.dart';
-import 'package:lets_eat/signUpPage.dart';
-import 'userAuth.dart';
+import 'package:lets_eat/Accounts/signUpPage.dart';
+import 'Accounts/userAuth.dart';
 import 'YelpRepository.dart';
 import 'main.dart';
 import 'maps.dart';
-import 'userAuth.dart';
-import 'login_root.dart';
-import 'accounts.dart';
-import 'authentication.dart';
+import 'Accounts/login_root.dart';
+import 'Accounts/userAuth.dart';
+import 'Accounts/accounts.dart';
+import 'Accounts/login_root.dart';
+import 'Accounts/accounts.dart';
+import 'Accounts/authentication.dart';
 import 'About.dart';
 import 'YelpSearch.dart';
-import 'UserYelpPreferences.dart';
-import 'LoginSignUp.dart';
-import 'signUpPage.dart';
+import 'Accounts/UserYelpPreferences.dart';
+import 'Accounts/LoginSignUp.dart';
+import 'Accounts/signUpPage.dart';
 
 class Home extends StatefulWidget {
   @override

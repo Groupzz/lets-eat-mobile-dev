@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'authentication.dart';
+import 'Accounts/authentication.dart';
 import 'Restaurants.dart';
 import 'package:dbcrypt/dbcrypt.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,7 +17,7 @@ import 'maps.dart';
 import 'dart:math';
 import 'Restaurants.dart';
 import 'YelpRepository.dart';
-import 'userAuth.dart';
+import 'Accounts/userAuth.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HistoryPage extends StatefulWidget {

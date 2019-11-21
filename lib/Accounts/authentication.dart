@@ -69,7 +69,6 @@ class Auth implements BaseAuth {
 
   Future<String> signIn(String email, String password) async {
     //password = new DBCrypt().hashpw(password, null);
-    print("Password = " + password);
     FirebaseUser user = (await FirebaseAuth.instance
         .signInWithEmailAndPassword(email: email, password: password)).user;
     return user.uid;

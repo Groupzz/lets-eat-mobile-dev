@@ -9,7 +9,7 @@ import 'maps.dart';
 import 'dart:math';
 import 'Restaurants.dart';
 import 'YelpRepository.dart';
-import 'userAuth.dart';
+import 'Accounts/userAuth.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'home.dart';

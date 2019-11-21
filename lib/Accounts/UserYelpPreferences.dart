@@ -7,7 +7,7 @@ import 'package:grouped_buttons/grouped_buttons.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'authentication.dart';
-import 'YelpRepository.dart';
+import '../YelpRepository.dart';
 
 var cuisineListEthnic = ["American","Mexican","Japanese","Korean","Chinese","Indian","Thai","Mediterranean","Italian","French"];
 var dietaryRestrictions = ["Vegetarian","Vegan","Halal","Pescetarian"];

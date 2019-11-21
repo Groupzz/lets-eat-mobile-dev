@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:lets_eat/updateUser.dart';
+import 'package:lets_eat/Accounts/updateUser.dart';
 import 'authentication.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
