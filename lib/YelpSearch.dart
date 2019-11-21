@@ -15,16 +15,27 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'home.dart';
 import 'About.dart';
 import 'main.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 
-class YelpSearch extends StatelessWidget {
+class YelpSearchPage extends StatefulWidget {
+  YelpSearchPage({this.query});
+
+  final String query;
+
+  @override
+  State<StatefulWidget> createState() => new _YelpSearchPageState();
+}
+
+class _YelpSearchPageState extends State<YelpSearchPage> {
   //final Repository repository;
   var location = new Location();
   static const String API_KEY = "p8eXXM3q_ks6WY_FWc2KhV-EmLhSpbJf0P-SATBhAIM4dNCgsp3sH8ogzJPezOT6LzFQlb_vcFfxziHbHuNt8RwxtWY0-vRpx7C0nPz5apIT4A5LYGmaVfuwPrf3WXYx";
   static const Map<String, String> AUTH_HEADER = {"Authorization": "Bearer $API_KEY"};
   final _random = new Random();
-  final String _query;  // search query to be added under "term" of API call
+  //final String _query;  // search query to be added under "term" of API call
 
-  YelpSearch(this._query) : super();
+  //YelpSearchPage(this._query) : super();
 
   //String query = query??query:"";
   //String _repository = repository;
@@ -47,7 +58,7 @@ class YelpSearch extends StatelessWidget {
     latitude = currentLocation.latitude;
     longitude = currentLocation.longitude;
 
-    webAddress = "https://api.yelp.com/v3/businesses/search?term=" + _query + "&limit=50"; //-118.112858";
+    webAddress = "https://api.yelp.com/v3/businesses/search?term=" + widget.query + "&limit=50"; //-118.112858";
     if(!webAddress.contains("location")){
       webAddress += "&latitude=" + latitude.toString() + "&longitude=" + longitude.toString();
     }
@@ -91,7 +102,7 @@ class YelpSearch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(_query);
+    print(widget.query);
     return MaterialApp(
       title: "Yelp Test",
       home: Scaffold(
@@ -173,22 +184,37 @@ class YelpSearch extends StatelessWidget {
                                       ],
                                     ),
                                   ),
-                                  SizedBox(
+                                  Container(
                                     width: 400.0,
                                     height: 400.0,
                                   child: GoogleMap(
                                     markers: Set.from(markers, ),
                                     mapType: MapType.normal,
+                                    zoomGesturesEnabled: true,
                                     myLocationButtonEnabled: true,
                                     myLocationEnabled: true,
+                                    gestureRecognizers: Set()
+                                      ..add(Factory<PanGestureRecognizer>(() => PanGestureRecognizer()))
+                                      ..add(Factory<ScaleGestureRecognizer>(() => ScaleGestureRecognizer()))
+                                      ..add(Factory<TapGestureRecognizer>(() => TapGestureRecognizer()))
+                                      ..add(Factory<OneSequenceGestureRecognizer>(() => new EagerGestureRecognizer()))
+                                      ..add(Factory<VerticalDragGestureRecognizer>(
+                                              () => VerticalDragGestureRecognizer())),
+
+
+//                                    gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+//                                      new Factory<OneSequenceGestureRecognizer>(() => new EagerGestureRecognizer(),
+//                                      ),
+//                                    ].toSet(),
+//
                                     initialCameraPosition: CameraPosition(
                                       bearing: 0,
                                       target: LatLng(snapshot.data.latitude, snapshot.data.longitude),
                                       zoom: 12.3,
                                     ),
                                   )
-                                  )
-                                ],
+
+                                  )],
                               ),
                             ),
                           );

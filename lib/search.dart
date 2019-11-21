@@ -67,7 +67,7 @@ class searchPageState extends State<searchPage> {
         }
         query += "&radius=" + meters.toInt().toString();
         print("query = " + query);
-        Route route = MaterialPageRoute(builder: (context) => YelpSearch(query));
+        Route route = MaterialPageRoute(builder: (context) => YelpSearchPage(query: query));
 //                    Route route = MaterialPageRoute(builder: (context) => Repository());
         Navigator.push(context, route);
       }
@@ -97,7 +97,7 @@ class searchPageState extends State<searchPage> {
         }
         query += "&radius=" + meters.toInt().toString();
         print("query = " + query);
-        Route route = MaterialPageRoute(builder: (context) => YelpSearch(query));
+        Route route = MaterialPageRoute(builder: (context) => YelpSearchPage(query: query));
 //                    Route route = MaterialPageRoute(builder: (context) => Repository());
         Navigator.push(context, route);
       }
