@@ -12,6 +12,7 @@ import 'YelpRepository.dart';
 import 'Accounts/userAuth.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'home.dart';
 import 'About.dart';
 import 'main.dart';
@@ -40,6 +41,9 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
   //String query = query??query:"";
   //String _repository = repository;
   //YelpSearch({Key key, this.repository}) : super(key: key);
+
+  String uid;
+  String RDocID;
 
   _launchURL(String url) async {
     String url1 = url;
@@ -100,6 +104,102 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
 
   }
 
+  void saveRestaurant(String restaurantID,String restaurantName) async{
+    bool success = true;
+    final FirebaseUser user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
+    uid = user.uid;
+    try {
+      // Check if provided restaurant is already saved in database
+      Firestore.instance
+          .collection('likedRestaurants')
+          .where(
+          'restaurantIDs', isEqualTo: restaurantID)
+          .snapshots()
+          .listen(
+
+              (data) => data.documents.length == 0
+          // If so, update user's restaurant array w/ new restaurant
+              ? Firestore.instance
+                  .collection('users')
+                  .where(
+                    'id', isEqualTo: uid // Get current user id
+                  )
+                  .snapshots()
+                  .listen(
+            // Update Restaurants collection that contains current user ID
+                  (data)=> saveRestaurantDB(data,restaurantID,restaurantName)
+          )
+          // If not, show error message
+              : showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              // return object of type Dialog
+              return AlertDialog(
+                title: new Text("Restaurant is already saved"),
+                content: new Text("We didn't find a user with that username.  Please make sure the username is correct"),
+                actions: <Widget>[
+                  new FlatButton(
+                    child: new Text("Dismiss"),
+                    onPressed: () {
+                      success = false;
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          )
+      );
+
+    }
+    catch(e)
+    {
+    }
+  }
+  
+  Future<void> saveRestaurantDB(QuerySnapshot snap,String rID,String rName) async{
+
+    Firestore.instance
+        .collection('likedRestaurants')
+        .where(
+        'id', isEqualTo: uid)
+        .snapshots()
+        .listen(
+            (data) => RDocID = data.documents[0].documentID
+    );
+//
+//    await Future.delayed(const Duration(milliseconds: 700), (){});
+//    print("fDocID = " + fDocID);
+//    FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
+//    String username = currentUser.displayName;
+//    print("username = " + username);
+    Firestore.instance
+        .collection('likedRestaurants')
+        .document(RDocID)
+        .updateData(
+        {'restaurantIDs':FieldValue.arrayUnion([rID])}
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Restaurant Saved!"),
+          content: new Text("${rName} has been added to your saved Restaurants"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Dismiss"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     print(widget.query);
@@ -157,13 +257,15 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
 //                                  ListTile(
 //                                    title: Text('${snapshot.data.price}')
 //                                  ),
-                                  ButtonTheme.bar(
+
                                     // make buttons use the appropriate styles for cards
-                                    child: ButtonBar(
+
+                                    ButtonBar(
                                       children: <Widget>[
                                         FlatButton(
                                           child: const Text('Save Restaurant'),
                                           onPressed: () {
+                                            saveRestaurant(snapshot.data.id,snapshot.data.name);
                                             //_launchURL(snapshot.data[index].url);
                                           },
                                         ),
@@ -183,7 +285,7 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
                                         ),
                                       ],
                                     ),
-                                  ),
+
                                   Container(
                                     width: 400.0,
                                     height: 400.0,
