@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'Friends.dart';
 import 'Group.dart';
 import 'CreateGroup.dart';
+import 'ViewGroup.dart';
 
 class GroupVotePage extends StatefulWidget {
   GroupVotePage({this.auth});
@@ -187,7 +188,8 @@ class _GroupVotePageState extends State<GroupVotePage> {
                                               title: Text('${data.data[index].participants.toString().substring(1,
                                                   data.data[index].participants.toString().length - 1)}'),
                                               onTap: (){
-
+                                                Route route = MaterialPageRoute(builder: (context) => ViewGroupPage(docId: data.data[index].documentID));
+                                                Navigator.push(context, route);
                                               },
                                             ),
                                           ])

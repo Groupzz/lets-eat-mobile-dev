@@ -14,15 +14,15 @@ enum AuthStatus {
   LOGGED_IN,
 }
 
-class CreateGroupPage extends StatefulWidget {
-  CreateGroupPage({this.docId});
+class ViewGroupPage extends StatefulWidget {
+  ViewGroupPage({this.docId});
 
   final String docId;
   @override
-  _CreateGroupPageState createState() => _CreateGroupPageState();
+  _ViewGroupPageState createState() => _ViewGroupPageState();
 }
 
-class _CreateGroupPageState extends State<CreateGroupPage> {
+class _ViewGroupPageState extends State<ViewGroupPage> {
   String groupDocID;
   final _formKey = new GlobalKey<FormState>();
   AuthStatus authStatus = AuthStatus.NOT_DETERMINED;
@@ -219,14 +219,14 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
           height: 40.0,
           width: 200,
           child: new RaisedButton(
-            elevation: 5.0,
-            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-            color: Colors.red,
-            child: new Text('Delete Group',
-                style: new TextStyle(fontSize: 20.0, color: Colors.white)),
-            onPressed: () {
-              removeGroup();
-            }
+              elevation: 5.0,
+              shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+              color: Colors.red,
+              child: new Text('Delete Group',
+                  style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+              onPressed: () {
+                removeGroup();
+              }
           ),
         ));
   }

@@ -5,15 +5,18 @@ import 'package:flutter/material.dart';
 class Group{
   final List<String> participants;
   final String uid;
+  final String documentID;
 
   Group.fromSnapshot(DocumentSnapshot snapshot)
       : participants = List.from(snapshot["Participants"]),
-        uid = snapshot['creatorID'];
+        uid = snapshot['creatorID'],
+        documentID = snapshot.documentID;
 
 
   Group(
       {this.participants,
-        this.uid});
+        this.uid,
+        this.documentID});
 
 //  factory Friends.fromJson(Map<String, dynamic> json) {
 //    return Friends(
