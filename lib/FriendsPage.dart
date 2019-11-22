@@ -118,50 +118,6 @@ class _FriendsPageState extends State<FriendsPage> {
           )
       );
 
-//      Future<String> friendID = Firestore.instance.collection('friends').add({ // Add user to firestore w/ generated userID
-//        "userID": uid,
-//        "friends": [controller.text]
-//      }).then((doc) {
-//        print("Friend ID = " + doc.documentID);
-//        return doc.documentID;
-//      });
-
-//        Firestore.instance.collection('users').where(
-//          'id', isEqualTo: uid
-//        ).snapshots().listen(
-//            (data)=> Firestore.instance.collection("friends").document(data.documents[0]['friendsDocID']).updateData({'friends':FieldValue.arrayUnion([controller.text])})
-//        );
-
-//      Firestore.instance.collection('users').where(
-////          'username', isEqualTo: controller.text)
-//          .snapshots().listen(
-//
-//              (data) => data.documents.length > 0
-//                  ? Firestore.instance.collection('friends').add({ // Add user to firestore w/ generated userID
-//                "userID": uid,
-//                "friends": [controller.text]
-//              })
-//                  : showDialog(
-//                    context: context,
-//                    builder: (BuildContext context) {
-//                      // return object of type Dialog
-//                      return AlertDialog(
-//                        title: new Text("User Not Found"),
-//                        content: new Text("We didn't find a user with that username.  Please make sure the username is correct"),
-//                        actions: <Widget>[
-//                          new FlatButton(
-//                            child: new Text("Dismiss"),
-//                            onPressed: () {
-//                              success = false;
-//                              Navigator.of(context).pop();
-//                            },
-//                          ),
-//                        ],
-//                      );
-//                    },
-//                  )
-//      );
-    //_showFriends();
     }
     catch(e)
     {
@@ -227,28 +183,6 @@ class _FriendsPageState extends State<FriendsPage> {
   Future<Friends> getFriends() async{  // Get friends list for current user
     getCurrentUserInfo();
 
-//    final FirebaseUser user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
-//    final uid = user.uid;
-//    String friendsID;
-//
-//    Firestore.instance.collection('users').where(
-//        'id', isEqualTo: uid // Get current user id
-//    ).snapshots().listen(
-//      // Update Friends collection that contains current user ID
-//            (data) =>
-//            Firestore.instance.collection("friends").document(
-//                data.documents[0]['friendsDocID'])
-//    );
-
-   // print("Friends ID = " + friendsID);
-//    QuerySnapshot test = Firestore.instance.collection('users').where(
-//        'id', isEqualTo: uid // Get current user id
-//    ).snapshots().listen(
-//      // Update Friends collection that contains current user ID
-//            (data)=> data.documents
-//    );
-//
-
 //    print("FID = " + fid);
     await Future.delayed(const Duration(milliseconds: 700), (){});  // Wait for promise to return friendsID
     return Firestore.instance.collection("friends").document(friendsID).get() // Get friends document for current user
@@ -260,35 +194,6 @@ class _FriendsPageState extends State<FriendsPage> {
         return null;
       }
     });
-//        .then((snapshot) {
-//      try {
-//        return Friends.fromSnapshot(snapshot);
-//      }
-//      catch (e) {
-//        print(e);
-//        return null;
-//      }
-//    }).asStream();
-
-
-  //Revert To:
-
-//    Firestore.instance.collection('users').where(
-//        'id', isEqualTo: uid // Get current user id
-//    ).snapshots().listen(
-//      // Update Friends collection that contains current user ID
-//            (data)=> Firestore.instance.collection("friends").document(data.documents[0]['friendsDocID']).get()
-//                .then((snapshot) {
-//                  try {
-//                    return Friends.fromSnapshot(snapshot);
-//                  }
-//                  catch (e)
-//                  {
-//                    print(e);
-//                    return null;
-//                  }
-//            }).asStream()
-//    );
 
 
   }

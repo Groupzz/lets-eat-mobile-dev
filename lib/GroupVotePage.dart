@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'Friends.dart';
 import 'Group.dart';
+import 'CreateGroup.dart';
 
 class GroupVotePage extends StatefulWidget {
   GroupVotePage({this.auth});
@@ -18,6 +19,14 @@ class GroupVotePage extends StatefulWidget {
 }
 
 class _GroupVotePageState extends State<GroupVotePage> {
+
+  ///
+  /// Group creator presses 'Create new group'
+  /// New Group Document is created, w/ user's username as only participant
+  /// Store user's username as group creator
+  /// When user selects an active group, if that user is the creator, show a
+  ///   delete group button
+  ///
 
   bool _isIos;
   bool _isLoading;
@@ -115,28 +124,41 @@ class _GroupVotePageState extends State<GroupVotePage> {
 
   }
 
-//  Widget _showPrimaryButton() {
-//    //getCurrentUserInfo();
-//    return new Padding(
-//      padding: EdgeInsets.fromLTRB(270.0, 70.0, 10.0, 0.0),
-//      child: SizedBox(
-//        height: 40.0,
-//        width: 150,
-//        child: new RaisedButton(
-//            elevation: 5.0,
-//            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-//            color: Colors.blue,
-//            child: new Text('Add Friend',
-//                style: new TextStyle(fontSize: 16.0, color: Colors.white)),
-//            onPressed: addFriend
-//        ),
-//      ),
-//    );
-//  }
+  Widget _showPrimaryButton() {
+    //getCurrentUserInfo();
+    return new Padding(
+      padding: EdgeInsets.fromLTRB(110.0, 30.0, 10.0, 0.0),
+      child: SizedBox(
+        height: 40.0,
+        width: 200,
+        child: new RaisedButton(
+            elevation: 5.0,
+            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+            color: Colors.blue,
+            child: new Text('Create New Group',
+                style: new TextStyle(fontSize: 16.0, color: Colors.white)),
+            onPressed: () {
+              createGroup();
+            }
+        ),
+      ),
+    );
+  }
+
+  void createGroup() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    Firestore.instance.collection('groups').add({ // Add user to firestore w/ generated userID
+      "creatorID": user.uid,
+      "Participants": [user.displayName],
+    }).then((doc) {
+      Route route = MaterialPageRoute(builder: (context) => CreateGroupPage(docId: doc.documentID));
+      Navigator.push(context, route);
+    });
+  }
 
   Widget _showGroupsLabel(){
     return new Padding(
-      padding: EdgeInsets.fromLTRB(15.0, 115.0, 0.0, 0.0),
+      padding: EdgeInsets.fromLTRB(15.0, 100.0, 0.0, 0.0),
       child: Text("Active Groups:", style: new TextStyle(fontSize: 18.0)),
     );
   }
@@ -144,7 +166,7 @@ class _GroupVotePageState extends State<GroupVotePage> {
   Widget _showGroups() {  // Display ListView of Friends
     //getCurrentUserInfo();
     return new Padding(
-        padding: EdgeInsets.fromLTRB(10.0, 135.0, 0.0, 0.0),
+        padding: EdgeInsets.fromLTRB(10.0, 120.0, 0.0, 0.0),
         child: Center(
             child: FutureBuilder<List<Group>> (
                 future: getGroups(),
@@ -204,6 +226,24 @@ class _GroupVotePageState extends State<GroupVotePage> {
 //      ),
     );
   }
+//
+//  Widget _showPrimaryButton() {
+//    return new Padding(
+//        padding: EdgeInsets.fromLTRB(20.0, 45.0, 20.0, 0.0),
+//        child: SizedBox(
+//          height: 40.0,
+//          child: new RaisedButton(
+//            elevation: 5.0,
+//            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+//            color: Colors.blue,
+//            child: new Text('Create Group',
+//                style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+//            onPressed: () {
+//
+//            },
+//          ),
+//        ));
+//  }
 
   @override
   Widget build(BuildContext context) {
@@ -217,7 +257,7 @@ class _GroupVotePageState extends State<GroupVotePage> {
             _showGroupsLabel(),
             _showGroups(),
             //_addFriendField(),
-            //_showPrimaryButton(),
+            _showPrimaryButton(),
 //            StreamBuilder<Friends>(
 //              stream: getFriends(),
 //              builder: (BuildContext c, AsyncSnapshot<Friends> data) {
