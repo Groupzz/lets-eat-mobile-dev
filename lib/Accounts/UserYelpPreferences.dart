@@ -23,7 +23,7 @@ String priceURL;
 
 class UserYelpPreferences extends StatelessWidget{
 
-  void getCurrentPrefandUpdate() async{
+  void getCurrentPrefandUpdate(BuildContext context) async{
     final FirebaseUser user = await FirebaseAuth.instance.currentUser();
     final String uid = user.uid;
 
@@ -37,6 +37,8 @@ class UserYelpPreferences extends StatelessWidget{
           .where('userID', isEqualTo: uid)
           .snapshots()
           .listen((data) => updatePref(data));
+
+
     }catch(e){
       print("Could not find user");
       Firestore.instance
@@ -45,6 +47,23 @@ class UserYelpPreferences extends StatelessWidget{
             'userID':uid,
           });
     }
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+            title: new Text("Preferences Updated"),
+            content: new Text("Your custom preferences have been updated"),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text("Dismiss"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        }
+    );
   }
   
   Future<void> updatePref(QuerySnapshot snap)async{
@@ -189,7 +208,7 @@ class UserYelpPreferences extends StatelessWidget{
                     thickness: 10.0,
                   ),
                   RaisedButton(
-                    onPressed: (){getCurrentPrefandUpdate();},
+                    onPressed: (){getCurrentPrefandUpdate(context);},
                     textColor: Colors.white,
                     padding: const EdgeInsets.all(0.0),
                     child: Container(

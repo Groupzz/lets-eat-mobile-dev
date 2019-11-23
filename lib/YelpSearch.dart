@@ -167,12 +167,6 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
         .listen(
             (data) => RDocID = data.documents[0].documentID
     );
-//
-//    await Future.delayed(const Duration(milliseconds: 700), (){});
-//    print("fDocID = " + fDocID);
-//    FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
-//    String username = currentUser.displayName;
-//    print("username = " + username);
     Firestore.instance
         .collection('likedRestaurants')
         .document(RDocID)
