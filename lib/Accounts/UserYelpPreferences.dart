@@ -33,25 +33,28 @@ class UserYelpPreferences extends StatelessWidget{
 
     try {
       Firestore.instance
-          .collection('users')
-          .where('id', isEqualTo: uid)
+          .collection('preferences')
+          .where('userID', isEqualTo: uid)
           .snapshots()
-          .listen((data) => updatePref(data))
-          ;
+          .listen((data) => updatePref(data));
     }catch(e){
       print("Could not find user");
+      Firestore.instance
+          .collection('preferences')
+          .add({
+            'userID':uid,
+          });
     }
-
   }
   
   Future<void> updatePref(QuerySnapshot snap)async{
     Firestore.instance
-        .collection('users')
+        .collection('preferences')
         .document(snap.documents[0].documentID)
         .updateData({
-          'userCuisinePref':cuisineURL,
-          'userDietPref':dietURL,
-          'userPricePref':priceURL
+          'cuisineURL':cuisineURL,
+          'dietURL':dietURL,
+          'priceURL':priceURL
           });
   }
   
