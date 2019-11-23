@@ -26,16 +26,10 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   String groupDocID;
   final _formKey = new GlobalKey<FormState>();
   AuthStatus authStatus = AuthStatus.NOT_DETERMINED;
-  //String _password;
   String _userId = "";
   List<String> users = [];
-  final fNameController = TextEditingController();
-  final lNameController = TextEditingController();
-  final uNameController = TextEditingController();
-  final dobController = TextEditingController();
-  final cityController = TextEditingController();
-  final zipController = TextEditingController();
-  final phoneController = TextEditingController();
+  final usernameController = TextEditingController();
+  final prefController = TextEditingController();
   FirebaseUser user;
   QuerySnapshot userData;
 
@@ -43,15 +37,6 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   @override
   void initState() {
     super.initState();
-//    widget.auth.getCurrentUser().then((user) {
-//      setState(() {
-//        if (user != null) {
-//          _userId = user?.uid;
-//        }
-//        authStatus =
-//        user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
-//      });
-//    });
   }
 
   void _getCurrentUser() async {
@@ -69,7 +54,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   }
 
   void _updateData() async{
-    Firestore.instance.collection('groups').document(widget.docId).updateData({'Participants':FieldValue.arrayUnion([fNameController.text])});
+    Firestore.instance.collection('groups').document(widget.docId).updateData({'Participants':FieldValue.arrayUnion([usernameController.text])});
 
     _showSuccess();
   }
@@ -94,10 +79,49 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     );
   }
 
+  void _displayAddPref() async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('What Are You In The Mood For?'),
+            content: TextField(
+              controller: prefController,
+              decoration: InputDecoration(hintText: "Enter a Food Preference"),
+            ),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text('SUBMIT'),
+                onPressed: () {
+                  Firestore.instance.collection('groups').document(widget.docId).updateData({'Preferences':FieldValue.arrayUnion([prefController.text])});
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("Your Preference has been added!"),
+                        actions: <Widget>[
+                          new FlatButton(
+                            child: new Text("Dismiss"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).pop();
+                            },
+                          )
+                        ],
+                      );
+                    }
+                  );
+                },
+              )
+            ],
+          );
+        });
+  }
+
   Widget _showFriends() {  // Display ListView of Friends
     //getCurrentUserInfo();
     return new Padding(
-        padding: EdgeInsets.fromLTRB(10.0, 135.0, 0.0, 50.0),
+        padding: EdgeInsets.fromLTRB(10.0, 135.0, 0.0, 200.0),
         child: Center(
             child: FutureBuilder<Group> (
                 future: getFriends(),
@@ -133,27 +157,52 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
                 }
             )
         )
+    );
+  }
 
-//      child: SizedBox(
-//        height: 100.0,
-//        child: StreamBuilder<Friends>(
-//          stream: getFriends(),
-//          builder: (BuildContext c, AsyncSnapshot<Friends> data) {
-//            if(data?.data == null) return Text("No Friends Found");
-//            print("DATA =" + data.toString());
-//            Friends friend = data.data;
-//
-//            return Text("Friends:\n\n${friend.friends}");
-//          },
-//        )
-//      ),
+  Widget _showPreferences() {  // Display ListView of Friends
+    //getCurrentUserInfo();
+    return new Padding(
+        padding: EdgeInsets.fromLTRB(10.0, 135.0, 0.0, 200.0),
+        child: Center(
+            child: FutureBuilder<Group> (
+                future: getFriends(),
+                builder: (BuildContext c, AsyncSnapshot<Group> data) {
+                  if(data.hasData) {
+                    return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ListView.builder(
+                            itemCount: data.data.preferences.length,
+                            itemBuilder: (c, index) {
+                              return Center(
+                                  child: Card(
+                                      child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: <Widget>[
+                                            //Padding(padding: const EdgeInsets.all(8.0)),
+                                            ListTile(
+                                              title: Text('${data.data.preferences[index]}'),
+                                            ),
+                                          ])
+                                  )
+                              );
+                            }
+                        )
+                    );
+                  }
+                  else if (data.hasError) {
+                    return Padding(padding: const EdgeInsets.all(8.0), child: Text("No Preferences Found"));
+                  }
+
+                  // By default, show a loading spinner
+                  return CircularProgressIndicator();
+                }
+            )
+        )
     );
   }
 
   Future<Group> getFriends() async{  // Get friends list for current user
-    //getCurrentUserInfo();
-
-//    print("FID = " + fid);
     await Future.delayed(const Duration(milliseconds: 700), (){});  // Wait for promise to return friendsID
     return Firestore.instance.collection("groups").document(widget.docId).get() // Get friends document for current user
         .then((snapshot) {
@@ -164,17 +213,15 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
         return null;
       }
     });
-
-
   }
 
 
   Widget _showAddUsers(){
     _getCurrentUser();
     return Padding(
-      padding: EdgeInsets.fromLTRB(5.0, 15.0, 0.0, 0.0),
+      padding: EdgeInsets.fromLTRB(5.0, 15.0, 50.0, 0.0),
       child: new TextFormField(
-        controller: fNameController,
+        controller: usernameController,
         maxLines: 1,
         keyboardType: TextInputType.text,
         autofocus: false,
@@ -190,19 +237,79 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     );
   }
 
+  Widget _showAddUser(){
+    return new Padding(
+      padding: const EdgeInsets.fromLTRB(310.0, 10.0, 10.0, 0.0),
+        child: SizedBox(
+          width: 50,
+          child: RaisedButton(
+            onPressed: _updateData,
+            child: Icon(Icons.person_add),
+            color: Colors.grey[200],
+          ),
+        )
+    );
+  }
+
 
   Widget _showPrimaryButton() {
     return new Padding(
-        padding: EdgeInsets.fromLTRB(20.0, 70.0, 20.0, 0.0),
+        padding: EdgeInsets.fromLTRB(10.0, 70.0, 20.0, 0.0),
         child: SizedBox(
           height: 40.0,
           child: new RaisedButton(
             elevation: 5.0,
             shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
             color: Colors.blue,
-            child: new Text('Add To Group',
+            child: new Text('Add Preference',
                 style: new TextStyle(fontSize: 20.0, color: Colors.white)),
-            onPressed: _updateData,
+            onPressed: () {
+              _displayAddPref();
+            },
+          ),
+        ));
+  }
+
+  Widget _showPrefsLabel() {
+    return new Padding(
+      padding: EdgeInsets.fromLTRB(15.0, 120.0, 0.0, 0.0),
+      child: Text("Preferences:", style: new TextStyle(fontSize: 18.0)),
+    );
+  }
+
+  Widget _showStartButton() {
+    return new Padding(
+        padding: EdgeInsets.fromLTRB(190.0, 70.0, 5.0, 0.0),
+        child: SizedBox(
+          height: 40.0,
+          //width: 200,
+          child: new RaisedButton(
+            elevation: 5.0,
+            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+            color: Colors.green,
+            child: new Text('Find A Restaurant',
+                style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+            onPressed: () {
+
+            },
+          ),
+        ));
+  }
+
+  Widget _showAddPreferencesButton() {
+    return new Padding(
+        padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0.0),
+        child: SizedBox(
+          height: 40.0,
+          child: new RaisedButton(
+            elevation: 5.0,
+            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+            color: Colors.blue,
+            child: new Text('Add a Preference',
+                style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+            onPressed: () {
+              _displayAddPref();
+            },
           ),
         ));
   }
@@ -212,7 +319,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     Navigator.of(context).pop();
   }
 
-  Widget _removeUserButton() {
+  Widget _removeGroupButton() {
     return new Padding(
         padding: EdgeInsets.fromLTRB(115.0, 540.0, 5.0, 0.0),
         child: SizedBox(
@@ -230,22 +337,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
           ),
         ));
   }
-//    return new MaterialButton(
-//      shape:
-//      RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-//      onPressed: () {
-//        Firestore.instance.document(widget.docId).delete();
-//      },
-//      minWidth: MediaQuery.of(context).size.width,
-//      padding: EdgeInsets.fromLTRB(20.0, 300.0, 20.0, 0.0),
-//      color: Colors.red,
-//      textColor: Colors.white,
-//      child: Text(
-//        "Delete My Account",
-//        textAlign: TextAlign.center,
-//      ),
-//    );
-//  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -260,8 +352,13 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
           children: <Widget>[
             _showAddUsers(),
             _showPrimaryButton(),
-            _showFriends(),
-            _removeUserButton()
+            _showPrefsLabel(),
+//            _showFriends(),
+            _showStartButton(),
+            _removeGroupButton(),
+            _showAddUser(),
+            _showPreferences(),
+//            _showAddPreferencesButton(),
             //_showCircularProgress(),
           ],
         )

@@ -151,6 +151,7 @@ class _GroupVotePageState extends State<GroupVotePage> {
     Firestore.instance.collection('groups').add({ // Add user to firestore w/ generated userID
       "creatorID": user.uid,
       "Participants": [user.displayName],
+      "Preferences": [],
     }).then((doc) {
       Route route = MaterialPageRoute(builder: (context) => CreateGroupPage(docId: doc.documentID));
       Navigator.push(context, route);

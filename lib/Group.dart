@@ -4,17 +4,20 @@ import 'package:flutter/material.dart';
 
 class Group{
   final List<String> participants;
+  final List<String> preferences;
   final String uid;
   final String documentID;
 
   Group.fromSnapshot(DocumentSnapshot snapshot)
       : participants = List.from(snapshot["Participants"]),
+        preferences = List.from(snapshot["Preferences"]),
         uid = snapshot['creatorID'],
         documentID = snapshot.documentID;
 
 
   Group(
       {this.participants,
+        this.preferences,
         this.uid,
         this.documentID});
 

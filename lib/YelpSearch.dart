@@ -259,32 +259,32 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
 //                                  ),
 
                                     // make buttons use the appropriate styles for cards
-
-                                    ButtonBar(
-                                      children: <Widget>[
-                                        FlatButton(
-                                          child: const Text('Save Restaurant'),
-                                          onPressed: () {
-                                            saveRestaurant(snapshot.data.id,snapshot.data.name);
-                                            //_launchURL(snapshot.data[index].url);
-                                          },
-                                        ),
-                                        FlatButton(
-                                          child: const Text('WEBSITE'),
-                                          onPressed: () {
-                                            _launchURL(snapshot.data.url);
-                                            //_launchURL(snapshot.data[index].url);
-                                          },
-                                        ),
-                                        FlatButton(
-                                          child: const Text('NAVIGATE'),
-                                          onPressed: () {
-                                            //todo: launch using google/apple maps
-                                            //_launchURL(snapshot.data.)
-                                          },
-                                        ),
-                                      ],
-                                    ),
+                                  ButtonTheme.bar(
+                                      child: ButtonBar(
+                                        children: <Widget>[
+                                          FlatButton(
+                                            child: const Text('Save Restaurant'),
+                                            onPressed: () {
+                                              saveRestaurant(snapshot.data.id,snapshot.data.name);
+                                              //_launchURL(snapshot.data[index].url);
+                                            },
+                                          ),
+                                          FlatButton(
+                                            child: const Text('WEBSITE'),
+                                            onPressed: () {
+                                              _launchURL(snapshot.data.url);
+                                              //_launchURL(snapshot.data[index].url);
+                                            },
+                                          ),
+                                          FlatButton(
+                                            child: const Text('NAVIGATE'),
+                                            onPressed: () {
+                                              //_launchURL(snapshot.data.)
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                  ),
 
                                   Container(
                                     width: 400.0,
