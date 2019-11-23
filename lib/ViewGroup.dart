@@ -8,6 +8,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'Friends.dart';
 import 'Group.dart';
 
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:lets_eat/About.dart';
+import 'package:location/location.dart';
+import 'maps.dart';
+import 'dart:math';
+import 'Restaurants.dart';
+import 'YelpRepository.dart';
+
+
 enum AuthStatus {
   NOT_DETERMINED,
   NOT_LOGGED_IN,
@@ -32,6 +43,32 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   final prefController = TextEditingController();
   FirebaseUser user;
   QuerySnapshot userData;
+
+  var location = new Location();
+  static const String API_KEY = "p8eXXM3q_ks6WY_FWc2KhV-EmLhSpbJf0P-SATBhAIM4dNCgsp3sH8ogzJPezOT6LzFQlb_vcFfxziHbHuNt8RwxtWY0-vRpx7C0nPz5apIT4A5LYGmaVfuwPrf3WXYx";
+  static const Map<String, String> AUTH_HEADER = {"Authorization": "Bearer $API_KEY"};
+  final _random = new Random();
+
+  bool done = false;
+  bool viewPref = true;
+  bool viewFind = true;
+
+  Widget _buildResultButton() {
+    return new Padding(
+        padding: EdgeInsets.fromLTRB(10.0, 400.0, 0.0, 20.0),
+        child: Center(
+          child: done
+              ? RaisedButton(
+            color: Colors.green,
+            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+            child: Text('View Restaurant'),
+            onPressed: () {},
+          )
+              : SizedBox(),
+        ),
+      );
+  }
+
 
 
   @override
@@ -165,14 +202,17 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     return new Padding(
         padding: EdgeInsets.fromLTRB(10.0, 135.0, 0.0, 200.0),
         child: Center(
-            child: FutureBuilder<Group> (
-                future: getFriends(),
-                builder: (BuildContext c, AsyncSnapshot<Group> data) {
+            child: StreamBuilder(
+                stream: Firestore.instance.collection('groups').document(widget.docId).snapshots(),
+                builder: (context, data) {
                   if(data.hasData) {
+                    var doc = data.data;
+                    List<dynamic> prefs = doc['Preferences'];
                     return Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: ListView.builder(
-                            itemCount: data.data.preferences.length,
+//                            itemCount: data.data.preferences.length,
+                              itemCount: prefs.length,
                             itemBuilder: (c, index) {
                               return Center(
                                   child: Card(
@@ -181,7 +221,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
                                           children: <Widget>[
                                             //Padding(padding: const EdgeInsets.all(8.0)),
                                             ListTile(
-                                              title: Text('${data.data.preferences[index]}'),
+                                              title: Text('${prefs[index]}'),
                                             ),
                                           ])
                                   )
@@ -257,16 +297,19 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
         padding: EdgeInsets.fromLTRB(10.0, 70.0, 20.0, 0.0),
         child: SizedBox(
           height: 40.0,
-          child: new RaisedButton(
-            elevation: 5.0,
-            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-            color: Colors.blue,
-            child: new Text('Add Preference',
-                style: new TextStyle(fontSize: 20.0, color: Colors.white)),
-            onPressed: () {
-              _displayAddPref();
-            },
-          ),
+          child: viewPref ?
+            new RaisedButton(
+              elevation: 5.0,
+              shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+              color: Colors.blue,
+              child: new Text('Add Preference',
+                  style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+              onPressed: () {
+                _displayAddPref();
+              },
+            )
+              :
+              SizedBox()
         ));
   }
 
@@ -290,7 +333,10 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
             child: new Text('Find A Restaurant',
                 style: new TextStyle(fontSize: 20.0, color: Colors.white)),
             onPressed: () {
-
+              setState(() {
+                done = true;
+                viewPref = false;
+              });
             },
           ),
         ));
@@ -301,16 +347,20 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
         padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0.0),
         child: SizedBox(
           height: 40.0,
-          child: new RaisedButton(
-            elevation: 5.0,
-            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-            color: Colors.blue,
-            child: new Text('Add a Preference',
-                style: new TextStyle(fontSize: 20.0, color: Colors.white)),
-            onPressed: () {
-              _displayAddPref();
-            },
-          ),
+          child: viewPref ?
+
+            new RaisedButton(
+              elevation: 5.0,
+              shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+              color: Colors.blue,
+              child: new Text('Add a Preference',
+                  style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+              onPressed: () {
+                _displayAddPref();
+              },
+            )
+          :
+            SizedBox()
         ));
   }
 
@@ -321,7 +371,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
 
   Widget _removeGroupButton() {
     return new Padding(
-        padding: EdgeInsets.fromLTRB(115.0, 540.0, 5.0, 0.0),
+        padding: EdgeInsets.fromLTRB(80.0, 540.0, 5.0, 0.0),
         child: SizedBox(
           height: 40.0,
           width: 200,
@@ -337,6 +387,63 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
           ),
         ));
   }
+
+
+//  Future<Restaurants> findRandomRestaurant() async {
+//    String webAddress;
+//    var latitude;
+//    var longitude;
+//    var currentLocation = await location.getLocation();
+//    latitude = currentLocation.latitude;
+//    longitude = currentLocation.longitude;
+//
+//    var doc = await Firestore.instance.collection('groups').document(widget.docId);
+//    doc.get() => then(function(doc) {
+//
+//    })
+//
+//
+//    webAddress = "https://api.yelp.com/v3/businesses/search?term=" + "&limit=50"; //-118.112858";
+//    if(!webAddress.contains("location")){
+//      webAddress += "&latitude=" + latitude.toString() + "&longitude=" + longitude.toString();
+//    }
+//
+//    //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
+//    print("latitude = " + latitude.toString() + "; longitude = " +
+//        longitude.toString());
+//    http.Response response;
+//    Map<String, dynamic> map;
+//    response =
+//    await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {});
+//
+//    //Map<String, dynamic> map;
+//    // Error handling
+//    //    response == null
+//    //    ? response = await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {})
+//    //    : map = json.decode(response.body);
+//    if (response == null || response.statusCode < CODE_OK ||
+//        response.statusCode >= CODE_REDIRECTION) {
+//      return Future.error(response.body);
+//    }
+//
+//    //    Map<String, dynamic> map = json.decode(response.body);
+//    map = json.decode(response.body);
+//    Iterable jsonList = map["businesses"];
+//    List<Restaurants> businesses = jsonList.map((model) =>
+//        Restaurants.fromJson(model)).toList();
+//    print(jsonList.toString());
+//    for (Restaurants restaurant in businesses) {
+//      print("Restaurant: " + restaurant.name);
+//    }
+//    //print("Businesses: " + businesses.toString());
+//
+//    // Pick random restaurant from results
+//    int min = 0;
+//    int max = businesses.length;
+//    int i = min + _random.nextInt(max - min);
+//    return businesses[i];
+//
+//  }
 
 
   @override
@@ -358,6 +465,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
             _removeGroupButton(),
             _showAddUser(),
             _showPreferences(),
+            _buildResultButton(),
 //            _showAddPreferencesButton(),
             //_showCircularProgress(),
           ],
