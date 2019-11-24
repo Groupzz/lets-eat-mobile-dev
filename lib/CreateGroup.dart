@@ -29,13 +29,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   //String _password;
   String _userId = "";
   List<String> users = [];
-  final fNameController = TextEditingController();
-  final lNameController = TextEditingController();
-  final uNameController = TextEditingController();
-  final dobController = TextEditingController();
-  final cityController = TextEditingController();
-  final zipController = TextEditingController();
-  final phoneController = TextEditingController();
+  final usernameController = TextEditingController();
   FirebaseUser user;
   QuerySnapshot userData;
 
@@ -69,7 +63,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   }
 
   void _updateData() async{
-    Firestore.instance.collection('groups').document(widget.docId).updateData({'Participants':FieldValue.arrayUnion([fNameController.text])});
+    Firestore.instance.collection('groups').document(widget.docId).updateData({'Participants':FieldValue.arrayUnion([usernameController.text])});
 
     _showSuccess();
   }
@@ -174,7 +168,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     return Padding(
       padding: EdgeInsets.fromLTRB(5.0, 15.0, 0.0, 0.0),
       child: new TextFormField(
-        controller: fNameController,
+        controller: usernameController,
         maxLines: 1,
         keyboardType: TextInputType.text,
         autofocus: false,
@@ -214,7 +208,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 
   Widget _removeUserButton() {
     return new Padding(
-        padding: EdgeInsets.fromLTRB(115.0, 540.0, 5.0, 0.0),
+        padding: EdgeInsets.fromLTRB(80.0, 540.0, 5.0, 0.0),
         child: SizedBox(
           height: 40.0,
           width: 200,

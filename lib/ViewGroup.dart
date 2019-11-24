@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:lets_eat/GroupRestaurant.dart';
 import 'Accounts/LoginSignUp.dart';
 import 'Accounts/authentication.dart';
 import 'Accounts/accounts.dart';
@@ -43,11 +44,14 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   final prefController = TextEditingController();
   FirebaseUser user;
   QuerySnapshot userData;
+  String result;
 
   var location = new Location();
   static const String API_KEY = "p8eXXM3q_ks6WY_FWc2KhV-EmLhSpbJf0P-SATBhAIM4dNCgsp3sH8ogzJPezOT6LzFQlb_vcFfxziHbHuNt8RwxtWY0-vRpx7C0nPz5apIT4A5LYGmaVfuwPrf3WXYx";
   static const Map<String, String> AUTH_HEADER = {"Authorization": "Bearer $API_KEY"};
   final _random = new Random();
+
+  List<dynamic> preferences;
 
   bool done = false;
   bool viewPref = true;
@@ -62,11 +66,52 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
             color: Colors.green,
             shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
             child: Text('View Restaurant'),
-            onPressed: () {},
+            onPressed: () {
+              loadRestaurant();
+            },
           )
               : SizedBox(),
         ),
       );
+  }
+
+  void loadRestaurant() async {
+    var resultDoc = Firestore.instance.collection('groups').document(widget.docId);
+    resultDoc.get().then((resultDoc) {
+      result = resultDoc['Result'];
+    });
+    await Future.delayed(const Duration(milliseconds: 700), (){});
+    print("Restaurant ID result = " + result);
+
+    String siteAddress = "https://api.yelp.com/v3/businesses/" + result; //-118.112858";
+
+    //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
+
+    http.Response response;
+    Map<String, dynamic> map;
+    response =
+    await http.get(siteAddress, headers: AUTH_HEADER).catchError((resp) {});
+
+    //Map<String, dynamic> map;
+    // Error handling
+    //    response == null
+    //    ? response = await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {})
+    //    : map = json.decode(response.body);
+    if (response == null || response.statusCode < CODE_OK ||
+        response.statusCode >= CODE_REDIRECTION) {
+      return Future.error(response.body);
+    }
+
+    //    Map<String, dynamic> map = json.decode(response.body);
+    map = json.decode(response.body);
+    var r = json.decode(response.body);
+    print("r == " +  r.toString());
+    Route route = MaterialPageRoute(builder: (context) => GroupRestaurantPage(result: r,));
+    Navigator.push(context, route);
+//    Iterable jsonList = map["businesses"];
+//    List<Restaurants> businesses = jsonList.map((model) =>
+//        Restaurants.fromJson(model)).toList();
+//    print(jsonList.toString());
   }
 
 
@@ -131,6 +176,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
                 child: new Text('SUBMIT'),
                 onPressed: () {
                   Firestore.instance.collection('groups').document(widget.docId).updateData({'Preferences':FieldValue.arrayUnion([prefController.text])});
+                  Navigator.of(context).pop();
                   showDialog(
                     context: context,
                     builder: (context) {
@@ -140,7 +186,6 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
                           new FlatButton(
                             child: new Text("Dismiss"),
                             onPressed: () {
-                              Navigator.of(context).pop();
                               Navigator.of(context).pop();
                             },
                           )
@@ -325,21 +370,45 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
         padding: EdgeInsets.fromLTRB(190.0, 70.0, 5.0, 0.0),
         child: SizedBox(
           height: 40.0,
-          //width: 200,
+          width: 175,
           child: new RaisedButton(
             elevation: 5.0,
             shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
             color: Colors.green,
             child: new Text('Find A Restaurant',
-                style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+                style: new TextStyle(fontSize: 15.0, color: Colors.white)),
             onPressed: () {
               setState(() {
-                done = true;
+                generateQuery();
+                //done = true;
                 viewPref = false;
               });
             },
           ),
         ));
+  }
+
+  void generateQuery() async{
+    var gDoc = Firestore.instance.collection('groups').document(widget.docId);
+    gDoc.get().then((gDoc) {
+      preferences = gDoc['Preferences'];
+    });
+    await Future.delayed(const Duration(milliseconds: 700), (){});
+    String query = preferences.toString().substring(1, preferences.toString().length - 1);
+    print("Preferences = " + query);
+    findRandomRestaurant(query).then((resultID) {
+      Firestore.instance.collection('groups').document(widget.docId).updateData({'Result': resultID});
+      print("resultID = " + resultID);
+      //done = true;
+    }).then((resultID) {
+      setState(() {
+        done = true;
+      });
+    });
+   /// await Future.delayed(const Duration(seconds: 2), (){});
+//    setState(() {
+//      done = true;
+//    });
   }
 
   Widget _showAddPreferencesButton() {
@@ -365,8 +434,9 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   }
 
   void removeGroup() async {
-    await Firestore.instance.collection('groups').document(widget.docId).delete();
     Navigator.of(context).pop();
+    await Firestore.instance.collection('groups').document(widget.docId).delete();
+
   }
 
   Widget _removeGroupButton() {
@@ -389,61 +459,55 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   }
 
 
-//  Future<Restaurants> findRandomRestaurant() async {
-//    String webAddress;
-//    var latitude;
-//    var longitude;
-//    var currentLocation = await location.getLocation();
-//    latitude = currentLocation.latitude;
-//    longitude = currentLocation.longitude;
-//
-//    var doc = await Firestore.instance.collection('groups').document(widget.docId);
-//    doc.get() => then(function(doc) {
-//
-//    })
-//
-//
-//    webAddress = "https://api.yelp.com/v3/businesses/search?term=" + "&limit=50"; //-118.112858";
-//    if(!webAddress.contains("location")){
-//      webAddress += "&latitude=" + latitude.toString() + "&longitude=" + longitude.toString();
-//    }
-//
-//    //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
-//    print("latitude = " + latitude.toString() + "; longitude = " +
-//        longitude.toString());
-//    http.Response response;
-//    Map<String, dynamic> map;
-//    response =
-//    await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {});
-//
-//    //Map<String, dynamic> map;
-//    // Error handling
-//    //    response == null
-//    //    ? response = await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {})
-//    //    : map = json.decode(response.body);
-//    if (response == null || response.statusCode < CODE_OK ||
-//        response.statusCode >= CODE_REDIRECTION) {
-//      return Future.error(response.body);
-//    }
-//
-//    //    Map<String, dynamic> map = json.decode(response.body);
-//    map = json.decode(response.body);
-//    Iterable jsonList = map["businesses"];
-//    List<Restaurants> businesses = jsonList.map((model) =>
-//        Restaurants.fromJson(model)).toList();
-//    print(jsonList.toString());
-//    for (Restaurants restaurant in businesses) {
-//      print("Restaurant: " + restaurant.name);
-//    }
-//    //print("Businesses: " + businesses.toString());
-//
-//    // Pick random restaurant from results
-//    int min = 0;
-//    int max = businesses.length;
-//    int i = min + _random.nextInt(max - min);
-//    return businesses[i];
-//
-//  }
+  Future<String> findRandomRestaurant(String query) async {
+    String webAddress;
+    var latitude;
+    var longitude;
+    var currentLocation = await location.getLocation();
+    latitude = currentLocation.latitude;
+    longitude = currentLocation.longitude;
+
+    webAddress = "https://api.yelp.com/v3/businesses/search?term=" + query + "&limit=50"; //-118.112858";
+    if(!webAddress.contains("location")){
+      webAddress += "&latitude=" + latitude.toString() + "&longitude=" + longitude.toString();
+    }
+
+    //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
+    print("latitude = " + latitude.toString() + "; longitude = " +
+        longitude.toString());
+    http.Response response;
+    Map<String, dynamic> map;
+    response =
+    await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {});
+
+    //Map<String, dynamic> map;
+    // Error handling
+    //    response == null
+    //    ? response = await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {})
+    //    : map = json.decode(response.body);
+    if (response == null || response.statusCode < CODE_OK ||
+        response.statusCode >= CODE_REDIRECTION) {
+      return Future.error(response.body);
+    }
+
+    //    Map<String, dynamic> map = json.decode(response.body);
+    map = json.decode(response.body);
+    Iterable jsonList = map["businesses"];
+    List<Restaurants> businesses = jsonList.map((model) =>
+        Restaurants.fromJson(model)).toList();
+    print(jsonList.toString());
+    for (Restaurants restaurant in businesses) {
+      print("Restaurant: " + restaurant.name);
+    }
+    //print("Businesses: " + businesses.toString());
+
+    // Pick random restaurant from results
+    int min = 0;
+    int max = businesses.length;
+    int i = min + _random.nextInt(max - min);
+    return businesses[i].id;
+
+  }
 
 
   @override

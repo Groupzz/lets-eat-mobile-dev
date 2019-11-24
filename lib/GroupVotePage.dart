@@ -128,7 +128,7 @@ class _GroupVotePageState extends State<GroupVotePage> {
   Widget _showPrimaryButton() {
     //getCurrentUserInfo();
     return new Padding(
-      padding: EdgeInsets.fromLTRB(80.0, 30.0, 10.0, 0.0),
+      padding: EdgeInsets.fromLTRB(90.0, 30.0, 10.0, 0.0),
       child: SizedBox(
         height: 40.0,
         width: 200,
