@@ -136,7 +136,9 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   }
 
   void _updateData() async{
+
     Firestore.instance.collection('groups').document(widget.docId).updateData({'Participants':FieldValue.arrayUnion([usernameController.text])});
+    usernameController.clear();
 
     _showSuccess();
   }
@@ -176,6 +178,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
                 child: new Text('SUBMIT'),
                 onPressed: () {
                   Firestore.instance.collection('groups').document(widget.docId).updateData({'Preferences':FieldValue.arrayUnion([prefController.text])});
+                  prefController.clear();
                   Navigator.of(context).pop();
                   showDialog(
                     context: context,
@@ -467,7 +470,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     latitude = currentLocation.latitude;
     longitude = currentLocation.longitude;
 
-    webAddress = "https://api.yelp.com/v3/businesses/search?term=" + query + "&limit=50"; //-118.112858";
+    webAddress = "https://api.yelp.com/v3/businesses/search?term=" + query;// + "&limit=50"; //-118.112858";
     if(!webAddress.contains("location")){
       webAddress += "&latitude=" + latitude.toString() + "&longitude=" + longitude.toString();
     }

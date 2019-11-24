@@ -65,6 +65,7 @@ class _FriendsPageState extends State<FriendsPage> {
             new FlatButton(
               child: new Text("Dismiss"),
               onPressed: () {
+                controller.clear();
                 Navigator.of(context).pop();
               },
             ),
