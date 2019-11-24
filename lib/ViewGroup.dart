@@ -54,26 +54,27 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   List<dynamic> preferences;
 
   bool done = false;
+  bool viewStart = true;
   bool viewPref = true;
   bool viewFind = true;
 
-  Widget _buildResultButton() {
-    return new Padding(
-        padding: EdgeInsets.fromLTRB(10.0, 400.0, 0.0, 20.0),
-        child: Center(
-          child: done
-              ? RaisedButton(
-            color: Colors.green,
-            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-            child: Text('View Restaurant'),
-            onPressed: () {
-              loadRestaurant();
-            },
-          )
-              : SizedBox(),
-        ),
-      );
-  }
+//  Widget _buildResultButton() {
+//    return new Padding(
+//        padding: EdgeInsets.fromLTRB(10.0, 400.0, 0.0, 20.0),
+//        child: Center(
+//          child: done
+//              ? RaisedButton(
+//            color: Colors.green,
+//            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+//            child: Text('View Restaurant'),
+//            onPressed: () {
+//              loadRestaurant();
+//            },
+//          )
+//              : SizedBox(),
+//        ),
+//      );
+//  }
 
   void loadRestaurant() async {
     var resultDoc = Firestore.instance.collection('groups').document(widget.docId);
@@ -245,6 +246,50 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     );
   }
 
+  Widget _buildResultButton() {
+    return new Padding(
+      padding: EdgeInsets.fromLTRB(10.0, 400.0, 0.0, 20.0),
+      child: Center(
+          child: StreamBuilder(
+              stream: Firestore.instance.collection('groups').document(widget.docId).snapshots(),
+              builder: (context, data) {
+                if(data.hasData) {
+                  var doc = data.data;
+                  String res = doc['Result'];
+                  try {
+                    if (res.length > 0) {
+                      return new RaisedButton(
+                        color: Colors.green,
+                        shape: new RoundedRectangleBorder(
+                            borderRadius: new BorderRadius.circular(30.0)),
+                        child: Text('View Restaurant'),
+                        onPressed: () {
+                          loadRestaurant();
+                        },
+                      );
+                    }
+
+                    else{
+                      return Center();
+                    }
+                  }
+                  catch (e){
+                    return Center();
+                  }
+
+                }
+                else if (data.hasError) {
+                  return Padding(padding: const EdgeInsets.all(8.0), child: Text("No Preferences Found"));
+                }
+
+                // By default, show a loading spinner
+                return Center();
+              }
+          )
+      ),
+    );
+  }
+
   Widget _showPreferences() {  // Display ListView of Friends
     //getCurrentUserInfo();
     return new Padding(
@@ -340,25 +385,70 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   }
 
 
+//  Widget _showPrimaryButton() {
+//    return new Padding(
+//        padding: EdgeInsets.fromLTRB(10.0, 70.0, 20.0, 0.0),
+//        child: SizedBox(
+//          height: 40.0,
+//          child: viewPref ?
+//            new RaisedButton(
+//              elevation: 5.0,
+//              shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+//              color: Colors.blue,
+//              child: new Text('Add Preference',
+//                  style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+//              onPressed: () {
+//                _displayAddPref();
+//              },
+//            )
+//              :
+//              SizedBox()
+//        ));
+//  }
+
   Widget _showPrimaryButton() {
     return new Padding(
-        padding: EdgeInsets.fromLTRB(10.0, 70.0, 20.0, 0.0),
-        child: SizedBox(
-          height: 40.0,
-          child: viewPref ?
-            new RaisedButton(
-              elevation: 5.0,
-              shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-              color: Colors.blue,
-              child: new Text('Add Preference',
-                  style: new TextStyle(fontSize: 20.0, color: Colors.white)),
-              onPressed: () {
-                _displayAddPref();
-              },
-            )
-              :
-              SizedBox()
-        ));
+      padding: EdgeInsets.fromLTRB(0.0, 0.0, 220.0, 420.0),
+      child: Center(
+          child: StreamBuilder(
+              stream: Firestore.instance.collection('groups').document(widget.docId).snapshots(),
+              builder: (context, data) {
+                if(data.hasData) {
+                  var doc = data.data;
+                  String res = doc['Result'];
+                  try {
+                    if (res.length == 0) {
+                      return new RaisedButton(
+                        elevation: 5.0,
+                        shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+                        color: Colors.blue,
+                        child: new Text('Add Preference',
+                            style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+                        onPressed: () {
+                          _displayAddPref();
+                        },
+                      );
+                    }
+
+                    else{
+                      return Center();
+                    }
+                  }
+                  catch (e){
+                    return Center();
+                  }
+
+                }
+                else if (data.hasError) {
+                  return Padding(padding: const EdgeInsets.all(8.0), child: Text("No Preferences Found"));
+                }
+
+                // By default, show a loading spinner
+                return Center();
+              }
+          )
+      ),
+    );
   }
 
   Widget _showPrefsLabel() {
@@ -368,27 +458,79 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     );
   }
 
+//  Widget _showStartButton() {
+//    return new Padding(
+//        padding: EdgeInsets.fromLTRB(190.0, 70.0, 5.0, 0.0),
+//        child: SizedBox(
+//          height: 40.0,
+//          width: 175,
+//          child: viewStart? new RaisedButton(
+//            elevation: 5.0,
+//            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+//            color: Colors.green,
+//            child: new Text('Find A Restaurant',
+//                style: new TextStyle(fontSize: 15.0, color: Colors.white)),
+//            onPressed: () {
+//              setState(() {
+//                generateQuery();
+//                //done = true;
+//                viewPref = false;
+//                viewStart = false;
+//              });
+//            },
+//          )
+//          : Center(),
+//        ));
+//  }
+
   Widget _showStartButton() {
     return new Padding(
-        padding: EdgeInsets.fromLTRB(190.0, 70.0, 5.0, 0.0),
-        child: SizedBox(
-          height: 40.0,
-          width: 175,
-          child: new RaisedButton(
-            elevation: 5.0,
-            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-            color: Colors.green,
-            child: new Text('Find A Restaurant',
-                style: new TextStyle(fontSize: 15.0, color: Colors.white)),
-            onPressed: () {
-              setState(() {
-                generateQuery();
-                //done = true;
-                viewPref = false;
-              });
-            },
-          ),
-        ));
+      padding: EdgeInsets.fromLTRB(190.0, 0.0, 5.0, 420.0),
+      child: Center(
+          child: StreamBuilder(
+              stream: Firestore.instance.collection('groups').document(widget.docId).snapshots(),
+              builder: (context, data) {
+                if(data.hasData) {
+                  var doc = data.data;
+                  String res = doc['Result'];
+                  try {
+                    if (res.length == 0) {
+                      return new RaisedButton(
+                        elevation: 5.0,
+                        shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+                        color: Colors.green,
+                        child: new Text('Find A Restaurant',
+                            style: new TextStyle(fontSize: 15.0, color: Colors.white)),
+                        onPressed: () {
+                          setState(() {
+                            generateQuery();
+                            //done = true;
+                            viewPref = false;
+                            viewStart = false;
+                          });
+                        },
+                      );
+                    }
+
+                    else{
+                      return Center();
+                    }
+                  }
+                  catch (e){
+                    return Center();
+                  }
+
+                }
+                else if (data.hasError) {
+                  return Padding(padding: const EdgeInsets.all(8.0), child: Text("No Preferences Found"));
+                }
+
+                // By default, show a loading spinner
+                return Center();
+              }
+          )
+      ),
+    );
   }
 
   void generateQuery() async{

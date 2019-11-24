@@ -91,7 +91,7 @@ class _GroupRestaurantPageState extends State<GroupRestaurantPage> {
                     text: TextSpan(
                       style: Theme.of(context).textTheme.body1,
                       children: [
-                        TextSpan(text: '${loc['address1']??""} ${loc['address2']??""} ${loc['city']}'
+                        TextSpan(text: '${loc['display_address'].toString().substring(1, loc['display_address'].toString().length - 1)??""}'
                             '\n${widget.result['price']}           ${widget.result['rating']}'),
                         WidgetSpan(
                             child: Padding(

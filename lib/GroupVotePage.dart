@@ -152,6 +152,7 @@ class _GroupVotePageState extends State<GroupVotePage> {
       "creatorID": user.uid,
       "Participants": [user.displayName],
       "Preferences": [],
+      "Result": "",
     }).then((doc) {
       Route route = MaterialPageRoute(builder: (context) => CreateGroupPage(docId: doc.documentID));
       Navigator.push(context, route);
