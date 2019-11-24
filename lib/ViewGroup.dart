@@ -46,6 +46,11 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   QuerySnapshot userData;
   String result;
 
+  List<String> choices = <String>[
+    "Reset Group Vote",
+    "Delete Group",
+  ];
+
   var location = new Location();
   static const String API_KEY = "p8eXXM3q_ks6WY_FWc2KhV-EmLhSpbJf0P-SATBhAIM4dNCgsp3sH8ogzJPezOT6LzFQlb_vcFfxziHbHuNt8RwxtWY0-vRpx7C0nPz5apIT4A5LYGmaVfuwPrf3WXYx";
   static const Map<String, String> AUTH_HEADER = {"Authorization": "Bearer $API_KEY"};
@@ -655,14 +660,79 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   }
 
 
+//  Widget _threeItemPopup() => PopupMenuButton(
+//    itemBuilder: (context) {
+//      var list = List<PopupMenuEntry<Object>>();
+//      list.add(
+//        PopupMenuItem(
+//          child: Text("Setting Language"),
+//          value: 1,
+//        ),
+//      );
+//      list.add(
+//        PopupMenuDivider(
+//          height: 10,
+//        ),
+//      );
+//      list.add(
+//        CheckedPopupMenuItem(
+//          child: Text(
+//            "English",
+//            style: TextStyle(color: TEXT_BLACK),
+//          ),
+//          value: 2,
+//          checked: true,
+//        ),
+//      );
+//      return list;
+//    },
+//    icon: Icon(
+//      Icons.settings,
+//      size: 50,
+//      color: Colors.white,
+//    ),
+//  );
+
+
   @override
   Widget build(BuildContext context) {
     _getCurrentUser();
-    // TODO: implement build
+
+
+    Widget _selectPopup() => PopupMenuButton<int>(
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 1,
+          child: Text("Reset Group Vote"),
+        ),
+        PopupMenuItem(
+          value: 2,
+          child: Text("Delete Group", style: TextStyle(color: Colors.red),),
+        ),
+      ],
+      onCanceled: () {
+        print("You have canceled the menu.");
+      },
+      onSelected: (value) {
+        if(value == 1){
+          Firestore.instance.collection('groups').document(widget.docId).updateData({'Result': ""});
+          Firestore.instance.collection('groups').document(widget.docId).updateData({'Preferences': []});
+        }
+        if(value == 2){
+          removeGroup();
+        }
+      },
+      icon: Icon(Icons.more_vert),
+    );
+
+
     return new Scaffold(
         resizeToAvoidBottomPadding: false,
         appBar: AppBar(
           title: Text("New Group Vote"),
+          actions: <Widget>[
+            _selectPopup()
+          ]
         ),
         body: Stack(
           children: <Widget>[
@@ -671,7 +741,6 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
             _showPrefsLabel(),
 //            _showFriends(),
             _showStartButton(),
-            _removeGroupButton(),
             _showAddUser(),
             _showPreferences(),
             _buildResultButton(),
