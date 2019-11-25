@@ -51,6 +51,7 @@ class _UpdatePageState extends State<UpdatePage> {
 //    });
   }
 
+
   void _getCurrentUser() async {
     user = await FirebaseAuth.instance.currentUser();
     _userId = user.uid;
@@ -77,7 +78,7 @@ class _UpdatePageState extends State<UpdatePage> {
     print("user id = " + userDocID);
 
     Firestore.instance.collection('users').document(userDocID).updateData({
-      "firstname": fNameController.text.isEmpty? userData.documents[0]["firstname"].toString(): fNameController.text,
+      "firstname": fNameController.text,
       "lastname": lNameController.text.isEmpty? userData.documents[0]["lastname"].toString() : lNameController.text,
       "phone": phoneController.text.isEmpty? userData.documents[0]["phone"].toString() : phoneController.text,
       "dateofbirth": dobController.text.isEmpty? userData.documents[0]["dateofbirth"].toString() : dobController.text,

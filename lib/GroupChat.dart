@@ -205,7 +205,11 @@ class _GroupChatPageState extends State<GroupChatPage> with SingleTickerProvider
                   margin: new EdgeInsets.symmetric(horizontal: 8.0),
                   child: new IconButton(
                     icon: new Icon(Icons.send),
-                    onPressed: _updateData,
+                    onPressed: () {
+                      if(messageController.text.isNotEmpty){
+                        _updateData();
+                      }
+                    }
                   ),
                 ),
                 color: Colors.white,
@@ -365,7 +369,9 @@ class _GroupChatPageState extends State<GroupChatPage> with SingleTickerProvider
               color: Colors.blue,
               child: Icon(Icons.send, color: Colors.white,),
               onPressed: () {
-                _updateData();
+                if(messageController.text.length == 0) {
+                  _updateData();
+                }
               },
             )
         )
