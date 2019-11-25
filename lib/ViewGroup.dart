@@ -297,6 +297,33 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
                                             //Padding(padding: const EdgeInsets.all(8.0)),
                                             ListTile(
                                               title: Text('${prefs[index]}'),
+                                              onTap: () {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (BuildContext context) {
+                                                    // return object of type Dialog
+                                                    return AlertDialog(
+                                                      title: new Text("Delete this preference?"),
+                                                      //content: new Text("Link to verify account has been sent to your email"),
+                                                      actions: <Widget>[
+                                                        new FlatButton(
+                                                          child: new Text("No"),
+                                                          onPressed: () {
+                                                            Navigator.of(context).pop();
+                                                          },
+                                                        ),
+                                                        new FlatButton(
+                                                          child: new Text("Yes", style: TextStyle(color: Colors.red)),
+                                                          onPressed: () {
+                                                            Firestore.instance.collection('groups').document(widget.docId).updateData({'Preferences':FieldValue.arrayRemove([prefs[index]])});
+                                                            Navigator.of(context).pop();
+                                                          },
+                                                        )
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+                                              }
                                             ),
                                           ])
                                   )
@@ -736,38 +763,51 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
           value: 2,
           child: Text("Delete Group", style: TextStyle(color: Colors.red),),
         ),
-        PopupMenuItem(
-          value: 3,
-          child: TextFormField(
-            controller: usernameController,
-            maxLines: 1,
-            keyboardType: TextInputType.text,
-            autofocus: false,
-            decoration: new InputDecoration(
-                hintText: 'Enter usernames to add to group',
-                icon: new Icon(
-                  Icons.person,
-                  color: Colors.grey,
-                )),
-            validator: (value) => value.isEmpty ? 'Username can\'t be empty' : null,
-            onSaved: (value) => users.add(value),
-          ),
-        ),
       ],
       onCanceled: () {
         print("You have canceled the menu.");
       },
       onSelected: (value) {
-        if(value == 1){
-          Firestore.instance.collection('groups').document(widget.docId).updateData({'Result': ""});
-          Firestore.instance.collection('groups').document(widget.docId).updateData({'Preferences': []});
+        if (value == 1) {
+          Firestore.instance.collection('groups')
+              .document(widget.docId)
+              .updateData({'Result': ""});
+          Firestore.instance.collection('groups')
+              .document(widget.docId)
+              .updateData({'Preferences': []});
         }
-        if(value == 2){
-          removeGroup();
-        }
+        if (value == 2) {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                // return object of type Dialog
+                return AlertDialog(
+                  title: new Text(
+                      "Are You Sure You Want To Delete This Group?"),
+                  //content: new Text("Link to verify account has been sent to your email"),
+                  actions: <Widget>[
+                    new FlatButton(
+                      child: new Text("No"),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    new FlatButton(
+                      child: new Text(
+                          "Yes", style: TextStyle(color: Colors.red)),
+                      onPressed: () {
+                        removeGroup();
+                        Navigator.of(context).pop();
+                      },
+                    )
+                  ],
+                );
+                //removeGroup();
+              });
+        };
       },
-      icon: Icon(Icons.more_vert),
-    );
+      icon: Icon(Icons.more_vert));
+
 
 
     return new Scaffold(
