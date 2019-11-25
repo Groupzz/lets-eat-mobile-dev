@@ -81,7 +81,7 @@ class _SignupPageState extends State<SignupPage> {
 
       Firestore.instance.collection('friends').add(
           { // Add user to firestore w/ generated userID
-            "userID": _userId,
+            "id": _userId,
             "friends": [],
           }).then((doc) {
         print("Friend ID = " + doc.documentID);
