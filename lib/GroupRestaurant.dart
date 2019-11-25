@@ -126,6 +126,7 @@ class _GroupRestaurantPageState extends State<GroupRestaurantPage> {
                   FlatButton(
                     child: const Text('NAVIGATE'),
                     onPressed: () {
+                      _launchURL("google.navigation:q=${coords['latitude']},${coords['longitude']}");
                       //_launchURL(snapshot.data.)
                     },
                   ),

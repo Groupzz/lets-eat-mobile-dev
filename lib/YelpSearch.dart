@@ -198,9 +198,9 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
   Widget build(BuildContext context) {
     print(widget.query);
     return MaterialApp(
-      title: "Yelp Test",
+      title: "Selected Restaurant",
       home: Scaffold(
-        appBar: AppBar(title: Text("Yelp Test")),
+        appBar: AppBar(title: Text("Selected Restaurant")),
         body: Center(
 //          child: FutureBuilder<List<Restaurants>>(
           child: FutureBuilder<Restaurants>(
@@ -274,6 +274,7 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
                                             child: const Text('NAVIGATE'),
                                             onPressed: () {
                                               //_launchURL(snapshot.data.)
+                                              _launchURL("google.navigation:q=${snapshot.data.latitude},${snapshot.data.longitude}");
                                             },
                                           ),
                                         ],

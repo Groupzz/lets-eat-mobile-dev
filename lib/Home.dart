@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lets_eat/FriendsPage.dart';
 import 'package:lets_eat/GroupVotePage.dart';
 import 'package:lets_eat/Accounts/UserYelpPreferences.dart';
+import 'package:lets_eat/HomeSearch.dart';
 import 'package:lets_eat/search.dart';
 import 'package:lets_eat/Accounts/signUpPage.dart';
 import 'Accounts/userAuth.dart';
@@ -20,6 +21,7 @@ import 'YelpSearch.dart';
 import 'Accounts/UserYelpPreferences.dart';
 import 'Accounts/LoginSignUp.dart';
 import 'Accounts/signUpPage.dart';
+import 'SearchList.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -27,9 +29,87 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final searchController = TextEditingController();
+  final locController = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
+
+    Widget _selectPopup() => PopupMenuButton<int>(
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 1,
+          child: TextFormField(
+            controller: searchController,
+            maxLines: 1,
+            keyboardType: TextInputType.text,
+            autofocus: false,
+            decoration: new InputDecoration(
+                hintText: 'Enter search term',
+                icon: new Icon(
+                  Icons.search,
+                  color: Colors.grey,
+                )),
+            validator: (value) => value.isEmpty ? 'Username can\'t be empty' : null,
+            onSaved: (value) {
+
+            },
+          ),
+        ),
+
+        PopupMenuItem(
+          value: 2,
+          child: TextFormField(
+            controller: locController,
+            maxLines: 1,
+            keyboardType: TextInputType.text,
+            autofocus: false,
+            decoration: new InputDecoration(
+                hintText: 'Current Location',
+                icon: new Icon(
+                  Icons.location_on,
+                  color: Colors.grey,
+                )),
+            validator: (value) => value.isEmpty ? 'Username can\'t be empty' : null,
+            onSaved: (value) {
+
+            },
+          ),
+        ),
+        PopupMenuItem(
+          value: 3,
+          child: RaisedButton(
+              elevation: 5.0,
+              shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+              color: Colors.blue,
+              child: new Text('Search',
+                  style: new TextStyle(fontSize: 16.0, color: Colors.white)),
+              onPressed: () {
+                String query = "";
+                if(searchController.text.isNotEmpty){
+                  query = searchController.text;
+                }
+                if(locController.text.isNotEmpty){
+                  query += "&location="+locController.text;
+                }
+                Route route = MaterialPageRoute(builder: (context) => HomeSearchPage(query: query,));
+                Navigator.push(context, route);
+              }
+          ),
+        ),
+      ],
+      onCanceled: () {
+        print("You have canceled the menu.");
+      },
+      onSelected: (value) {
+        if(value == 1){
+        }
+      },
+      icon: Icon(Icons.search),
+    );
+
+
     return Scaffold(
         key: scaffoldKey,
         drawer: new Drawer(
@@ -107,13 +187,15 @@ class _HomeState extends State<Home> {
           ),
           title: const Text('Let\'s Eat - Home'),
           actions: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.add_alert),
-              tooltip: 'Show Snackbar',
-              onPressed: () {
-                scaffoldKey.currentState.showSnackBar(snackBar);
-              },
-            ),
+            _selectPopup(),
+//            IconButton(
+//              icon: const Icon(Icons.search),
+//              tooltip: 'Show Snackbar',
+//              onPressed: () {
+//                Route route = MaterialPageRoute(builder: (context) => SearchList());
+//                Navigator.push(context, route);
+//              },
+//            ),
             IconButton(
               icon: const Icon(Icons.my_location),
               tooltip: 'Nearby Restaurants',

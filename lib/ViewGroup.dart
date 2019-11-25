@@ -330,11 +330,61 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     });
   }
 
+  Widget buildInput() {
+    return Padding(
+        padding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 20.0),
+        child: Container(
+          child: Row(
+            children: <Widget>[
+
+              // Button send image
+              // Edit text
+              Flexible(
+                child: Container(
+                  child: TextField(
+                    style: TextStyle(fontSize: 15.0),
+                    controller: usernameController,
+                    decoration: InputDecoration.collapsed(
+                      hintText: 'Enter username to add to group',
+                      hintStyle: TextStyle(color: Colors.grey),
+                    ),
+                    //focusNode: _focusNode,
+                  ),
+                ),
+              ),
+
+
+
+              // Button send message
+              Material(
+                child: new Container(
+                  margin: new EdgeInsets.symmetric(horizontal: 8.0),
+                  child: new IconButton(
+                      icon: new Icon(Icons.person_add),
+                      onPressed: () {
+                        if(usernameController.text.isNotEmpty){
+                          _updateData();
+                        }
+                      }
+                  ),
+                ),
+                color: Colors.white,
+              ),
+            ],
+          ),
+          width: double.infinity,
+          height: 50.0,
+          decoration: new BoxDecoration(
+              border: new Border(top: new BorderSide(color: Colors.grey, width: 0.5)), color: Colors.white),
+        ));
+  }
+
+
 
   Widget _showAddUsers(){
     _getCurrentUser();
     return Padding(
-      padding: EdgeInsets.fromLTRB(5.0, 15.0, 50.0, 0.0),
+      padding: EdgeInsets.fromLTRB(5.0, 0.0, 50.0, 0.0),
       child: new TextFormField(
         controller: usernameController,
         maxLines: 1,
@@ -354,7 +404,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
 
   Widget _showAddUser(){
     return new Padding(
-      padding: const EdgeInsets.fromLTRB(310.0, 10.0, 10.0, 0.0),
+      padding: const EdgeInsets.fromLTRB(310.0, 0.0, 10.0, 0.0),
         child: SizedBox(
           width: 50,
           child: RaisedButton(
@@ -686,6 +736,23 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
           value: 2,
           child: Text("Delete Group", style: TextStyle(color: Colors.red),),
         ),
+        PopupMenuItem(
+          value: 3,
+          child: TextFormField(
+            controller: usernameController,
+            maxLines: 1,
+            keyboardType: TextInputType.text,
+            autofocus: false,
+            decoration: new InputDecoration(
+                hintText: 'Enter usernames to add to group',
+                icon: new Icon(
+                  Icons.person,
+                  color: Colors.grey,
+                )),
+            validator: (value) => value.isEmpty ? 'Username can\'t be empty' : null,
+            onSaved: (value) => users.add(value),
+          ),
+        ),
       ],
       onCanceled: () {
         print("You have canceled the menu.");
@@ -713,13 +780,14 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
         ),
         body: Stack(
           children: <Widget>[
-            _showAddUsers(),
+//            _showAddUsers(),
+            buildInput(),
             _showPrimaryButton(),
             _showPrefsLabel(),
 //            _showFriends(),
             _showStartButton(),
             _showChat(),
-            _showAddUser(),
+//            _showAddUser(),
             _showPreferences(),
             _buildResultButton(),
 //            _showAddPreferencesButton(),
