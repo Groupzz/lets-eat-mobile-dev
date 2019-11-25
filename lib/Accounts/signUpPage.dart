@@ -131,6 +131,7 @@ class _SignupPageState extends State<SignupPage> {
     UserUpdateInfo updateInfo = UserUpdateInfo();
     updateInfo.displayName = uNameController.text;
     user.updateProfile(updateInfo);
+    Navigator.of(context).pop();
 
     _showSuccess();
 }
@@ -149,6 +150,7 @@ class _SignupPageState extends State<SignupPage> {
               onPressed: () {
                 //prefix0.Navigator.of(context).pop()
                 Navigator.of(context).pop();
+                //Navigator.of(context).pop();
               },
             ),
           ],
