@@ -150,7 +150,7 @@ class _SignupPageState extends State<SignupPage> {
               onPressed: () {
                 //prefix0.Navigator.of(context).pop()
                 Navigator.of(context).pop();
-                //Navigator.of(context).pop();
+                Navigator.of(context).pop();
               },
             ),
           ],
