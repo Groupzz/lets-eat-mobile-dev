@@ -18,13 +18,9 @@ import 'maps.dart';
 import 'dart:math';
 import 'Restaurants.dart';
 import 'YelpRepository.dart';
+import 'GroupChat.dart';
 
 
-enum AuthStatus {
-  NOT_DETERMINED,
-  NOT_LOGGED_IN,
-  LOGGED_IN,
-}
 
 class ViewGroupPage extends StatefulWidget {
   ViewGroupPage({this.docId});
@@ -37,7 +33,6 @@ class ViewGroupPage extends StatefulWidget {
 class _ViewGroupPageState extends State<ViewGroupPage> {
   String groupDocID;
   final _formKey = new GlobalKey<FormState>();
-  AuthStatus authStatus = AuthStatus.NOT_DETERMINED;
   String _userId = "";
   List<String> users = [];
   final usernameController = TextEditingController();
@@ -62,24 +57,6 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   bool viewStart = true;
   bool viewPref = true;
   bool viewFind = true;
-
-//  Widget _buildResultButton() {
-//    return new Padding(
-//        padding: EdgeInsets.fromLTRB(10.0, 400.0, 0.0, 20.0),
-//        child: Center(
-//          child: done
-//              ? RaisedButton(
-//            color: Colors.green,
-//            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-//            child: Text('View Restaurant'),
-//            onPressed: () {
-//              loadRestaurant();
-//            },
-//          )
-//              : SizedBox(),
-//        ),
-//      );
-//  }
 
   void loadRestaurant() async {
     var resultDoc = Firestore.instance.collection('groups').document(widget.docId);
@@ -389,6 +366,26 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     );
   }
 
+  Widget _showChat(){
+    return new Padding(
+        padding: const EdgeInsets.fromLTRB(70.0, 400.0, 10.0, 0.0),
+        child: SizedBox(
+          width: 250,
+          child: RaisedButton(
+            elevation: 5.0,
+            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+            color: Colors.blue,
+            child: new Text('Group Chat',
+                style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+            onPressed: () {
+              Route route = MaterialPageRoute(builder: (context) => GroupChatPage(docId: widget.docId,));
+              Navigator.push(context, route);
+            },
+          )
+        )
+    );
+  }
+
 
 //  Widget _showPrimaryButton() {
 //    return new Padding(
@@ -589,26 +586,6 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
 
   }
 
-  Widget _removeGroupButton() {
-    return new Padding(
-        padding: EdgeInsets.fromLTRB(80.0, 540.0, 5.0, 0.0),
-        child: SizedBox(
-          height: 40.0,
-          width: 200,
-          child: new RaisedButton(
-              elevation: 5.0,
-              shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-              color: Colors.red,
-              child: new Text('Delete Group',
-                  style: new TextStyle(fontSize: 20.0, color: Colors.white)),
-              onPressed: () {
-                removeGroup();
-              }
-          ),
-        ));
-  }
-
-
   Future<String> findRandomRestaurant(String query) async {
     String webAddress;
     var latitude;
@@ -741,6 +718,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
             _showPrefsLabel(),
 //            _showFriends(),
             _showStartButton(),
+            _showChat(),
             _showAddUser(),
             _showPreferences(),
             _buildResultButton(),
