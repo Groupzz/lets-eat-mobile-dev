@@ -48,7 +48,6 @@ class _GroupChatPageState extends State<GroupChatPage> with SingleTickerProvider
     "Delete Group",
   ];
 
-  var location = new Location();
   static const String API_KEY = "p8eXXM3q_ks6WY_FWc2KhV-EmLhSpbJf0P-SATBhAIM4dNCgsp3sH8ogzJPezOT6LzFQlb_vcFfxziHbHuNt8RwxtWY0-vRpx7C0nPz5apIT4A5LYGmaVfuwPrf3WXYx";
   static const Map<String, String> AUTH_HEADER = {"Authorization": "Bearer $API_KEY"};
   final _random = new Random();
@@ -111,7 +110,7 @@ class _GroupChatPageState extends State<GroupChatPage> with SingleTickerProvider
 
   @override
   void dispose() {
-    _controller.dispose();
+    //_controller.dispose();
     _focusNode.dispose();
 
     super.dispose();
