@@ -228,6 +228,27 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
     );
   }
 
+  void showError() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Something Went Wrong!"),
+          content: new Text("Please try again or modify your search parameters"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Dismiss"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     print(widget.query);
@@ -351,7 +372,7 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
                           );
                         }));
               } else if (snapshot.hasError) {
-                return Padding(padding: const EdgeInsets.symmetric(horizontal: 15.0), child: Text("${snapshot.error}"));
+                return Padding(padding: const EdgeInsets.symmetric(horizontal: 15.0), child: Text("Something went wrong.\nPlease try again or modify your search"));
               }
 
               // By default, show a loading spinner

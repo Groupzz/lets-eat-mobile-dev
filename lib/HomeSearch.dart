@@ -252,7 +252,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                             );
                           }));
                 } else if (snapshot.hasError) {
-                  return Padding(padding: const EdgeInsets.symmetric(horizontal: 15.0), child: Text("${snapshot.error}"));
+                  return Padding(padding: const EdgeInsets.symmetric(horizontal: 15.0), child: Text("Something went wrong.\nPlease try again or modify your search"));
                 }
 
                 // By default, show a loading spinner
