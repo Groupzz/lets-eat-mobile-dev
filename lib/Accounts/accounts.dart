@@ -228,7 +228,7 @@ class _AccountsState extends State<Accounts> {
     String displayUName = widget?.username ?? "";
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text('Hello, ' + displayUName),
+        title: new Text('Hello, ' + widget.username),
 //        title: new Text('Hello, '),
         actions: <Widget>[
           new FlatButton(

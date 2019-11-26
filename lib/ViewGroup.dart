@@ -487,7 +487,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
 
   Widget _showPrimaryButton() {
     return new Padding(
-      padding: EdgeInsets.fromLTRB(0.0, 0.0, 220.0, 420.0),
+      padding: EdgeInsets.fromLTRB(0.0, 0.0, 200.0, 420.0),
       child: Center(
           child: StreamBuilder(
               stream: Firestore.instance.collection('groups').document(widget.docId).snapshots(),
@@ -502,7 +502,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
                         shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
                         color: Colors.blue,
                         child: new Text('Add Preference',
-                            style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+                            style: new TextStyle(fontSize: 16.0, color: Colors.white)),
                         onPressed: () {
                           _displayAddPref();
                         },
