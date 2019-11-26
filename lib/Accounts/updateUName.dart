@@ -129,6 +129,7 @@ class _UpdateUNamePageState extends State<UpdateUNamePage> {
               onPressed: () {
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
+                Navigator.of(context).pop();
               },
             ),
           ],
