@@ -54,6 +54,40 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
     }
   }
 
+  /// Call this method with a list of business id's
+  /// The Yelp API will look up every ID in the list, and the API's response for each is added to the results list
+  /// The results llst is returned, which will need to be parsed by a FutureBuilder
+  Future<List<Restaurants>> loadLikedRestaurants(List<String> ids) async{
+    List<dynamic> result = [];
+    for(String id in ids){
+      String siteAddress = "https://api.yelp.com/v3/businesses/" + id; //-118.112858";
+
+      //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
+
+      http.Response response;
+      Map<String, dynamic> map;
+      response =
+          await http.get(siteAddress, headers: AUTH_HEADER).catchError((resp) {});
+
+      //Map<String, dynamic> map;
+      // Error handling
+      //    response == null
+      //    ? response = await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {})
+      //    : map = json.decode(response.body);
+      if (response == null || response.statusCode < CODE_OK ||
+          response.statusCode >= CODE_REDIRECTION) {
+        return Future.error(response.body);
+      }
+
+      //    Map<String, dynamic> map = json.decode(response.body);
+      map = json.decode(response.body);
+      var r = json.decode(response.body);
+      result.add(r);
+    }
+
+    return result;
+  }
+
   Future<Restaurants> findRandomRestaurant() async {
     String webAddress;
     var latitude;
