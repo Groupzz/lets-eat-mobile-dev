@@ -47,7 +47,7 @@ class _LoginRootPageState extends State<LoginRootPage> {
     widget.auth.getCurrentUser().then((user){
       setState(() {
         _userId = user.uid.toString();
-        _username = "";//user.displayName;
+        _username = user.displayName;
       });
     });
     setState(() {
