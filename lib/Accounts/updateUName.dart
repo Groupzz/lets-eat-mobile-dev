@@ -29,6 +29,7 @@ class _UpdateUNamePageState extends State<UpdateUNamePage> {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   FirebaseUser user;
   QuerySnapshot userData;
+  String currentUName;
 
   @override
   void initState(){
@@ -38,16 +39,34 @@ class _UpdateUNamePageState extends State<UpdateUNamePage> {
   }
 
   void _getCurrentUser() async {
+//    user = await FirebaseAuth.instance.currentUser();
+//    uid = user.uid;
+//    Firestore.instance.collection('users').where(
+//        'id', isEqualTo: uid // Get current user id
+//    ).snapshots().listen(
+//      // Update Friends collection that contains current user ID
+//            (data) {
+//              userData = data;
+//              userDocID = data.documents[0].documentID;
+//              currentUName = data.documents[0]['username'];
+//            }
+//    );
+//    //userDocID = data.documents[0].documentID);
+//    await Future.delayed(const Duration(milliseconds: 700), (){});
+
     user = await FirebaseAuth.instance.currentUser();
     uid = user.uid;
     Firestore.instance.collection('users').where(
         'id', isEqualTo: uid // Get current user id
     ).snapshots().listen(
       // Update Friends collection that contains current user ID
-            (data) => userData = data);
+            (data) {
+              userData = data;
+            });
     //userDocID = data.documents[0].documentID);
     await Future.delayed(const Duration(milliseconds: 700), (){});
     userDocID = userData.documents[0].documentID;
+    currentUName = userData.documents[0]['username'];
   }
 
   void _checkUsername() async{
@@ -87,6 +106,65 @@ class _UpdateUNamePageState extends State<UpdateUNamePage> {
   }
 
   void _updateData() async{
+//    print("user id = " + userDocID);
+////    Firestore.instance.collection('users').where(
+////        'username', isEqualTo: controller.text // Get current user id
+////    ).snapshots().listen(
+////      // Update Friends collection that contains current user ID
+////            (data) => data.documents.length == 0 ?
+////
+////    );
+//
+//
+//    Firestore.instance.collection('users').document(userDocID).updateData({
+//      "username": controller.text.isEmpty? userData.documents[0]["username"] : controller.text,
+//    }
+//    );
+//
+//    Firestore.instance.collection('friends').where(
+//        'friends', arrayContains: currentUName).snapshots().forEach((QuerySnapshot data) {
+//          Firestore.instance.collection('friends').document(data.documents[0].documentID).updateData({'friends':FieldValue.arrayRemove([currentUName])});
+//
+//          Firestore.instance.collection('friends').document(data.documents[0].documentID).updateData(
+//              {'friends':FieldValue.arrayUnion([controller.text.isEmpty? data.documents[0]["username"] : controller.text])}
+//          );
+//
+//        }
+//    );
+//
+//    Firestore.instance.collection("groups").where(
+//        'Participants', arrayContains: currentUName).snapshots().forEach((QuerySnapshot snapshot) {
+//      snapshot.documents.forEach((DocumentSnapshot snap) async {
+//        Firestore.instance.collection('groups')
+//            .document(snap.documentID)
+//            .updateData(
+//            {'Participants': FieldValue.arrayRemove([currentUName])});
+//        Firestore.instance.collection('groups')
+//            .document(snap.documentID)
+//            .updateData(
+//            {'Participants': FieldValue.arrayUnion([controller.text])});
+//      });});
+//
+//
+//    Firestore.instance.collection('groups').where(
+//        'fri', arrayContains: currentUName).snapshots().listen(
+//            (data) {
+//              Firestore.instance.collection('groups').document(data.documents[0].documentID).updateData({'Preferences':FieldValue.arrayRemove([currentUName])});
+//
+//              Firestore.instance.collection('groups').document(data.documents[0].documentID).updateData(
+//                  {'Participants':FieldValue.arrayUnion([controller.text.isEmpty? data.documents[0]["username"] : controller.text])}
+//              );
+//            }
+//    );
+//
+//
+//
+//    UserUpdateInfo updateInfo = UserUpdateInfo();
+//    updateInfo.displayName = controller.text.isEmpty? userData.documents[0]["username"] : controller.text;
+//    user.updateProfile(updateInfo);
+//
+//    _showSuccess();
+
     print("user id = " + userDocID);
 //    Firestore.instance.collection('users').where(
 //        'username', isEqualTo: controller.text // Get current user id
@@ -101,6 +179,31 @@ class _UpdateUNamePageState extends State<UpdateUNamePage> {
       "username": controller.text.isEmpty? userData.documents[0]["username"] : controller.text,
     }
     );
+
+    Firestore.instance.collection('friends').where(
+        'friends', arrayContains: currentUName).snapshots().forEach((QuerySnapshot data) {
+      Firestore.instance.collection('friends').document(data.documents[0].documentID).updateData({'friends':FieldValue.arrayRemove([currentUName])});
+
+      Firestore.instance.collection('friends').document(data.documents[0].documentID).updateData(
+          {'friends':FieldValue.arrayUnion([controller.text.isEmpty? data.documents[0]["username"] : controller.text])}
+      );
+
+    }
+    );
+
+    Firestore.instance.collection('groups').where(
+        'Participants', arrayContains: currentUName).snapshots().listen(
+            (data) {
+          Firestore.instance.collection('groups').document(data.documents[0].documentID).updateData({'Participants':FieldValue.arrayRemove([currentUName])});
+
+          Firestore.instance.collection('groups').document(data.documents[0].documentID).updateData(
+              {'Participants':FieldValue.arrayUnion([controller.text.isEmpty? data.documents[0]["username"] : controller.text])}
+          );
+        }
+    );
+
+
+
     UserUpdateInfo updateInfo = UserUpdateInfo();
     updateInfo.displayName = controller.text.isEmpty? userData.documents[0]["username"] : controller.text;
     user.updateProfile(updateInfo);
