@@ -57,7 +57,7 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
   /// Call this method with a list of business id's
   /// The Yelp API will look up every ID in the list, and the API's response for each is added to the results list
   /// The results llst is returned, which will need to be parsed by a FutureBuilder
-  Future<List<Restaurants>> loadLikedRestaurants(List<String> ids) async{
+  Future<List<dynamic>> loadLikedRestaurants(List<String> ids) async{
     List<dynamic> result = [];
     for(String id in ids){
       String siteAddress = "https://api.yelp.com/v3/businesses/" + id; //-118.112858";
