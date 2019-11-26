@@ -119,7 +119,11 @@ class MapViewState extends State<MapView> {
           position: latLngMarker,
           infoWindow: InfoWindow(
             title: businesses[index].name,
-          ),);
+            onTap: () {
+              print("tapped");
+            }
+          ),
+      );
     });
 
     setState(() {

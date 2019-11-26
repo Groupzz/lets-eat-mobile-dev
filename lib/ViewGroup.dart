@@ -82,7 +82,25 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     //    : map = json.decode(response.body);
     if (response == null || response.statusCode < CODE_OK ||
         response.statusCode >= CODE_REDIRECTION) {
-      return Future.error(response.body);
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            title: new Text("Unable to find a restaurant.  Please modify your preferences"),
+            //content: new Text("Link to verify account has been sent to your email"),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text("Dismiss"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+      //return Future.error(response.body);
     }
 
     //    Map<String, dynamic> map = json.decode(response.body);
@@ -494,9 +512,9 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
               builder: (context, data) {
                 if(data.hasData) {
                   var doc = data.data;
-                  String res = doc['Result'];
+                  String res = doc['Result'].toString();
                   try {
-                    if (res.length == 0) {
+                    if (res.length == 0 || doc['Result'] == null) {
                       return new RaisedButton(
                         elevation: 5.0,
                         shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
@@ -571,9 +589,9 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
               builder: (context, data) {
                 if(data.hasData) {
                   var doc = data.data;
-                  String res = doc['Result'];
+                  String res = doc['Result'].toString();
                   try {
-                    if (res.length == 0) {
+                    if (res.length == 0 || doc['Result'] == null) {
                       return new RaisedButton(
                         elevation: 5.0,
                         shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
@@ -691,7 +709,24 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     //    : map = json.decode(response.body);
     if (response == null || response.statusCode < CODE_OK ||
         response.statusCode >= CODE_REDIRECTION) {
-      return Future.error(response.body);
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            title: new Text("Unable to find a restaurant.  Please modify your preferences"),
+            //content: new Text("Link to verify account has been sent to your email"),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text("Dismiss"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
 
     //    Map<String, dynamic> map = json.decode(response.body);
@@ -708,8 +743,30 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     // Pick random restaurant from results
     int min = 0;
     int max = businesses.length;
-    int i = min + _random.nextInt(max - min);
-    return businesses[i].id;
+    if(max == 0){
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            title: new Text("Unable to find a restaurant.  Please modify your preferences"),
+            //content: new Text("Link to verify account has been sent to your email"),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text("Dismiss"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+    else {
+      int i = min + _random.nextInt(max - min);
+      return businesses[i].id;
+    }
 
   }
 
