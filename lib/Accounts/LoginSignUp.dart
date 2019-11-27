@@ -128,7 +128,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
     _isIos = Theme.of(context).platform == TargetPlatform.iOS;
     return new Scaffold(
         appBar: new AppBar(
-          title: new Text('Firebase Authentication'),
+          title: new Text('Sign In'),
         ),
         body: Stack(
           children: <Widget>[
