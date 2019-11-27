@@ -39,6 +39,9 @@ class _SignupPageState extends State<SignupPage> {
   final cityController = TextEditingController();
   final zipController = TextEditingController();
   final phoneController = TextEditingController();
+  final stateController = TextEditingController();
+  final securityQController = TextEditingController();
+  final securityAController = TextEditingController();
   FirebaseUser user;
   QuerySnapshot userData;
 
@@ -83,31 +86,66 @@ class _SignupPageState extends State<SignupPage> {
           { // Add user to firestore w/ generated userID
             "id": _userId,
             "friends": [],
-          }).then((doc) {
-        print("Friend ID = " + doc.documentID);
-        // Add new user to Users collection & include Friends Document ID
-        userDoc = Firestore.instance.collection('users').add(
-            {
-              // Add user to firestore w/ generated userID
-              "email": widget.email,
-              "id": _userId,
-              "friendsDocID": doc.documentID,
-              // Document ID for current user's Friends document
-              "firstname": fNameController.text.isEmpty ? userData
-                  .documents[0]["firstname"].toString() : fNameController.text,
-              "lastname": lNameController.text.isEmpty ? userData
-                  .documents[0]["lastname"].toString() : lNameController.text,
-              "username": uNameController.text.isEmpty ? userData
-                  .documents[0]["username"] : uNameController.text,
-              "phone": phoneController.text.isEmpty ? userData
-                  .documents[0]["phone"].toString() : phoneController.text,
-              "dateofbirth": dobController.text.isEmpty ? userData
-                  .documents[0]["dateofbirth"].toString() : dobController.text,
-              "city": cityController.text.isEmpty ? userData
-                  .documents[0]["city"].toString() : cityController.text,
-              "zip": zipController.text.isEmpty ? userData.documents[0]["zip"]
-                  .toString() : zipController.text,
+          }).then((fDoc) {
+            Firestore.instance.collection('preferences').add(
+              {
+                "id": _userId,
+              }
+            ).then((pDoc) {
+              Firestore.instance.collection('likedRestaurants').add(
+                {
+                  "id": _userId,
+                  "restaurantIDs": [],
+                }
+              ).then((lDoc){
+                print("Friend ID = " + fDoc.documentID);
+                // Add new user to Users collection & include Friends Document ID
+                userDoc = Firestore.instance.collection('users').add(
+                    {
+                      // Add user to firestore w/ generated userID
+                      "email": widget.email,
+                      "id": _userId,
+                      "friendsDocID": fDoc.documentID,
+                      // Document ID for current user's Friends document
+                      "likedRestaurantsID": lDoc.documentID,
+                      "preferencesID": pDoc.documentID,
+                      "securityquestion": securityQController.text,
+                      "securityanswer": securityAController.text,
+                      "state": stateController.text,
+                      "firstname": fNameController.text,
+                      "lastname": lNameController.text,
+                      "username": uNameController.text,
+                      "phone": phoneController.text,
+                      "dateofbirth": dobController.text,
+                      "city": cityController.text,
+                      "zip": zipController.text,
+                    });
+              });
             });
+//            print("Friend ID = " + fDoc.documentID);
+//            // Add new user to Users collection & include Friends Document ID
+//            userDoc = Firestore.instance.collection('users').add(
+//            {
+//              // Add user to firestore w/ generated userID
+//              "email": widget.email,
+//              "id": _userId,
+//              "friendsDocID": doc.documentID,
+//              // Document ID for current user's Friends document
+//              "firstname": fNameController.text.isEmpty ? userData
+//                  .documents[0]["firstname"].toString() : fNameController.text,
+//              "lastname": lNameController.text.isEmpty ? userData
+//                  .documents[0]["lastname"].toString() : lNameController.text,
+//              "username": uNameController.text.isEmpty ? userData
+//                  .documents[0]["username"] : uNameController.text,
+//              "phone": phoneController.text.isEmpty ? userData
+//                  .documents[0]["phone"].toString() : phoneController.text,
+//              "dateofbirth": dobController.text.isEmpty ? userData
+//                  .documents[0]["dateofbirth"].toString() : dobController.text,
+//              "city": cityController.text.isEmpty ? userData
+//                  .documents[0]["city"].toString() : cityController.text,
+//              "zip": zipController.text.isEmpty ? userData.documents[0]["zip"]
+//                  .toString() : zipController.text,
+//            });
       });
 
       widget.auth.sendEmailVerification();
@@ -351,6 +389,69 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
+  Widget _showState(){
+    return Padding(
+      padding: EdgeInsets.fromLTRB(5.0, 15.0, 0.0, 0.0),
+      child: new TextFormField(
+        controller: stateController,
+        maxLines: 1,
+        keyboardType: TextInputType.text,
+        autofocus: false,
+        decoration: new InputDecoration(
+            hintText: 'State',
+            icon: new Icon(
+              Icons.map,
+              color: Colors.grey,
+            )
+        ),
+        validator: (value) => value.isEmpty ? 'State can\'t be empty' : null,
+        onSaved: (value) => _fname = value.trim(),
+      ),
+    );
+  }
+
+  Widget _showSecurityQuestion(){
+    return Padding(
+      padding: EdgeInsets.fromLTRB(5.0, 15.0, 0.0, 0.0),
+      child: new TextFormField(
+        controller: securityQController,
+        maxLines: 1,
+        keyboardType: TextInputType.text,
+        autofocus: false,
+        decoration: new InputDecoration(
+            hintText: 'Security Question',
+            icon: new Icon(
+              Icons.security,
+              color: Colors.grey,
+            )
+        ),
+        validator: (value) => value.isEmpty ? 'Security Question can\'t be empty' : null,
+        onSaved: (value) => _fname = value.trim(),
+      ),
+    );
+  }
+
+  Widget _showSecurityAnswer(){
+    return Padding(
+      padding: EdgeInsets.fromLTRB(5.0, 15.0, 0.0, 0.0),
+      child: new TextFormField(
+        controller: securityAController,
+        maxLines: 1,
+        keyboardType: TextInputType.text,
+        autofocus: false,
+        decoration: new InputDecoration(
+            hintText: 'Answer',
+            icon: new Icon(
+              Icons.question_answer,
+              color: Colors.grey,
+            )
+        ),
+        validator: (value) => value.isEmpty ? 'Security Answer can\'t be empty' : null,
+        onSaved: (value) => _fname = value.trim(),
+      ),
+    );
+  }
+
   Widget _showPhone(){
     return Padding(
       padding: EdgeInsets.fromLTRB(5.0, 15.0, 0.0, 0.0),
@@ -395,7 +496,7 @@ class _SignupPageState extends State<SignupPage> {
 
   Widget _showPrimaryButton() {
     return new Padding(
-        padding: EdgeInsets.fromLTRB(20.0, 45.0, 20.0, 0.0),
+        padding: EdgeInsets.fromLTRB(20.0, 150.0, 20.0, 40.0),
         child: SizedBox(
           height: 40.0,
           child: new RaisedButton(
@@ -425,6 +526,9 @@ class _SignupPageState extends State<SignupPage> {
           _showPhone(),
           _showDOB(),
           _showCity(),
+          _showState(),
+          _showSecurityQuestion(),
+          _showSecurityAnswer(),
           _showZIP(),
           _showPrimaryButton(),
           //_showCircularProgress(),
