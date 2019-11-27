@@ -48,6 +48,7 @@ class _GroupChatPageState extends State<GroupChatPage> with SingleTickerProvider
     "Delete Group",
   ];
 
+  var location = new Location();
   static const String API_KEY = "p8eXXM3q_ks6WY_FWc2KhV-EmLhSpbJf0P-SATBhAIM4dNCgsp3sH8ogzJPezOT6LzFQlb_vcFfxziHbHuNt8RwxtWY0-vRpx7C0nPz5apIT4A5LYGmaVfuwPrf3WXYx";
   static const Map<String, String> AUTH_HEADER = {"Authorization": "Bearer $API_KEY"};
   final _random = new Random();
@@ -110,7 +111,7 @@ class _GroupChatPageState extends State<GroupChatPage> with SingleTickerProvider
 
   @override
   void dispose() {
-    //_controller.dispose();
+    _controller.dispose();
     _focusNode.dispose();
 
     super.dispose();
@@ -244,7 +245,7 @@ class _GroupChatPageState extends State<GroupChatPage> with SingleTickerProvider
     messageController.clear();
   }
 
-  Widget _showPreferences() {  // Display ListView of Friends
+  Widget _showMessages() {  // Display ListView of messages
     //getCurrentUserInfo();
     return new Padding(
         padding: EdgeInsets.fromLTRB(10.0, 100.0, 0.0, 30.0),
@@ -278,7 +279,7 @@ class _GroupChatPageState extends State<GroupChatPage> with SingleTickerProvider
                     );
                   }
                   else if (data.hasError) {
-                    return Padding(padding: const EdgeInsets.all(8.0), child: Text("No Preferences Found"));
+                    return Padding(padding: const EdgeInsets.all(8.0), child: Text("No Messages Found"));
                   }
 
                   // By default, show a loading spinner
@@ -288,6 +289,7 @@ class _GroupChatPageState extends State<GroupChatPage> with SingleTickerProvider
         )
     );
   }
+
 
   Future<Group> getFriends() async{  // Get friends list for current user
     await Future.delayed(const Duration(milliseconds: 700), (){});  // Wait for promise to return friendsID
@@ -385,6 +387,25 @@ class _GroupChatPageState extends State<GroupChatPage> with SingleTickerProvider
       child: Text("Messages:", style: new TextStyle(fontSize: 18.0)),
     );
   }
+
+  Widget _showButtonList() {
+    return new Container(
+      padding: EdgeInsets.all(26.0),
+      child: new ListView(
+        shrinkWrap: true,
+        children: <Widget>[
+          _showPrefsLabel(),
+          new SizedBox(
+            height: 300.0,
+            child: _showMessages()
+          ),
+          buildInput(),
+        ],
+      ),
+    );
+  }
+
+
 //
   @override
   Widget build(BuildContext context) {
@@ -401,7 +422,7 @@ class _GroupChatPageState extends State<GroupChatPage> with SingleTickerProvider
           child: Stack(
             children: <Widget>[
                   _showPrefsLabel(),
-                  _showPreferences(),
+                  _showMessages(),
 //                  _showSendMessage(),
                   buildInput(),
                 //  _showSend(),

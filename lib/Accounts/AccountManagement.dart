@@ -1,32 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:lets_eat/Accounts/AccountManagement.dart';
 import 'package:lets_eat/Accounts/updateUser.dart';
 import 'authentication.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
-import 'UserYelpPreferences.dart';
-import 'package:lets_eat/Group.dart';
-import 'package:lets_eat/ViewGroup.dart';
+import 'updateUName.dart';
 import 'signUpPage.dart';
 
-class Accounts extends StatefulWidget {
-  Accounts({Key key, this.auth, this.userId, this.username, this.onSignedOut})
+class AccountManagement extends StatefulWidget {
+  AccountManagement({Key key, this.auth, this.userId, this.username, this.onSignedOut})
       : super(key: key);
 
   final BaseAuth auth;
   final VoidCallback onSignedOut;
   final String userId;
   final String username;
-  String friendsID;
 
   @override
-  State<StatefulWidget> createState() => new _AccountsState();
+  State<StatefulWidget> createState() => new _AccountManagementState();
 }
 
-class _AccountsState extends State<Accounts> {
+class _AccountManagementState extends State<AccountManagement> {
 
   final FirebaseDatabase _database = FirebaseDatabase.instance;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -204,99 +200,24 @@ class _AccountsState extends State<Accounts> {
       padding: EdgeInsets.all(26.0),
       child: new ListView(
         children: <Widget>[
-          _showAccountManagement(),
-          _showChangePreferences(),
-          _showGroupsLabel(),
-          SizedBox(
-            height: 400.0,
-            child: _showGroups(),
-          )
+          _showChangeEmailContainer(),
+          _changeUserInfoContainer(),
+          new SizedBox(
+            height: 40.0,
+          ),
+          _showChangeUsernameContainer(),
+          new SizedBox(
+            height: 40.0,
+          ),
+          _showSentResetPasswordEmailContainer(),
+          new SizedBox(
+            height: 40.0,
+          ),
+          _removeUserContainer(),
         ],
       ),
     );
   }
-
-
-  Future<List<Group>> getGroups() async {
-    // Get friends list for current user
-    //getCurrentUserInfo();
-    List<Group> groups = [];
-
-    FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
-    String username = currentUser.displayName;
-
-    await Future.delayed(const Duration(
-        milliseconds: 700), () {}); // Wait for promise to return friendsID
-    Firestore.instance.collection("groups").where(
-        'Participants', arrayContains: username).snapshots().forEach((
-        QuerySnapshot snapshot) {
-      snapshot.documents.forEach((DocumentSnapshot snap) async {
-        groups.add(Group.fromSnapshot(snap));
-      });
-    });
-    await Future.delayed(const Duration(milliseconds: 700), () {});
-    return groups;
-  }
-
-  Widget _showGroupsLabel(){
-    return new Padding(
-      padding: EdgeInsets.fromLTRB(15.0, 10.0, 0.0, 0.0),
-      child: Text("Active Groups:", style: new TextStyle(fontSize: 18.0)),
-    );
-  }
-
-  Widget _showGroups() {  // Display ListView of Friends
-    //getCurrentUserInfo();
-    return new Padding(
-        padding: EdgeInsets.fromLTRB(10.0, 10.0, 0.0, 20.0),
-        child: Center(
-            child: FutureBuilder<List<Group>> (
-                future: getGroups(),
-                builder: (BuildContext c, AsyncSnapshot<List<Group>> data) {
-                  if(data.hasData) {
-                    return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ListView.builder(
-                            itemCount: data.data.length,
-                            itemBuilder: (c, index) {
-                              return Center(
-                                  child: Card(
-                                      child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: <Widget>[
-                                            //Padding(padding: const EdgeInsets.all(8.0)),
-                                            ListTile(
-                                              title: Text('${data.data[index].participants.toString().substring(1,
-                                                  data.data[index].participants.toString().length - 1)}'),
-                                              onTap: (){
-                                                Route route = MaterialPageRoute(builder: (context) => ViewGroupPage(docId: data.data[index].documentID));
-                                                Navigator.push(context, route);
-                                              },
-                                            ),
-                                          ])
-                                  )
-                              );
-                            }
-                        )
-                    );
-                  }
-                  else if (data.hasError) {
-                    print("error: " + data.error.toString());
-                    return Padding(padding: const EdgeInsets.all(8.0), child: Text("You must be logged in to participate in Group Votes"));
-                  }
-//                  else {
-//                    return Padding(padding: const EdgeInsets.all(8.0), child: Text("No Groups Found"));
-//                  }
-
-                  // By default, show a loading spinner
-                  return CircularProgressIndicator();
-                }
-            )
-        )
-    );
-  }
-
-
 
   @override
   Widget build(BuildContext context){
@@ -320,29 +241,54 @@ class _AccountsState extends State<Accounts> {
     );
   }
 
-  _showAccountManagement() {
+  Widget _showEmailChangeErrorMessage() {
+    if (_errorMessage != null) {
+      return new Text(
+        _errorMessage,
+        style: TextStyle(
+            fontSize: 13.0,
+            color: Colors.red,
+            height: 1.0,
+            fontWeight: FontWeight.w300),
+      );
+    } else {
+      return new Container(
+        height: 0.0,
+      );
+    }
+  }
+
+  _showChangeEmailContainer() {
     return Container(
+//      decoration: BoxDecoration(
+//        borderRadius: new BorderRadius.circular(30.0),
+//        color: Colors.amberAccent,
+//      ),
       padding: EdgeInsets.fromLTRB(10, 20, 10, 20),
       child: Column(
         children: <Widget>[
+          new TextFormField(
+            controller: _emailFilter,
+            decoration: new InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+              hintText: "Enter New Email",
+              border:
+              OutlineInputBorder(borderRadius: BorderRadius.circular(22.0)),
+            ),
+          ),
           new MaterialButton(
             shape: RoundedRectangleBorder(
                 borderRadius: new BorderRadius.circular(30.0)),
             onPressed: () {
-              Route route = MaterialPageRoute(builder: (context) => AccountManagement(
-                userId: widget.userId,
-                username: widget.username,
-                auth: widget.auth,
-                onSignedOut: widget.onSignedOut,
-              ));
-              Navigator.push(context, route);
+              // widget.auth.changeEmail("abc@gmail.com");
+              _changeEmail();
             },
             minWidth: MediaQuery.of(context).size.width,
             padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-            color: Colors.lightBlue,
+            color: Colors.blueAccent,
             textColor: Colors.white,
             child: Text(
-              "Account Management",
+              "Change Email",
               textAlign: TextAlign.center,
             ),
           ),
@@ -351,16 +297,79 @@ class _AccountsState extends State<Accounts> {
     );
   }
 
-  _showChangePreferences() {
+  void _changeEmail() {
+    if (_email != null && _email.isNotEmpty) {
+      try {
+        print("============>" + _email);
+        widget.auth.changeEmail(_email);
+      } catch (e) {
+        print("============>" + e);
+        setState(() {
+          _isLoading = false;
+          if (_isIos) {
+            _errorMessage = e.details;
+          } else
+            _errorMessage = e.message;
+        });
+      }
+    } else {
+      print("email feild empty");
+    }
+  }
+
+  void _changeUsername() async{
+    String userDoc;
+    Firestore.instance.collection('users').where(
+        'id', isEqualTo: widget.userId // Get current user id
+    ).snapshots().listen(
+      // Update Friends collection that contains current user ID
+            (data) => userDoc = data.documents[0].documentID
+    );
+
+    Firestore.instance.collection("users").document(userDoc)
+        .updateData({'username': _usernameFilter.text});
+    UserUpdateInfo updateInfo = UserUpdateInfo();
+    updateInfo.displayName = _usernameFilter.text;
+    user.updateProfile(updateInfo);
+
+  }
+
+  void _removeUser() {
+    widget.auth.deleteUser();
+  }
+
+  void _sendResetPasswordMail() {
+    if (_resetPasswordEmail != null && _resetPasswordEmail.isNotEmpty) {
+      print("============>" + _resetPasswordEmail);
+      widget.auth.sendPasswordResetMail(_resetPasswordEmail);
+    } else {
+      print("password feild empty");
+    }
+  }
+
+  _showChangeUsernameContainer() {
     return Container(
+//      decoration: BoxDecoration(
+//          borderRadius: BorderRadius.circular(30.0),
+//          color: Colors.brown
+//      ),
       padding: EdgeInsets.fromLTRB(10, 20, 10, 20),
       child: Column(
         children: <Widget>[
+//          new TextFormField(
+//            controller: _usernameFilter,
+//            decoration: new InputDecoration(
+//              contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+//              hintText: "Enter New Username",
+//              border:
+//              OutlineInputBorder(borderRadius: BorderRadius.circular(22.0)),
+//            ),
+//          ),
           new MaterialButton(
             shape: RoundedRectangleBorder(
                 borderRadius: new BorderRadius.circular(30.0)),
             onPressed: () {
-              Route route = MaterialPageRoute(builder: (context) => UserYelpPreferences());
+              Route route = MaterialPageRoute(builder: (context) => UpdateUNamePage());
               Navigator.push(context, route);
             },
             minWidth: MediaQuery.of(context).size.width,
@@ -368,7 +377,7 @@ class _AccountsState extends State<Accounts> {
             color: Colors.blueAccent,
             textColor: Colors.white,
             child: Text(
-              "Choose My Preferences",
+              "Change Username",
               textAlign: TextAlign.center,
             ),
           ),
@@ -377,4 +386,73 @@ class _AccountsState extends State<Accounts> {
     );
   }
 
+  _showSentResetPasswordEmailContainer() {
+    return Column(
+      children: <Widget>[
+        new Container(
+          child: new TextFormField(
+            controller: _resetPasswordEmailFilter,
+            decoration: new InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+              hintText: "Enter Email",
+              border:
+              OutlineInputBorder(borderRadius: BorderRadius.circular(22.0)),
+            ),
+          ),
+        ),
+        new MaterialButton(
+          shape: RoundedRectangleBorder(
+              borderRadius: new BorderRadius.circular(30.0)),
+          onPressed: () {
+            _sendResetPasswordMail();
+          },
+          minWidth: MediaQuery.of(context).size.width,
+          padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          color: Colors.blueAccent,
+          textColor: Colors.white,
+          child: Text(
+            "Send Password Reset Mail",
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
+    );
+  }
+
+  _removeUserContainer() {
+    return new MaterialButton(
+      shape:
+      RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+      onPressed: () {
+        _removeUser();
+      },
+      minWidth: MediaQuery.of(context).size.width,
+      padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+      color: Colors.red,
+      textColor: Colors.white,
+      child: Text(
+        "Delete My Account",
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  _changeUserInfoContainer() {
+    return new MaterialButton(
+      shape:
+      RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+      onPressed: (){
+        Route route = MaterialPageRoute(builder: (context) => UpdatePage());
+        Navigator.push(context, route);
+      },
+      minWidth: MediaQuery.of(context).size.width,
+      padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+      color: Colors.blue,
+      textColor: Colors.white,
+      child: Text(
+        "Change User Info",
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
 }
