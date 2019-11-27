@@ -41,6 +41,7 @@ class _HomeState extends State<Home> {
   static const String API_KEY = "p8eXXM3q_ks6WY_FWc2KhV-EmLhSpbJf0P-SATBhAIM4dNCgsp3sH8ogzJPezOT6LzFQlb_vcFfxziHbHuNt8RwxtWY0-vRpx7C0nPz5apIT4A5LYGmaVfuwPrf3WXYx";
   static const Map<String, String> AUTH_HEADER = {"Authorization": "Bearer $API_KEY"};
   var currentLocation = LocationData;
+  //Location location;
   //Future<LocationData> currentLocation;
 
   var location = new Location();
@@ -53,8 +54,9 @@ class _HomeState extends State<Home> {
   Iterable markers = [];
 
   Future _getLocation() async {
-    final location = Location();
+    location = Location();
     var currentLocation = await location.getLocation();
+    await Future.delayed(const Duration(milliseconds: 700), (){});
     setState(() {
       latitude = currentLocation.latitude;
       longitude = currentLocation.longitude;

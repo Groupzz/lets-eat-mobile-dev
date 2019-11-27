@@ -94,11 +94,6 @@ class _AccountManagementState extends State<AccountManagement> {
 //    }
 //  }
 
-  final _textEditingController = TextEditingController();
-
-  StreamSubscription<Event> _onTodoAddedSubscription;
-  StreamSubscription<Event> _onTodoChangedSubscription;
-
   //Query _todoQuery;
 
   bool _isEmailVerified = false;
@@ -178,8 +173,9 @@ class _AccountManagementState extends State<AccountManagement> {
 
   @override
   void dispose() {
-    _onTodoAddedSubscription.cancel();
-    _onTodoChangedSubscription.cancel();
+    _emailFilter.dispose();
+    _usernameFilter.dispose();
+    _resetPasswordEmailFilter.dispose();
     super.dispose();
   }
 
