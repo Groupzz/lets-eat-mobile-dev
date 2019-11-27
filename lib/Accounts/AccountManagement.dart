@@ -180,17 +180,6 @@ class _AccountManagementState extends State<AccountManagement> {
   }
 
 
-
-  _signOut() async {
-    try {
-      await widget.auth.signOut();
-      widget.onSignedOut();
-    } catch (e) {
-      print(e);
-    }
-  }
-
-
   Widget _showButtonList() {
     return new Container(
       padding: EdgeInsets.all(26.0),
@@ -226,12 +215,6 @@ class _AccountManagementState extends State<AccountManagement> {
       appBar: new AppBar(
         title: new Text('Hello, ' + widget.username),
 //        title: new Text('Hello, '),
-        actions: <Widget>[
-          new FlatButton(
-              child: new Text('Logout',
-                  style: new TextStyle(fontSize: 17.0, color: Colors.white)),
-              onPressed: _signOut)
-        ],
       ),
       body: _showButtonList(),
     );

@@ -3,6 +3,7 @@ import 'authentication.dart';
 import 'package:dbcrypt/dbcrypt.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'signUpPage.dart';
+import 'PasswordReset.dart';
 
 class LoginSignUpPage extends StatefulWidget {
   LoginSignUpPage({this.auth, this.onSignedIn});
@@ -180,6 +181,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
               _showPasswordInput(),
               _showPrimaryButton(),
               _showSecondaryButton(),
+              _showResetPassword(),
               _showErrorMessage(),
             ],
           ),
@@ -268,6 +270,17 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
       onPressed: _formMode == FormMode.LOGIN
           ? _changeFormToSignUp
           : _changeFormToLogin,
+    );
+  }
+
+  Widget _showResetPassword() {
+    return new FlatButton(
+      child: new Text('Forgot Password?',
+          style: new TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300)),
+      onPressed: () {
+        Route route = MaterialPageRoute(builder: (context) => PasswordResetPage(auth: widget.auth,));
+        Navigator.push(context, route);
+      }
     );
   }
 

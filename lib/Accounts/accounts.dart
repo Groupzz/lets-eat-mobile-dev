@@ -153,7 +153,7 @@ class _AccountsState extends State<Accounts> {
 
     _signOut() async {
       try {
-        //await widget.auth.signOut();
+        await widget.auth.signOut();
         widget.onSignedOut();
       } catch (e) {
         print(e);

@@ -346,7 +346,18 @@ class _HomeState extends State<Home> {
                   style: TextStyle(fontSize: 24)),
             ),
             new Container(
-              child: Padding(
+              decoration: new BoxDecoration(
+                borderRadius: new BorderRadius.circular(40.0),
+//                boxShadow: [
+//                  new BoxShadow(
+//                      //color: Colors.grey,
+//                      blurRadius: 3.0,
+//                      offset: new Offset(1.0, 1.0))
+//                ],
+                //color: Colors.white,
+              ),
+              child: SizedBox(
+                child: Padding(
                 padding: EdgeInsets.fromLTRB(60.0, 250.0, 60.0, 50.0),
                 child: GoogleMap(
                     markers: Set.from(
@@ -365,7 +376,7 @@ class _HomeState extends State<Home> {
 //              decoration: new BoxDecoration(
 //                image: new DecorationImage(image: new AssetImage("assets/mobileHome.JPG"), fit: BoxFit.fill,),
 //              ),
-            ),
+            )),
 //            new Container(
 //              decoration: new BoxDecoration(
 //                image: new DecorationImage(image: new AssetImage("assets/mobileHome.JPG")),
