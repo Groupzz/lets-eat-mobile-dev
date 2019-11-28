@@ -92,7 +92,7 @@ class _InstantSuggestionPageState extends State<InstantSuggestionPage> {
     latitude = currentLocation.latitude;
     longitude = currentLocation.longitude;
 
-    webAddress = "https://api.yelp.com/v3/businesses/search?&limit=50"; //-118.112858";
+    webAddress = "https://api.yelp.com/v3/businesses/search?&open_now=true&limit=50"; //-118.112858";
     if(!webAddress.contains("location")){
       webAddress += "&latitude=" + latitude.toString() + "&longitude=" + longitude.toString();
     }

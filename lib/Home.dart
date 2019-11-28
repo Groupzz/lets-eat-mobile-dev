@@ -262,13 +262,6 @@ class _HomeState extends State<Home> {
               children: <Widget> [
                 new DrawerHeader(child: new Text('Menu'),),
                 new ListTile(
-                  title: new Text('Choose My Preferences'),
-                  onTap: () {
-                    Route route = MaterialPageRoute(builder: (context) => UserYelpPreferences());
-                    Navigator.push(context, route);
-                  },
-                ),
-                new ListTile(
                   title: new Text('My Account'),
                   onTap: () {
                     Route route = MaterialPageRoute(builder: (context) => LoginRootPage(auth: new Auth(),));
@@ -330,7 +323,7 @@ class _HomeState extends State<Home> {
               );
             },
           ),
-          title: const Text('Welcome to Let\'s Eat'),
+          title: const Text('Welcome!'),
           actions: <Widget>[
             _selectPopup(),
 //            IconButton(
@@ -355,8 +348,18 @@ class _HomeState extends State<Home> {
           ],
         ),
         body: latitude == null || longitude == null
-            ? Container()
-            :new Stack(
+        ? new Stack(
+          children: <Widget>[
+            Positioned.fill(  //
+              child: Image(
+                image: AssetImage("assets/mobileHome2.JPG"),
+                fit : BoxFit.fill,
+              ),
+            ),
+//            _showPrimaryButton(),
+          ],
+        )
+        :new Stack(
           children: <Widget>[
             Positioned.fill(  //
               child: Image(
@@ -382,21 +385,8 @@ class _HomeState extends State<Home> {
                     ),
                   ),
               ),
-
-//              decoration: new BoxDecoration(
-//                image: new DecorationImage(image: new AssetImage("assets/mobileHome.JPG"), fit: BoxFit.fill,),
-//              ),
             )),
-//            new Container(
-//              decoration: new BoxDecoration(
-//                image: new DecorationImage(image: new AssetImage("assets/mobileHome.JPG")),
-//              ),
-//            )
-
-//          new Center(
-//            child: new Text('Welcome to Let\'s Eat!',
-//          style: TextStyle(fontSize: 24),),
-//          )
+//
           ],
         )
 //      body: const Center(
