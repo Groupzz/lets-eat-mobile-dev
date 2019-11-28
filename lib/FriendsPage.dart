@@ -27,6 +27,8 @@ class _FriendsPageState extends State<FriendsPage> {
   String fDocID;
   final controller = TextEditingController();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  FirebaseUser user;
+  bool _isEmailVerified = false;
 
   @override
   void initState(){
@@ -34,6 +36,73 @@ class _FriendsPageState extends State<FriendsPage> {
     _isLoading = false;
     getCurrentUserInfo();  // store info for current user
     super.initState();
+    _checkEmailVerification();
+  }
+
+  void _showVerifyEmailSentDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Verify your account"),
+          content:
+          new Text("Link to verify account has been sent to your email"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Dismiss"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _resentVerifyEmail() {
+    widget.auth.sendEmailVerification();
+    _showVerifyEmailSentDialog();
+  }
+
+  void _showVerifyEmailDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Verify your account"),
+          content: new Text(
+              "Please verify your account in the link sent to your email"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Resent link"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+                _resentVerifyEmail();
+              },
+            ),
+            new FlatButton(
+              child: new Text("Dismiss"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _checkEmailVerification() async {
+    user = await FirebaseAuth.instance.currentUser();
+    _isEmailVerified = await widget.auth.isEmailVerified();
+    if (!_isEmailVerified) {
+      _showVerifyEmailDialog();
+    }
   }
 
   Future<void> addAndConfirmFriend(QuerySnapshot data) async {
