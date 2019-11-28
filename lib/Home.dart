@@ -19,6 +19,14 @@ import 'Accounts/authentication.dart';
 import 'About.dart';
 import 'package:lets_eat/YelpSearch.dart';
 import 'Accounts/UserYelpPreferences.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
+import 'Restaurants.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter/cupertino.dart';
+import 'dart:async';
+import 'InstantSuggestion.dart';
 import 'YelpSearch.dart';
 import 'Accounts/LoginSignUp.dart';
 import 'Accounts/signUpPage.dart';
@@ -36,183 +44,356 @@ String uid;
 class _HomeState extends State<Home> {
   final searchController = TextEditingController();
   final locController = TextEditingController();
+  FirebaseUser currentUser;
 
-  Future<List<String>> getSavedRestaurants() async{
-    final FirebaseUser user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
-    uid = user.uid;
-    var temp;
-    await Firestore.instance
-        .collection('likedRestaurants')
-        .where('id', isEqualTo: uid)
-        .getDocuments()
-        .then((QuerySnapshot snapshot) {
-      snapshot.documents.forEach((f) => temp = f);});
+  Completer<GoogleMapController> _controller = Completer();
+  static const String API_KEY = "p8eXXM3q_ks6WY_FWc2KhV-EmLhSpbJf0P-SATBhAIM4dNCgsp3sH8ogzJPezOT6LzFQlb_vcFfxziHbHuNt8RwxtWY0-vRpx7C0nPz5apIT4A5LYGmaVfuwPrf3WXYx";
+  static const Map<String, String> AUTH_HEADER = {
+    "Authorization": "Bearer $API_KEY"
+  };
+  var currentLocation = LocationData;
 
-    List<String> result = new List<String>.from(temp.data['restaurantIDs']);
-    return result;
+  //Location location;
+  //Future<LocationData> currentLocation;
+
+  var location = new Location();
+  CameraPosition _currentPosition;
+  var latitude;
+  var longitude;
+  var CODE_OK = 200;
+  var CODE_REDIRECTION = 300;
+  var CODE_NOT_FOUND = 404;
+  Iterable markers = [];
+
+  Future _getLocation() async {
+    location = Location();
+    var currentLocation = await location.getLocation();
+    await Future.delayed(const Duration(milliseconds: 700), () {});
+    setState(() {
+      latitude = currentLocation.latitude;
+      longitude = currentLocation.longitude;
+      //loading=false;
+    });
   }
 
   @override
-  Widget build(BuildContext context) {
-    Widget _selectPopup() => PopupMenuButton<int>(
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          value: 1,
-          child: TextFormField(
-            controller: searchController,
-            maxLines: 1,
-            keyboardType: TextInputType.text,
-            autofocus: false,
-            decoration: new InputDecoration(
-                hintText: 'Enter search term',
-                icon: new Icon(
-                  Icons.search,
-                  color: Colors.grey,
-                )),
-            validator: (value) => value.isEmpty ? 'Username can\'t be empty' : null,
-            onSaved: (value) {
+  void initState() {
+    _getLocation();
+    getBusinesses();
+//    print('test');
+//    print('TestLatitude:$latitude');
+//    print('TestLongitude:$longitude');
+//    //currentLocation = location.getLocation();
+//    _currentPosition = CameraPosition(
+//      target: LatLng(latitude  ,  longitude),
+//      zoom: 14.4746,
+//    );
+    super.initState();
+  }
 
-            },
-          ),
+  Widget _showPrimaryButton() {
+    //getCurrentUserInfo();
+    return new Padding(
+      padding: EdgeInsets.fromLTRB(100.0, 190.0, 90.0, 0.0),
+      child: SizedBox(
+        height: 40.0,
+        width: 200,
+        child: new RaisedButton(
+            elevation: 5.0,
+            shape: new RoundedRectangleBorder(
+                borderRadius: new BorderRadius.circular(30.0)),
+            color: Colors.lightGreen,
+            child: new Text('Instant Suggestion',
+                style: new TextStyle(fontSize: 16.0, color: Colors.white)),
+            onPressed: () {
+              Route route = MaterialPageRoute(
+                  builder: (context) => InstantSuggestionPage());
+              Navigator.push(context, route);
+            }
         ),
-
-        PopupMenuItem(
-          value: 2,
-          child: TextFormField(
-            controller: locController,
-            maxLines: 1,
-            keyboardType: TextInputType.text,
-            autofocus: false,
-            decoration: new InputDecoration(
-                hintText: 'Current Location',
-                icon: new Icon(
-                  Icons.location_on,
-                  color: Colors.grey,
-                )),
-            validator: (value) => value.isEmpty ? 'Username can\'t be empty' : null,
-            onSaved: (value) {
-
-            },
-          ),
-        ),
-        PopupMenuItem(
-          value: 3,
-          child: RaisedButton(
-              elevation: 5.0,
-              shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-              color: Colors.blue,
-              child: new Text('Search',
-                  style: new TextStyle(fontSize: 16.0, color: Colors.white)),
-              onPressed: () {
-                String query = "";
-                if(searchController.text.isNotEmpty){
-                  query = searchController.text;
-                }
-                if(locController.text.isNotEmpty){
-                  query += "&location="+locController.text;
-                }
-                Route route = MaterialPageRoute(builder: (context) => HomeSearchPage(query: query,));
-                Navigator.push(context, route);
-              }
-          ),
-        ),
-      ],
-      onCanceled: () {
-        print("You have canceled the menu.");
-      },
-      onSelected: (value) {
-        if(value == 1){
-        }
-      },
-      icon: Icon(Icons.search),
+      ),
     );
+  }
 
+  getBusinesses() async {
+    String webAddress;
+    var latitude;
+    var longitude;
+    var currentLocation = await location.getLocation();
+    latitude = currentLocation.latitude;
+    longitude = currentLocation.longitude;
 
-    return Scaffold(
-        key: scaffoldKey,
-        drawer: new Drawer(
-            child: new ListView(
-              children: <Widget> [
-                new DrawerHeader(child: new Text('Menu'),),
-                new ListTile(
-                  title: new Text('Your Saved Restaurants'),
-                  onTap: () {
-                    Route route = MaterialPageRoute(builder: (context) => ShowSavedRestaurants());
-                    Navigator.push(context, route);
-                  },
-                ),
-                new ListTile(
-                  title: new Text('Choose My Preferences'),
-                  onTap: () {
-                    Route route = MaterialPageRoute(builder: (context) => UserYelpPreferences());
-                    Navigator.push(context, route);
-                  },
-                ),
-                new ListTile(
-                  title: new Text('Sign In / Sign Up'),
-                  onTap: () {
-                    Route route = MaterialPageRoute(builder: (context) => LoginRootPage(auth: new Auth()));
-                    Navigator.push(context, route);
-                    //signIn(context);
-//                    return UserAuth().createState().build(context);
-                  },
-                ),
-                new ListTile(
-                  title: new Text('Find me a restaurant'),
-                  onTap: () {
-                    //Repository repo = new Repository();
-                    //Route route = MaterialPageRoute(builder: (context) => YelpSearch(repository: Repository()));
-                    Route route = MaterialPageRoute(builder: (context) => searchPage());
-//                    Route route = MaterialPageRoute(builder: (context) => Repository());
-                    Navigator.push(context, route);
-                  },
-                ),
-                new ListTile(
-                  title: new Text('Group Voting'),
-                  onTap: () {
-                    //Repository repo = new Repository();
-                    //Route route = MaterialPageRoute(builder: (context) => YelpSearch(repository: Repository()));
-                    Route route = MaterialPageRoute(builder: (context) => GroupVotePage(auth: new Auth()));
-//                    Route route = MaterialPageRoute(builder: (context) => Repository());
-                    Navigator.push(context, route);
-                  },
-                ),
-                new ListTile(
-                  title: new Text("My Friends"),
-                  onTap: () {
-                    Route route = MaterialPageRoute(builder: (context) => FriendsPage(auth: new Auth()));
-                    Navigator.push(context, route);
-                  }
-                ),
-                new Divider(),
-                new ListTile(
-                  title: new Text('About'),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => About())
-                    );
-                  },
-                ),
-              ],
-            )
+    webAddress = "https://api.yelp.com/v3/businesses/search?latitude=" +
+        latitude.toString() + "&longitude=" +
+        longitude.toString() + "&limit=50"; //-118.112858";
+
+    //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
+    print("latitude = " + latitude.toString() + "; longitude = " +
+        longitude.toString());
+    http.Response response;
+    Map<String, dynamic> map;
+    response =
+    await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {});
+
+    //Map<String, dynamic> map;
+    // Error handling
+    //    response == null
+    //    ? response = await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {})
+    //    : map = json.decode(response.body);
+    if (response == null || response.statusCode < CODE_OK ||
+        response.statusCode >= CODE_REDIRECTION) {
+      return Future.error(response.body);
+    }
+
+    //    Map<String, dynamic> map = json.decode(response.body);
+    map = json.decode(response.body);
+    List results = map["businesses"];
+    List<Restaurants> businesses = results.map((model) =>
+        Restaurants.fromJson(model)).toList();
+
+    Iterable _markers = Iterable.generate(50, (index) {
+      Map result = results[index];
+      LatLng latLngMarker = LatLng(
+          businesses[index].latitude, businesses[index].longitude);
+
+      return Marker(
+        markerId: MarkerId("marker$index"),
+        position: latLngMarker,
+        infoWindow: InfoWindow(
+            title: businesses[index].name,
+            onTap: () {
+              print("tapped");
+            }
         ),
-        appBar: AppBar(
+      );
+    });
 
-          leading: Builder(
-            builder: (BuildContext context) {
-              return IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-                tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-              );
+    setState(() {
+      markers = _markers;
+    });
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    location.onLocationChanged().listen((LocationData currentLocation) {
+      latitude = currentLocation.latitude;
+      longitude = currentLocation.longitude;
+//        print('Latitude:$latitude');
+//        print('Longitude:$longitude');
+      _currentPosition = CameraPosition(
+        target: LatLng(latitude, longitude),
+        zoom: 14.4746,
+      );
+      print('Latitude:$latitude');
+      print('Longitude:$longitude');
+      return LatLng(currentLocation.latitude, currentLocation.longitude);
+    });
+    //getCurrentUserInfo();
+
+    Future<List<String>> getSavedRestaurants() async {
+      final FirebaseUser user = await FirebaseAuth.instance
+          .currentUser(); //auth.currentUser();
+      uid = user.uid;
+      var temp;
+      await Firestore.instance
+          .collection('likedRestaurants')
+          .where('id', isEqualTo: uid)
+          .getDocuments()
+          .then((QuerySnapshot snapshot) {
+        snapshot.documents.forEach((f) => temp = f);
+      });
+
+      List<String> result = new List<String>.from(temp.data['restaurantIDs']);
+      return result;
+    }
+
+    @override
+    Widget build(BuildContext context) {
+      location.onLocationChanged().listen((LocationData currentLocation) {
+        latitude = currentLocation.latitude;
+        longitude = currentLocation.longitude;
+//        print('Latitude:$latitude');
+//        print('Longitude:$longitude');
+        _currentPosition = CameraPosition(
+          target: LatLng(latitude, longitude),
+          zoom: 14.4746,
+        );
+        print('Latitude:$latitude');
+        print('Longitude:$longitude');
+        return LatLng(currentLocation.latitude, currentLocation.longitude);
+      });
+      //getCurrentUserInfo();
+      Widget _selectPopup() =>
+          PopupMenuButton<int>(
+            itemBuilder: (context) =>
+            [
+              PopupMenuItem(
+                value: 1,
+                child: TextFormField(
+                  controller: searchController,
+                  maxLines: 1,
+                  keyboardType: TextInputType.text,
+                  autofocus: false,
+                  decoration: new InputDecoration(
+                      hintText: 'Enter search term',
+                      icon: new Icon(
+                        Icons.search,
+                        color: Colors.grey,
+                      )),
+                  validator: (value) =>
+                  value.isEmpty
+                      ? 'Username can\'t be empty'
+                      : null,
+                  onSaved: (value) {
+
+                  },
+                ),
+              ),
+
+              PopupMenuItem(
+                value: 2,
+                child: TextFormField(
+                  controller: locController,
+                  maxLines: 1,
+                  keyboardType: TextInputType.text,
+                  autofocus: false,
+                  decoration: new InputDecoration(
+                      hintText: 'Current Location',
+                      icon: new Icon(
+                        Icons.location_on,
+                        color: Colors.grey,
+                      )),
+                  validator: (value) =>
+                  value.isEmpty
+                      ? 'Username can\'t be empty'
+                      : null,
+                  onSaved: (value) {
+
+                  },
+                ),
+              ),
+              PopupMenuItem(
+                value: 3,
+                child: RaisedButton(
+                    elevation: 5.0,
+                    shape: new RoundedRectangleBorder(
+                        borderRadius: new BorderRadius.circular(30.0)),
+                    color: Colors.blue,
+                    child: new Text('Search',
+                        style: new TextStyle(
+                            fontSize: 16.0, color: Colors.white)),
+                    onPressed: () {
+                      String query = "";
+                      if (searchController.text.isNotEmpty) {
+                        query = searchController.text;
+                      }
+                      if (locController.text.isNotEmpty) {
+                        query += "&location=" + locController.text;
+                      }
+                      Route route = MaterialPageRoute(
+                          builder: (context) => HomeSearchPage(query: query,));
+                      Navigator.push(context, route);
+                    }
+                ),
+              ),
+            ],
+            onCanceled: () {
+              print("You have canceled the menu.");
             },
+            onSelected: (value) {
+              if (value == 1) {}
+            },
+            icon: Icon(Icons.search),
+          );
+
+
+      return Scaffold(
+          key: scaffoldKey,
+          drawer: new Drawer(
+              child: new ListView(
+                children: <Widget>[
+                  new DrawerHeader(child: new Text('Menu'),),
+                  new ListTile(
+                    title: new Text('My Account'),
+                    onTap: () {
+                      Route route = MaterialPageRoute(builder: (context) =>
+                          LoginRootPage(auth: new Auth(),));
+                      Navigator.push(context, route);
+                      //signIn(context);
+//                    return UserAuth().createState().build(context);
+                    },
+                  ),
+                  new ListTile(
+                    title: new Text('Find me a restaurant'),
+                    onTap: () {
+                      //Repository repo = new Repository();
+                      //Route route = MaterialPageRoute(builder: (context) => YelpSearch(repository: Repository()));
+                      Route route = MaterialPageRoute(
+                          builder: (context) => searchPage());
+//                    Route route = MaterialPageRoute(builder: (context) => Repository());
+                      Navigator.push(context, route);
+                    },
+                  ),
+                  new ListTile(
+                    title: new Text('Group Voting'),
+                    onTap: () {
+                      //Repository repo = new Repository();
+                      //Route route = MaterialPageRoute(builder: (context) => YelpSearch(repository: Repository()));
+                      Route route = MaterialPageRoute(builder: (context) =>
+                          GroupVotePage(auth: new Auth()));
+//                    Route route = MaterialPageRoute(builder: (context) => Repository());
+                      Navigator.push(context, route);
+                    },
+                  ),
+                  new ListTile(
+                      title: new Text("My Friends"),
+                      onTap: () {
+                        Route route = MaterialPageRoute(builder: (context) =>
+                            FriendsPage(auth: new Auth()));
+                        Navigator.push(context, route);
+                      }
+                  ),
+                  new ListTile(
+                      title: new Text("My Liked Restaurants"),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ShowSavedRestaurants())
+                        );
+                      }
+                  ),
+                  new Divider(),
+                  new ListTile(
+                    title: new Text('About'),
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => About())
+                      );
+                    },
+                  ),
+                ],
+              )
           ),
-          title: const Text('Let\'s Eat - Home'),
-          actions: <Widget>[
-            _selectPopup(),
+          appBar: AppBar(
+
+            leading: Builder(
+              builder: (BuildContext context) {
+                return IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                  tooltip: MaterialLocalizations
+                      .of(context)
+                      .openAppDrawerTooltip,
+                );
+              },
+            ),
+            title: const Text('Welcome!'),
+            actions: <Widget>[
+              _selectPopup(),
 //            IconButton(
 //              icon: const Icon(Icons.search),
 //              tooltip: 'Show Snackbar',
@@ -221,43 +402,69 @@ class _HomeState extends State<Home> {
 //                Navigator.push(context, route);
 //              },
 //            ),
-            IconButton(
-              icon: const Icon(Icons.my_location),
-              tooltip: 'Nearby Restaurants',
-              onPressed: () {
-                //openPage(context);
-                Route route = MaterialPageRoute(builder: (context) => MapView());
-                Navigator.push(context, route);
+              IconButton(
+                icon: const Icon(Icons.my_location),
+                tooltip: 'Nearby Restaurants',
+                onPressed: () {
+                  //openPage(context);
+                  Route route = MaterialPageRoute(
+                      builder: (context) => MapView());
+                  Navigator.push(context, route);
 //                Navigator.push(context, Maps());
-                //runApp(Server());
-              },
-            ),
-          ],
-        ),
-        body: new Stack(
-          children: <Widget>[
-            new Center(
-              child: new Text('Welcome to Let\'s Eat!',
-                  style: TextStyle(fontSize: 24)),
-            ),
-            new Container(
-              decoration: new BoxDecoration(
-                image: new DecorationImage(image: new AssetImage("assets/mobileHome.JPG"), fit: BoxFit.fill,),
+                  //runApp(Server());
+                },
               ),
-            ),
-//          new Center(
-//            child: new Text('Welcome to Let\'s Eat!',
-//          style: TextStyle(fontSize: 24),),
-//          )
-          ],
-        )
+            ],
+          ),
+          body: latitude == null || longitude == null
+              ? new Stack(
+            children: <Widget>[
+              Positioned.fill( //
+                child: Image(
+                  image: AssetImage("assets/mobileHome2.JPG"),
+                  fit: BoxFit.fill,
+                ),
+              ),
+//            _showPrimaryButton(),
+            ],
+          )
+              : new Stack(
+            children: <Widget>[
+              Positioned.fill( //
+                child: Image(
+                  image: AssetImage("assets/mobileHome2.JPG"),
+                  fit: BoxFit.fill,
+                ),
+              ),
+              _showPrimaryButton(),
+              new Container(
+                  child: SizedBox(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(60.0, 250.0, 60.0, 50.0),
+                      child: GoogleMap(
+                        markers: Set.from(
+                          markers,
+                        ),
+                        mapType: MapType.normal,
+                        myLocationButtonEnabled: true,
+                        myLocationEnabled: true,
+                        initialCameraPosition: CameraPosition(
+                          target: LatLng(latitude, longitude),
+                          zoom: 15.0,
+                        ),
+                      ),
+                    ),
+                  )),
+//
+            ],
+          )
 //      body: const Center(
 //        child: Text(
 //          'Welcome to Let\'s Eat!',
 //          style: TextStyle(fontSize: 24),
 //        ),
 //      ),
-    );
-
+      );
+    }
   }
 }
