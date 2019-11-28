@@ -84,6 +84,8 @@ class _InstantSuggestionPageState extends State<InstantSuggestionPage> {
     return result;
   }
 
+
+
   Future<Restaurants> findRandomRestaurant() async {
     String webAddress;
     var latitude;
@@ -166,7 +168,7 @@ class _InstantSuggestionPageState extends State<InstantSuggestionPage> {
               // return object of type Dialog
               return AlertDialog(
                 title: new Text("Restaurant is already saved"),
-                content: new Text("We didn't find a user with that username.  Please make sure the username is correct"),
+                //content: new Text("We didn't find a user with that username.  Please make sure the username is correct"),
                 actions: <Widget>[
                   new FlatButton(
                     child: new Text("Dismiss"),
@@ -195,15 +197,15 @@ class _InstantSuggestionPageState extends State<InstantSuggestionPage> {
         'id', isEqualTo: uid)
         .snapshots()
         .listen(
-            (data) => RDocID = data.documents[0].documentID
+            (data) {
+          Firestore.instance
+              .collection('likedRestaurants')
+              .document(data.documents[0].documentID)
+              .updateData(
+              {'restaurantIDs':FieldValue.arrayUnion([rID])}
+          );
+        }
     );
-    Firestore.instance
-        .collection('likedRestaurants')
-        .document(RDocID)
-        .updateData(
-        {'restaurantIDs':FieldValue.arrayUnion([rID])}
-    );
-
     showDialog(
       context: context,
       builder: (BuildContext context) {

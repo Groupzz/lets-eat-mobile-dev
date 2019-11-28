@@ -54,6 +54,96 @@ class _GroupRestaurantPageState extends State<GroupRestaurantPage> {
     }
   }
 
+  void saveRestaurant(String restaurantID,String restaurantName) async{
+    bool success = true;
+    final FirebaseUser user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
+    uid = user.uid;
+    try {
+      // Check if provided restaurant is already saved in database
+      Firestore.instance
+          .collection('likedRestaurants')
+          .where(
+          'restaurantIDs', isEqualTo: restaurantID)
+          .snapshots()
+          .listen(
+
+              (data) => data.documents.length == 0
+          // If so, update user's restaurant array w/ new restaurant
+              ? Firestore.instance
+              .collection('users')
+              .where(
+              'id', isEqualTo: uid // Get current user id
+          )
+              .snapshots()
+              .listen(
+            // Update Restaurants collection that contains current user ID
+                  (data)=> saveRestaurantDB(data,restaurantID,restaurantName)
+          )
+          // If not, show error message
+              : showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              // return object of type Dialog
+              return AlertDialog(
+                title: new Text("Restaurant is already saved"),
+                //content: new Text("We didn't find a user with that username.  Please make sure the username is correct"),
+                actions: <Widget>[
+                  new FlatButton(
+                    child: new Text("Dismiss"),
+                    onPressed: () {
+                      success = false;
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          )
+      );
+
+    }
+    catch(e)
+    {
+    }
+  }
+
+  Future<void> saveRestaurantDB(QuerySnapshot snap,String rID,String rName) async{
+
+    Firestore.instance
+        .collection('likedRestaurants')
+        .where(
+        'id', isEqualTo: uid)
+        .snapshots()
+        .listen(
+            (data) {
+          Firestore.instance
+              .collection('likedRestaurants')
+              .document(data.documents[0].documentID)
+              .updateData(
+              {'restaurantIDs':FieldValue.arrayUnion([rID])}
+          );
+        }
+    );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Restaurant Saved!"),
+          content: new Text("${rName} has been added to your saved Restaurants"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Dismiss"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +202,7 @@ class _GroupRestaurantPageState extends State<GroupRestaurantPage> {
                   FlatButton(
                     child: const Text('Save Restaurant'),
                     onPressed: () {
-                      //saveRestaurant(snapshot.data.id,snapshot.data.name);
+                      saveRestaurant(widget.result['id'], widget.result['name']);
                       //_launchURL(snapshot.data[index].url);
                     },
                   ),

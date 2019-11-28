@@ -132,7 +132,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
               // return object of type Dialog
               return AlertDialog(
                 title: new Text("Restaurant is already saved"),
-                content: new Text("We didn't find a user with that username.  Please make sure the username is correct"),
+                //content: new Text("We didn't find a user with that username.  Please make sure the username is correct"),
                 actions: <Widget>[
                   new FlatButton(
                     child: new Text("Dismiss"),
@@ -161,15 +161,15 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
         'id', isEqualTo: uid)
         .snapshots()
         .listen(
-            (data) => RDocID = data.documents[0].documentID
+            (data) {
+          Firestore.instance
+              .collection('likedRestaurants')
+              .document(data.documents[0].documentID)
+              .updateData(
+              {'restaurantIDs':FieldValue.arrayUnion([rID])}
+          );
+        }
     );
-    Firestore.instance
-        .collection('likedRestaurants')
-        .document(RDocID)
-        .updateData(
-        {'restaurantIDs':FieldValue.arrayUnion([rID])}
-    );
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -244,6 +244,13 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                       // make buttons use the appropriate styles for cards
                                       child: ButtonBar(
                                         children: <Widget>[
+                                          FlatButton(
+                                            child: const Text('Save Restaurant'),
+                                            onPressed: () {
+                                              saveRestaurant(snapshot.data[index].id,snapshot.data[index].name);
+                                              //_launchURL(snapshot.data[index].url);
+                                            },
+                                          ),
                                           FlatButton(
                                             child: const Text('WEBSITE'),
                                             onPressed: () {
