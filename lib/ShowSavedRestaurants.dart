@@ -58,37 +58,26 @@ class _ShowSavedRestaurantsState extends State<ShowSavedRestaurants> {
   /// Call this method with a list of business id's
   /// The Yelp API will look up every ID in the list, and the API's response for each is added to the results list
   /// The results llst is returned, which will need to be parsed by a FutureBuilder
-  Future<List<dynamic>> loadLikedRestaurants() async{
+  Future<List<Restaurants>> loadLikedRestaurants() async{
     final FirebaseUser user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
     uid = user.uid;
     var temp;
-    print("id = " + uid);
 
-//    var likedIDs = Firestore.instance.collection('likedRestaurants').where(
-//        'id', isEqualTo: uid // Get current user id
-//    );
-//    await Future.delayed(const Duration(milliseconds: 700), (){});
-//    var querySnap = await likedIDs.getDocuments();
-//    DocumentSnapshot doc = querySnap.documents[0];
-//    List<String> ids = doc['restaurantIDs'];
-//    print("list = " + ids.toString());
-
-    List<dynamic> ids;
     ///query gets string of restaurant ids from uid
-    Firestore.instance
+    await Firestore.instance
         .collection('likedRestaurants')
-        .where('id', isEqualTo: uid).snapshots().listen((data) {
-          ids = data.documents[0]['restaurantIDs'];
-    });
-    await Future.delayed(const Duration(milliseconds: 700), (){});
-    print("List = " + ids.toString());
+        .where('id', isEqualTo: uid)
+        .getDocuments()
+        .then((QuerySnapshot snapshot) {
+      snapshot.documents.forEach((f) => temp = f);});
 
+    List<String> ids = new List<String>.from(temp.data['restaurantIDs']);
 
 
     List<dynamic> result = [];
     for(String id in ids){
       String siteAddress = "https://api.yelp.com/v3/businesses/" + id; //-118.112858";
-      print("address = " + siteAddress);
+
       //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
 
       http.Response response;
@@ -111,8 +100,20 @@ class _ShowSavedRestaurantsState extends State<ShowSavedRestaurants> {
       var r = json.decode(response.body);
       result.add(r);
     }
-    print(result);
-    return result;
+
+    List<Restaurants> temp1 =[];
+
+    for(var i in result){
+      Restaurants rest1 = Restaurants.fromJson(i);
+      temp1.add(rest1);
+    }
+
+    List<Restaurants> businesses = temp1;
+    print(businesses);
+    for (Restaurants restaurant in businesses) {
+      print("Restaurant: " + restaurant.name);
+    }
+    return businesses;
   }
 
   Future<Restaurants> findRandomRestaurant() async {
@@ -195,17 +196,30 @@ class _ShowSavedRestaurantsState extends State<ShowSavedRestaurants> {
         appBar: AppBar(title: Text("Saved Restaurants")),
         body: Center(
 //          child: FutureBuilder<List<Restaurants>>(
-          child: FutureBuilder<List<dynamic>>(
+          child: FutureBuilder<List<Restaurants>>(
             future: loadLikedRestaurants(),//repository.getBusinesses(),
             builder: (BuildContext context, snapshot) {
               if (snapshot.hasData) {
+                //print("Selected Restaurant = " + snapshot.data[0].name);
+                //print("It is located in " + snapshot.data[0].city + " at " + snapshot.data?.address1??"" + " " + snapshot.data?.address2??"" + " " + snapshot.data?.address3??"");
+                //double miles = snapshot.data.distance * 0.000621371;  // Convert meters to miles
+
+                Iterable markers = [];  // Holds list of Restaurant markers (Will hold only 1 marker in this case)
+                Iterable _markers = Iterable.generate(snapshot.data.length, (index) {
+                  LatLng markerLoc = LatLng(snapshot.data[index].latitude, snapshot.data[index].longitude);
+                  return Marker(markerId: MarkerId("marker$index"), position: markerLoc,infoWindow: InfoWindow(
+                    title: snapshot.data[index].name,
+                  ));
+                });
+
+                markers = _markers;
+
                 return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ListView.builder(
                         itemCount: snapshot.data.length,
                         itemBuilder: (context, index) {
-                          dynamic current = snapshot.data[index];
-                          print("current = " + current.toString());
+                          Restaurants current = snapshot.data[index];
                           return Center(
                             child: Card(
                               child: Column(
@@ -259,7 +273,7 @@ class _ShowSavedRestaurantsState extends State<ShowSavedRestaurants> {
                           );
                         }));
               } else if (snapshot.hasError) {
-                return Padding(padding: const EdgeInsets.symmetric(horizontal: 15.0), child: Text("${snapshot.error}"));
+                return Padding(padding: const EdgeInsets.symmetric(horizontal: 15.0), child: Text("Something went wrong.\nPlease try again or modify your search"));
               }
 
               // By default, show a loading spinner
