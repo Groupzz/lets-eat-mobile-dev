@@ -188,15 +188,15 @@ class _ShowSavedRestaurantsState extends State<ShowSavedRestaurants> {
             future: loadLikedRestaurants(),//repository.getBusinesses(),
             builder: (BuildContext context, snapshot) {
               if (snapshot.hasData) {
-                print("Selected Restaurant = " + snapshot.data[0].name);
+                //print("Selected Restaurant = " + snapshot.data[0].name);
                 //print("It is located in " + snapshot.data[0].city + " at " + snapshot.data?.address1??"" + " " + snapshot.data?.address2??"" + " " + snapshot.data?.address3??"");
                 //double miles = snapshot.data.distance * 0.000621371;  // Convert meters to miles
 
                 Iterable markers = [];  // Holds list of Restaurant markers (Will hold only 1 marker in this case)
                 Iterable _markers = Iterable.generate(snapshot.data.length, (index) {
-                  LatLng markerLoc = LatLng(snapshot.data.latitude, snapshot.data.longitude);
+                  LatLng markerLoc = LatLng(snapshot.data[index].latitude, snapshot.data[index].longitude);
                   return Marker(markerId: MarkerId("marker$index"), position: markerLoc,infoWindow: InfoWindow(
-                    title: snapshot.data.name,
+                    title: snapshot.data[index].name,
                   ));
                 });
 
@@ -207,6 +207,7 @@ class _ShowSavedRestaurantsState extends State<ShowSavedRestaurants> {
                     child: ListView.builder(
                         itemCount: snapshot.data.length,
                         itemBuilder: (context, index) {
+                          Restaurants current = snapshot.data[index];
                           return Center(
                             child: Card(
                               child: Column(
@@ -214,14 +215,14 @@ class _ShowSavedRestaurantsState extends State<ShowSavedRestaurants> {
                                 children: <Widget>[
                                   Padding(padding: const EdgeInsets.all(8.0)),
                                   ListTile(
-                                    leading: Image.network(snapshot.data.imageUrl, width: 80, height: 80,),
-                                    title: Text('${snapshot.data.name}'),
+                                    leading: Image.network(current.imageUrl, width: 80, height: 80,),
+                                    title: Text('${current.name}'),
                                     subtitle: RichText(
                                         text: TextSpan(
                                             style: Theme.of(context).textTheme.body1,
                                             children: [
-                                              TextSpan(text: '${snapshot.data?.address1??""} ${snapshot.data?.address2??""} ${snapshot.data.city}'
-                                        '\n${snapshot.data.price}        ${miles.toStringAsFixed(2)} mi.           ${snapshot.data.rating}'),
+                                              TextSpan(text: '${current?.address1??""} ${current?.address2??""} ${current.city}'
+                                        '\n${current.price}                   ${current.rating}'),
                                               WidgetSpan(
                                                 child: Padding(
                                                   padding: const EdgeInsets.symmetric(horizontal: 2.0),
@@ -240,7 +241,7 @@ class _ShowSavedRestaurantsState extends State<ShowSavedRestaurants> {
                                           FlatButton(
                                             child: const Text('WEBSITE'),
                                             onPressed: () {
-                                              _launchURL(snapshot.data.url);
+                                              _launchURL(current.url);
                                               //_launchURL(snapshot.data[index].url);
                                             },
                                           ),
@@ -248,7 +249,7 @@ class _ShowSavedRestaurantsState extends State<ShowSavedRestaurants> {
                                             child: const Text('NAVIGATE'),
                                             onPressed: () {
                                               //_launchURL(snapshot.data.)
-                                              _launchURL("google.navigation:q=${snapshot.data.latitude},${snapshot.data.longitude}");
+                                              _launchURL("google.navigation:q=${current.latitude},${current.longitude}");
                                             },
                                           ),
                                         ],

@@ -174,39 +174,7 @@ class _HomeState extends State<Home> {
   }
 
 
-  @override
-  Widget build(BuildContext context) {
-    location.onLocationChanged().listen((LocationData currentLocation) {
-      latitude = currentLocation.latitude;
-      longitude = currentLocation.longitude;
-//        print('Latitude:$latitude');
-//        print('Longitude:$longitude');
-      _currentPosition = CameraPosition(
-        target: LatLng(latitude, longitude),
-        zoom: 14.4746,
-      );
-      print('Latitude:$latitude');
-      print('Longitude:$longitude');
-      return LatLng(currentLocation.latitude, currentLocation.longitude);
-    });
-    //getCurrentUserInfo();
 
-    Future<List<String>> getSavedRestaurants() async {
-      final FirebaseUser user = await FirebaseAuth.instance
-          .currentUser(); //auth.currentUser();
-      uid = user.uid;
-      var temp;
-      await Firestore.instance
-          .collection('likedRestaurants')
-          .where('id', isEqualTo: uid)
-          .getDocuments()
-          .then((QuerySnapshot snapshot) {
-        snapshot.documents.forEach((f) => temp = f);
-      });
-
-      List<String> result = new List<String>.from(temp.data['restaurantIDs']);
-      return result;
-    }
 
     @override
     Widget build(BuildContext context) {
@@ -467,4 +435,3 @@ class _HomeState extends State<Home> {
       );
     }
   }
-}
