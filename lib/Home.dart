@@ -26,6 +26,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'dart:async';
+import 'InstantSuggestion.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -78,6 +79,28 @@ class _HomeState extends State<Home> {
 //      zoom: 14.4746,
 //    );
     super.initState();
+  }
+
+  Widget _showPrimaryButton() {
+    //getCurrentUserInfo();
+    return new Padding(
+      padding: EdgeInsets.fromLTRB(100.0, 190.0, 90.0, 0.0),
+      child: SizedBox(
+        height: 40.0,
+        width: 200,
+        child: new RaisedButton(
+            elevation: 5.0,
+            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+            color: Colors.lightGreen,
+            child: new Text('Instant Suggestion',
+                style: new TextStyle(fontSize: 16.0, color: Colors.white)),
+            onPressed: () {
+              Route route = MaterialPageRoute(builder: (context) => InstantSuggestionPage());
+              Navigator.push(context, route);
+            }
+        ),
+      ),
+    );
   }
 
   getBusinesses() async {
@@ -341,21 +364,8 @@ class _HomeState extends State<Home> {
                 fit : BoxFit.fill,
               ),
             ),
-            new Center(
-              child: new Text(' ',
-                  style: TextStyle(fontSize: 24)),
-            ),
+            _showPrimaryButton(),
             new Container(
-              decoration: new BoxDecoration(
-                borderRadius: new BorderRadius.circular(40.0),
-//                boxShadow: [
-//                  new BoxShadow(
-//                      //color: Colors.grey,
-//                      blurRadius: 3.0,
-//                      offset: new Offset(1.0, 1.0))
-//                ],
-                //color: Colors.white,
-              ),
               child: SizedBox(
                 child: Padding(
                 padding: EdgeInsets.fromLTRB(60.0, 250.0, 60.0, 50.0),
