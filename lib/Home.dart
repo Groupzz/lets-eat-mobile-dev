@@ -17,169 +17,43 @@ import 'Accounts/login_root.dart';
 import 'Accounts/accounts.dart';
 import 'Accounts/authentication.dart';
 import 'About.dart';
-import 'YelpSearch.dart';
+import 'package:lets_eat/YelpSearch.dart';
 import 'Accounts/UserYelpPreferences.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
-import 'Restaurants.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:flutter/cupertino.dart';
-import 'dart:async';
-import 'InstantSuggestion.dart';
+import 'YelpSearch.dart';
+import 'Accounts/LoginSignUp.dart';
+import 'Accounts/signUpPage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'ShowSavedRestaurants.dart';
+//import 'SearchList.dart';
 
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
 }
 
+String uid;
+
 class _HomeState extends State<Home> {
   final searchController = TextEditingController();
   final locController = TextEditingController();
-  FirebaseUser currentUser;
 
-  Completer<GoogleMapController> _controller = Completer();
-  static const String API_KEY = "p8eXXM3q_ks6WY_FWc2KhV-EmLhSpbJf0P-SATBhAIM4dNCgsp3sH8ogzJPezOT6LzFQlb_vcFfxziHbHuNt8RwxtWY0-vRpx7C0nPz5apIT4A5LYGmaVfuwPrf3WXYx";
-  static const Map<String, String> AUTH_HEADER = {"Authorization": "Bearer $API_KEY"};
-  var currentLocation = LocationData;
-  //Location location;
-  //Future<LocationData> currentLocation;
+  Future<List<String>> getSavedRestaurants() async{
+    final FirebaseUser user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
+    uid = user.uid;
+    var temp;
+    await Firestore.instance
+        .collection('likedRestaurants')
+        .where('id', isEqualTo: uid)
+        .getDocuments()
+        .then((QuerySnapshot snapshot) {
+      snapshot.documents.forEach((f) => temp = f);});
 
-  var location = new Location();
-  CameraPosition _currentPosition;
-  var latitude;
-  var longitude;
-  var CODE_OK = 200;
-  var CODE_REDIRECTION = 300;
-  var CODE_NOT_FOUND = 404;
-  Iterable markers = [];
-
-  Future _getLocation() async {
-    location = Location();
-    var currentLocation = await location.getLocation();
-    await Future.delayed(const Duration(milliseconds: 700), (){});
-    setState(() {
-      latitude = currentLocation.latitude;
-      longitude = currentLocation.longitude;
-      //loading=false;
-    });
-
+    List<String> result = new List<String>.from(temp.data['restaurantIDs']);
+    return result;
   }
-
-  @override
-  void initState() {
-    _getLocation();
-    getBusinesses();
-//    print('test');
-//    print('TestLatitude:$latitude');
-//    print('TestLongitude:$longitude');
-//    //currentLocation = location.getLocation();
-//    _currentPosition = CameraPosition(
-//      target: LatLng(latitude  ,  longitude),
-//      zoom: 14.4746,
-//    );
-    super.initState();
-  }
-
-  Widget _showPrimaryButton() {
-    //getCurrentUserInfo();
-    return new Padding(
-      padding: EdgeInsets.fromLTRB(100.0, 190.0, 90.0, 0.0),
-      child: SizedBox(
-        height: 40.0,
-        width: 200,
-        child: new RaisedButton(
-            elevation: 5.0,
-            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-            color: Colors.lightGreen,
-            child: new Text('Instant Suggestion',
-                style: new TextStyle(fontSize: 16.0, color: Colors.white)),
-            onPressed: () {
-              Route route = MaterialPageRoute(builder: (context) => InstantSuggestionPage());
-              Navigator.push(context, route);
-            }
-        ),
-      ),
-    );
-  }
-
-  getBusinesses() async {
-    String webAddress;
-    var latitude;
-    var longitude;
-    var currentLocation = await location.getLocation();
-    latitude = currentLocation.latitude;
-    longitude = currentLocation.longitude;
-
-    webAddress = "https://api.yelp.com/v3/businesses/search?latitude=" +
-        latitude.toString() + "&longitude=" +
-        longitude.toString() + "&limit=50"; //-118.112858";
-
-    //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
-    print("latitude = " + latitude.toString() + "; longitude = " +
-        longitude.toString());
-    http.Response response;
-    Map<String, dynamic> map;
-    response =
-    await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {});
-
-    //Map<String, dynamic> map;
-    // Error handling
-    //    response == null
-    //    ? response = await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {})
-    //    : map = json.decode(response.body);
-    if (response == null || response.statusCode < CODE_OK ||
-        response.statusCode >= CODE_REDIRECTION) {
-      return Future.error(response.body);
-    }
-
-    //    Map<String, dynamic> map = json.decode(response.body);
-    map = json.decode(response.body);
-    List results = map["businesses"];
-    List<Restaurants> businesses = results.map((model) =>
-        Restaurants.fromJson(model)).toList();
-
-    Iterable _markers = Iterable.generate(50, (index) {
-      Map result = results[index];
-      LatLng latLngMarker = LatLng(businesses[index].latitude, businesses[index].longitude);
-
-      return Marker(
-        markerId: MarkerId("marker$index"),
-        position: latLngMarker,
-        infoWindow: InfoWindow(
-            title: businesses[index].name,
-            onTap: () {
-              print("tapped");
-            }
-        ),
-      );
-    });
-
-    setState(() {
-      markers = _markers;
-    });
-
-
-  }
-
-
 
   @override
   Widget build(BuildContext context) {
-    location.onLocationChanged().listen((LocationData currentLocation) {
-      latitude = currentLocation.latitude;
-      longitude = currentLocation.longitude;
-//        print('Latitude:$latitude');
-//        print('Longitude:$longitude');
-      _currentPosition = CameraPosition(
-        target: LatLng(latitude  ,  longitude),
-        zoom: 14.4746,
-      );
-      print('Latitude:$latitude');
-      print('Longitude:$longitude');
-      return LatLng(currentLocation.latitude, currentLocation.longitude);
-    });
-    //getCurrentUserInfo();
     Widget _selectPopup() => PopupMenuButton<int>(
       itemBuilder: (context) => [
         PopupMenuItem(
@@ -254,7 +128,6 @@ class _HomeState extends State<Home> {
     );
 
 
-
     return Scaffold(
         key: scaffoldKey,
         drawer: new Drawer(
@@ -262,9 +135,23 @@ class _HomeState extends State<Home> {
               children: <Widget> [
                 new DrawerHeader(child: new Text('Menu'),),
                 new ListTile(
-                  title: new Text('My Account'),
+                  title: new Text('Your Saved Restaurants'),
                   onTap: () {
-                    Route route = MaterialPageRoute(builder: (context) => LoginRootPage(auth: new Auth(),));
+                    Route route = MaterialPageRoute(builder: (context) => ShowSavedRestaurants());
+                    Navigator.push(context, route);
+                  },
+                ),
+                new ListTile(
+                  title: new Text('Choose My Preferences'),
+                  onTap: () {
+                    Route route = MaterialPageRoute(builder: (context) => UserYelpPreferences());
+                    Navigator.push(context, route);
+                  },
+                ),
+                new ListTile(
+                  title: new Text('Sign In / Sign Up'),
+                  onTap: () {
+                    Route route = MaterialPageRoute(builder: (context) => LoginRootPage(auth: new Auth()));
                     Navigator.push(context, route);
                     //signIn(context);
 //                    return UserAuth().createState().build(context);
@@ -297,12 +184,6 @@ class _HomeState extends State<Home> {
                     Navigator.push(context, route);
                   }
                 ),
-                new ListTile(
-                    title: new Text("My Liked Restaurants"),
-                    onTap: () {
-
-                    }
-                ),
                 new Divider(),
                 new ListTile(
                   title: new Text('About'),
@@ -329,7 +210,7 @@ class _HomeState extends State<Home> {
               );
             },
           ),
-          title: const Text('Welcome!'),
+          title: const Text('Let\'s Eat - Home'),
           actions: <Widget>[
             _selectPopup(),
 //            IconButton(
@@ -353,46 +234,21 @@ class _HomeState extends State<Home> {
             ),
           ],
         ),
-        body: latitude == null || longitude == null
-        ? new Stack(
+        body: new Stack(
           children: <Widget>[
-            Positioned.fill(  //
-              child: Image(
-                image: AssetImage("assets/mobileHome2.JPG"),
-                fit : BoxFit.fill,
-              ),
+            new Center(
+              child: new Text('Welcome to Let\'s Eat!',
+                  style: TextStyle(fontSize: 24)),
             ),
-//            _showPrimaryButton(),
-          ],
-        )
-        :new Stack(
-          children: <Widget>[
-            Positioned.fill(  //
-              child: Image(
-                image: AssetImage("assets/mobileHome2.JPG"),
-                fit : BoxFit.fill,
-              ),
-            ),
-            _showPrimaryButton(),
             new Container(
-              child: SizedBox(
-                child: Padding(
-                padding: EdgeInsets.fromLTRB(60.0, 250.0, 60.0, 50.0),
-                child: GoogleMap(
-                    markers: Set.from(
-                      markers,
-                    ),
-                    mapType: MapType.normal,
-                    myLocationButtonEnabled: true,
-                    myLocationEnabled: true,
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng(latitude, longitude),
-                      zoom: 15.0,
-                    ),
-                  ),
+              decoration: new BoxDecoration(
+                image: new DecorationImage(image: new AssetImage("assets/mobileHome.JPG"), fit: BoxFit.fill,),
               ),
-            )),
-//
+            ),
+//          new Center(
+//            child: new Text('Welcome to Let\'s Eat!',
+//          style: TextStyle(fontSize: 24),),
+//          )
           ],
         )
 //      body: const Center(

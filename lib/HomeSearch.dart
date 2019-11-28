@@ -53,6 +53,20 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
       throw 'Could not launch $url1';
     }
   }
+  Future<List<String>> getSavedRestaurants() async{
+    final FirebaseUser user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
+    uid = user.uid;
+    var temp;
+    await Firestore.instance
+        .collection('likedRestaurants')
+        .where('id', isEqualTo: uid)
+        .getDocuments()
+        .then((QuerySnapshot snapshot) {
+      snapshot.documents.forEach((f) => temp = f);});
+
+    List<String> result = new List<String>.from(temp.data['restaurantIDs']);
+    return result;
+  }
 
   Future<List<Restaurants>> search() async {
 

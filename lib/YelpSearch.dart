@@ -54,6 +54,22 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
     }
   }
 
+  ///Method returns all saved restaurantIDs from firestore
+  Future<List<String>> getSavedRestaurants() async{
+    final FirebaseUser user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
+    uid = user.uid;
+    var temp;
+    await Firestore.instance
+        .collection('likedRestaurants')
+        .where('id', isEqualTo: uid)
+        .getDocuments()
+        .then((QuerySnapshot snapshot) {
+      snapshot.documents.forEach((f) => temp = f);});
+
+    List<String> result = new List<String>.from(temp.data['restaurantIDs']);
+    return result;
+  }
+
   /// Call this method with a list of business id's
   /// The Yelp API will look up every ID in the list, and the API's response for each is added to the results list
   /// The results llst is returned, which will need to be parsed by a FutureBuilder
