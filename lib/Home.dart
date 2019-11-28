@@ -297,6 +297,12 @@ class _HomeState extends State<Home> {
                     Navigator.push(context, route);
                   }
                 ),
+                new ListTile(
+                    title: new Text("My Liked Restaurants"),
+                    onTap: () {
+
+                    }
+                ),
                 new Divider(),
                 new ListTile(
                   title: new Text('About'),
