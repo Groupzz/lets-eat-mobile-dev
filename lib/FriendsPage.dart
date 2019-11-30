@@ -271,7 +271,7 @@ class _FriendsPageState extends State<FriendsPage> {
   Widget _showPrimaryButton() {
     //getCurrentUserInfo();
     return new Padding(
-        padding: EdgeInsets.fromLTRB(270.0, 70.0, 10.0, 0.0),
+        padding: EdgeInsets.fromLTRB(40.0, 60.0, 10.0, 0.0),
         child: SizedBox(
           height: 40.0,
           width: 150,

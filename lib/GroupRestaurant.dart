@@ -175,14 +175,14 @@ class _GroupRestaurantPageState extends State<GroupRestaurantPage> {
           children: <Widget>[
             Padding(padding: const EdgeInsets.all(8.0)),
             ListTile(
-                leading: Image.network(widget.result['image_url'], width: 80, height: 80,),
+                leading: Image.network(widget.result['image_url']??"", width: 80, height: 80,),
                 title: Text('${widget.result['name']}'),
                 subtitle: RichText(
                     text: TextSpan(
                       style: Theme.of(context).textTheme.body1,
                       children: [
                         TextSpan(text: '${loc['display_address'].toString().substring(1, loc['display_address'].toString().length - 1)??""}'
-                            '\n${widget.result['price']}           ${widget.result['rating']}'),
+                            '\n${widget.result['price']??""}           ${widget.result['rating']??""}'),
                         WidgetSpan(
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 2.0),

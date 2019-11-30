@@ -253,37 +253,44 @@ class _GroupChatPageState extends State<GroupChatPage> with SingleTickerProvider
             child: StreamBuilder(
                 stream: Firestore.instance.collection('groups').document(widget.docId).snapshots(),
                 builder: (context, data) {
-                  if(data.hasData) {
-                    var doc = data.data;
-                    List<dynamic> prefs = doc['Messages'];
-                    return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ListView.builder(
-//                            itemCount: data.data.preferences.length,
-                            itemCount: prefs.length,
-                            itemBuilder: (c, index) {
-                              return Center(
-                                  child: Card(
-                                      child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: <Widget>[
-                                            //Padding(padding: const EdgeInsets.all(8.0)),
-                                            ListTile(
-                                              title: Text('${prefs[index]}'),
-                                            ),
-                                          ])
-                                  )
-                              );
-                            }
-                        )
-                    );
-                  }
-                  else if (data.hasError) {
-                    return Padding(padding: const EdgeInsets.all(8.0), child: Text("No Messages Found"));
-                  }
+                  try {
+                    if (data.hasData) {
+                      var doc = data.data;
+                      List<dynamic> prefs = doc['Messages'];
+                      return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListView.builder(
+                            //                            itemCount: data.data.preferences.length,
+                              itemCount: prefs.length,
+                              itemBuilder: (c, index) {
+                                return Center(
+                                    child: Card(
+                                        child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: <Widget>[
+                                              //Padding(padding: const EdgeInsets.all(8.0)),
+                                              ListTile(
+                                                title: Text('${prefs[index]}'),
+                                              ),
+                                            ])
+                                    )
+                                );
+                              }
+                          )
+                      );
+                    }
+                    else if (data.hasError) {
+                      return Padding(padding: const EdgeInsets.all(8.0),
+                          child: Text("No Messages Found"));
+                    }
 
-                  // By default, show a loading spinner
-                  return CircularProgressIndicator();
+                    // By default, show a loading spinner
+                    return CircularProgressIndicator();
+                  }
+                  catch(e){
+                    return Padding(padding: const EdgeInsets.all(8.0),
+                        child: Text("No Chat Found"));
+                  }
                 }
             )
         )

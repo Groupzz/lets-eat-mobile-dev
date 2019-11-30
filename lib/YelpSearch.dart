@@ -304,14 +304,14 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
                                 children: <Widget>[
                                   Padding(padding: const EdgeInsets.all(8.0)),
                                   ListTile(
-                                    leading: Image.network(snapshot.data.imageUrl, width: 80, height: 80,),
+                                    leading: Image.network(snapshot.data.imageUrl??"", width: 80, height: 80,),
                                     title: Text('${snapshot.data.name}'),
                                     subtitle: RichText(
                                         text: TextSpan(
                                             style: Theme.of(context).textTheme.body1,
                                             children: [
                                               TextSpan(text: '${snapshot.data?.address1??""} ${snapshot.data?.address2??""} ${snapshot.data.city}'
-                                        '\n${snapshot.data.price}        ${miles.toStringAsFixed(2)} mi.           ${snapshot.data.rating}'),
+                                        '\n${snapshot.data.price??""}        ${miles.toStringAsFixed(2)} mi.           ${snapshot.data.rating??""}'),
                                               WidgetSpan(
                                                 child: Padding(
                                                   padding: const EdgeInsets.symmetric(horizontal: 2.0),

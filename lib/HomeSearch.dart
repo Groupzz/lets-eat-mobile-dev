@@ -225,14 +225,14 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                   children: <Widget>[
                                     Padding(padding: const EdgeInsets.all(8.0)),
                                     ListTile(
-                                        leading: Image.network(snapshot.data[index].imageUrl, width: 80, height: 80,),
+                                        leading: Image.network(snapshot.data[index].imageUrl??"", width: 80, height: 80,),
                                         title: Text('${snapshot.data[index].name}'),
                                         subtitle: RichText(
                                             text: TextSpan(
                                               style: Theme.of(context).textTheme.body1,
                                               children: [
                                                 TextSpan(text: '${snapshot.data[index]?.address1??""} ${snapshot.data[index]?.address2??""} ${snapshot.data[index].city}'
-                                                    '\n${snapshot.data[index].price}        ${miles.toStringAsFixed(2)} mi.           ${snapshot.data[index].rating}'),
+                                                    '\n${snapshot.data[index].price??""}        ${miles.toStringAsFixed(2)} mi.           ${snapshot.data[index].rating??""}'),
                                                 WidgetSpan(
                                                     child: Padding(
                                                       padding: const EdgeInsets.symmetric(horizontal: 2.0),

@@ -406,7 +406,9 @@ class _HomeState extends State<Home> {
               ),
               _showPrimaryButton(),
               new Container(
+
                   child: SizedBox(
+
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(60.0, 250.0, 60.0, 50.0),
                       child: GoogleMap(

@@ -262,6 +262,11 @@ class _AccountsState extends State<Accounts> {
               child: FutureBuilder<List<Group>>(
                   future: getGroups(),
                   builder: (BuildContext c, AsyncSnapshot<List<Group>> data) {
+                    if(data.data?.length == 0){
+                      return Padding(padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                              "No Groups Found"));
+                    }
                     if (data.hasData) {
                       return Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -345,7 +350,7 @@ class _AccountsState extends State<Accounts> {
       String displayUName = widget?.username ?? "";
       return new Scaffold(
         appBar: new AppBar(
-          title: new Text('Hello, ' + widget.username),
+          title: new Text('Hello, ' + widget.username??"user"),
 //        title: new Text('Hello, '),
           actions: <Widget>[
             new FlatButton(

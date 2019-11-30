@@ -30,6 +30,7 @@ class _SignupPageState extends State<SignupPage> {
   String userDocID;
   final _formKey = new GlobalKey<FormState>();
   AuthStatus authStatus = AuthStatus.NOT_DETERMINED;
+
   //String _password;
   String _userId = "";
   final fNameController = TextEditingController();
@@ -44,10 +45,15 @@ class _SignupPageState extends State<SignupPage> {
   final securityAController = TextEditingController();
   FirebaseUser user;
   QuerySnapshot userData;
+  String _errorMessage;
+  bool _isIos;
+  bool _isLoading;
 
 
   @override
   void initState() {
+    _isLoading = false;
+    _errorMessage = "";
     super.initState();
 //    widget.auth.getCurrentUser().then((user) {
 //      setState(() {
@@ -60,206 +66,174 @@ class _SignupPageState extends State<SignupPage> {
 //    });
   }
 
-  void _updateData() async{
-//    Firestore.instance.collection('users').where(
-//        'id', isEqualTo: _userId // Get current user id
-//    ).snapshots().listen(
-//      // Update Friends collection that contains current user ID
-//            (data) =>
-//        userDocID = data.documents[0].documentID).onDone(
-//      _updatePrefs
-//    );
-   // print("user id = " + userDocID);
-    var results = Firestore.instance.collection('users').where(
-        'username', isEqualTo: uNameController.text // Get current user id
-    );
+  void _updateData() async {
+    try {
+      var results = Firestore.instance.collection('users').where(
+          'username', isEqualTo: uNameController.text // Get current user id
+      );
 
-    var querySnap = await results.getDocuments();
-    var length = querySnap.documents.length;
+      var querySnap = await results.getDocuments();
+      var length = querySnap.documents.length;
 
 
-    if(uNameController.text.isNotEmpty && length == 0) {
-      _userId = await widget.auth.signUp(widget.email, widget.pass);
-      Future<DocumentReference> userDoc;
+      if (uNameController.text.isNotEmpty && length == 0) {
+        _userId = await widget.auth.signUp(widget.email, widget.pass);
+        Future<DocumentReference> userDoc;
 
-      Firestore.instance.collection('friends').add(
-          { // Add user to firestore w/ generated userID
-            "id": _userId,
-            "friends": [],
-          }).then((fDoc) {
-            Firestore.instance.collection('preferences').add(
+        Firestore.instance.collection('friends').add(
+            { // Add user to firestore w/ generated userID
+              "id": _userId,
+              "friends": [],
+            }).then((fDoc) {
+          Firestore.instance.collection('preferences').add(
               {
                 "id": _userId,
               }
-            ).then((pDoc) {
-              Firestore.instance.collection('likedRestaurants').add(
+          ).then((pDoc) {
+            Firestore.instance.collection('likedRestaurants').add(
                 {
                   "id": _userId,
                   "restaurantIDs": [],
                 }
-              ).then((lDoc){
-                print("Friend ID = " + fDoc.documentID);
-                // Add new user to Users collection & include Friends Document ID
-                userDoc = Firestore.instance.collection('users').add(
-                    {
-                      // Add user to firestore w/ generated userID
-                      "email": widget.email,
-                      "id": _userId,
-                      "friendsDocID": fDoc.documentID,
-                      // Document ID for current user's Friends document
-                      "likedRestaurantsID": lDoc.documentID,
-                      "preferencesID": pDoc.documentID,
-                      "securityquestion": securityQController.text,
-                      "securityanswer": securityAController.text,
-                      "state": stateController.text,
-                      "firstname": fNameController.text,
-                      "lastname": lNameController.text,
-                      "username": uNameController.text,
-                      "phone": phoneController.text,
-                      "dateofbirth": dobController.text,
-                      "city": cityController.text,
-                      "zip": zipController.text,
-                    });
-              });
+            ).then((lDoc) {
+              print("Friend ID = " + fDoc.documentID);
+              // Add new user to Users collection & include Friends Document ID
+              userDoc = Firestore.instance.collection('users').add(
+                  {
+                    // Add user to firestore w/ generated userID
+                    "email": widget.email,
+                    "id": _userId,
+                    "friendsDocID": fDoc.documentID,
+                    // Document ID for current user's Friends document
+                    "likedRestaurantsID": lDoc.documentID,
+                    "preferencesID": pDoc.documentID,
+                    "securityquestion": securityQController.text,
+                    "securityanswer": securityAController.text,
+                    "state": stateController.text,
+                    "firstname": fNameController.text,
+                    "lastname": lNameController.text,
+                    "username": uNameController.text,
+                    "phone": phoneController.text,
+                    "dateofbirth": dobController.text,
+                    "city": cityController.text,
+                    "zip": zipController.text,
+                  });
             });
-//            print("Friend ID = " + fDoc.documentID);
-//            // Add new user to Users collection & include Friends Document ID
-//            userDoc = Firestore.instance.collection('users').add(
-//            {
-//              // Add user to firestore w/ generated userID
-//              "email": widget.email,
-//              "id": _userId,
-//              "friendsDocID": doc.documentID,
-//              // Document ID for current user's Friends document
-//              "firstname": fNameController.text.isEmpty ? userData
-//                  .documents[0]["firstname"].toString() : fNameController.text,
-//              "lastname": lNameController.text.isEmpty ? userData
-//                  .documents[0]["lastname"].toString() : lNameController.text,
-//              "username": uNameController.text.isEmpty ? userData
-//                  .documents[0]["username"] : uNameController.text,
-//              "phone": phoneController.text.isEmpty ? userData
-//                  .documents[0]["phone"].toString() : phoneController.text,
-//              "dateofbirth": dobController.text.isEmpty ? userData
-//                  .documents[0]["dateofbirth"].toString() : dobController.text,
-//              "city": cityController.text.isEmpty ? userData
-//                  .documents[0]["city"].toString() : cityController.text,
-//              "zip": zipController.text.isEmpty ? userData.documents[0]["zip"]
-//                  .toString() : zipController.text,
-//            });
-      });
+          });
+        });
 
-      widget.auth.sendEmailVerification();
-      _showVerifyEmailSentDialog();
+        widget.auth.sendEmailVerification();
+        _showVerifyEmailSentDialog();
 
-      user = await FirebaseAuth.instance.currentUser();
-      //    Firestore.instance.collection('users').where(
-      //        'id', isEqualTo: userDoc _userId // Get current user id
-      //    ).snapshots().listen(
-      //      // Update Friends collection that contains current user ID
-      //            (data) {
-      //              Firestore.instance.collection('users').document(data.documents[0].documentID).updateData({
-      //                "firstname": fNameController.text.isEmpty? userData.documents[0]["firstname"].toString(): fNameController.text,
-      //                "lastname": lNameController.text.isEmpty? userData.documents[0]["lastname"].toString() : lNameController.text,
-      //                "username": uNameController.text.isEmpty? userData.documents[0]["username"] : uNameController.text,
-      //                "phone": phoneController.text.isEmpty? userData.documents[0]["phone"].toString() : phoneController.text,
-      //                "dateofbirth": dobController.text.isEmpty? userData.documents[0]["dateofbirth"].toString() : dobController.text,
-      //                "city": cityController.text.isEmpty? userData.documents[0]["city"].toString() : cityController.text,
-      //                "zip" : zipController.text.isEmpty? userData.documents[0]["zip"].toString() : zipController.text,
-      //              }
-      //              );
-      //              UserUpdateInfo updateInfo = UserUpdateInfo();
-      //              updateInfo.displayName = uNameController.text;
-      //              user.updateProfile(updateInfo);
-      //
-      //            });
-      //userDocID = data.documents[0].documentID);
-      //    await Future.delayed(const Duration(milliseconds: 700), (){});
-      //    userDocID = userData.documents[0].documentID;
-      //
-      //    Firestore.instance.collection('users').document(userDocID).updateData({
-      //      "firstname": fNameController.text.isEmpty? userData.documents[0]["firstname"].toString(): fNameController.text,
-      //      "lastname": lNameController.text.isEmpty? userData.documents[0]["lastname"].toString() : lNameController.text,
-      //      "username": uNameController.text.isEmpty? userData.documents[0]["username"] : uNameController.text,
-      //      "phone": phoneController.text.isEmpty? userData.documents[0]["phone"].toString() : phoneController.text,
-      //      "dateofbirth": dobController.text.isEmpty? userData.documents[0]["dateofbirth"].toString() : dobController.text,
-      //      "city": cityController.text.isEmpty? userData.documents[0]["city"].toString() : cityController.text,
-      //      "zip" : zipController.text.isEmpty? userData.documents[0]["zip"].toString() : zipController.text,
-      //    }
-      //    );
-      UserUpdateInfo updateInfo = UserUpdateInfo();
-      updateInfo.displayName = uNameController.text;
-      user.updateProfile(updateInfo);
-      Navigator.of(context).pop();
+        user = await FirebaseAuth.instance.currentUser();
+        UserUpdateInfo updateInfo = UserUpdateInfo();
+        updateInfo.displayName = uNameController.text;
+        user.updateProfile(updateInfo);
+        setState(() {
+          _isLoading = false;
+        });
+        Navigator.of(context).pop();
 
-      _showSuccess();
-    }
+        _showSuccess();
+      }
 
-    else if(uNameController.text.isEmpty){
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          // return object of type Dialog
-          return AlertDialog(
-            title: new Text("You Must Provide a username"),
-            content: new Text("Your account can't be made without a username"),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text("Dismiss"),
-                onPressed: () {
-                  //prefix0.Navigator.of(context).pop()
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-
-    else{
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          // return object of type Dialog
-          return AlertDialog(
-            title: new Text("Username already taken"),
-            content: new Text("You must pick a unique username"),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text("Dismiss"),
-                onPressed: () {
-                  //prefix0.Navigator.of(context).pop()
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-}
-
-  void _showVerifyEmailSentDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          title: new Text("Verify your account"),
-          content: new Text("Link to verify account has been sent to your email"),
-          actions: <Widget>[
-            new FlatButton(
-              child: new Text("Dismiss"),
-              onPressed: () {
-                //prefix0.Navigator.of(context).pop()
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
+      else if (uNameController.text.isEmpty) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            // return object of type Dialog
+            return AlertDialog(
+              title: new Text("You Must Provide a username"),
+              content: new Text(
+                  "Your account can't be made without a username"),
+              actions: <Widget>[
+                new FlatButton(
+                  child: new Text("Dismiss"),
+                  onPressed: () {
+                    //prefix0.Navigator.of(context).pop()
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
         );
-      },
-    );
+      }
+
+      else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            // return object of type Dialog
+            return AlertDialog(
+              title: new Text("Username already taken"),
+              content: new Text("You must pick a unique username"),
+              actions: <Widget>[
+                new FlatButton(
+                  child: new Text("Dismiss"),
+                  onPressed: () {
+                    //prefix0.Navigator.of(context).pop()
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
+    catch (e) {
+      print('Error: $e');
+      setState(() {
+        _isLoading = false;
+        if (_isIos) {
+          _errorMessage = e.details;
+        } else
+          _errorMessage = e.message;
+      });
+    }
+  }
+
+  Widget _showErrorMessage() {
+    if (_errorMessage.length > 0 && _errorMessage != null) {
+      return new Text(
+        _errorMessage,
+        style: TextStyle(
+            fontSize: 13.0,
+            color: Colors.red,
+            height: 1.0,
+            fontWeight: FontWeight.w300),
+      );
+    } else {
+      return new Container(
+        height: 0.0,
+      );
+    }
+  }
+
+    void _showVerifyEmailSentDialog() {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            title: new Text("Verify your account"),
+            content: new Text(
+                "Link to verify account has been sent to your email"),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text("Dismiss"),
+                onPressed: () {
+                  //prefix0.Navigator.of(context).pop()
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+
   }
 
   void _showSuccess() {
@@ -505,13 +479,28 @@ class _SignupPageState extends State<SignupPage> {
             color: Colors.blue,
             child: new Text('Register',
                 style: new TextStyle(fontSize: 20.0, color: Colors.white)),
-            onPressed: _updateData,
+            onPressed: () {
+              _updateData();
+
+              setState(() {
+                _isLoading = true;
+              });
+            },
+
           ),
         ));
   }
 
+  Widget _showCircularProgress(){
+    if (_isLoading) {
+      return Center(child: CircularProgressIndicator());
+    } return Container(height: 0.0, width: 0.0,);
+
+  }
+
   @override
   Widget build(BuildContext context) {
+    _isIos = Theme.of(context).platform == TargetPlatform.iOS;
     // TODO: implement build
     return new Scaffold(
       resizeToAvoidBottomPadding: false,
@@ -524,6 +513,7 @@ class _SignupPageState extends State<SignupPage> {
           _showLastName(),
           _showUserName(),
           _showPhone(),
+          _showCircularProgress(),
           _showDOB(),
           _showCity(),
           _showState(),
@@ -531,6 +521,9 @@ class _SignupPageState extends State<SignupPage> {
           _showSecurityAnswer(),
           _showZIP(),
           _showPrimaryButton(),
+          _showErrorMessage(),
+
+
           //_showCircularProgress(),
         ],
       )

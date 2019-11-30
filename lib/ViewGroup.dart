@@ -61,7 +61,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   void loadRestaurant() async {
     var resultDoc = Firestore.instance.collection('groups').document(widget.docId);
     resultDoc.get().then((resultDoc) {
-      result = resultDoc['Result'];
+      result = resultDoc['Result']??"";
     });
     await Future.delayed(const Duration(milliseconds: 700), (){});
     print("Restaurant ID result = " + result);
@@ -248,42 +248,50 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
 
   Widget _buildResultButton() {
     return new Padding(
-      padding: EdgeInsets.fromLTRB(10.0, 400.0, 0.0, 20.0),
+      padding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 420.0),
       child: Center(
           child: StreamBuilder(
               stream: Firestore.instance.collection('groups').document(widget.docId).snapshots(),
               builder: (context, data) {
-                if(data.hasData) {
-                  var doc = data.data;
-                  String res = doc['Result'];
-                  try {
-                    if (res.length > 0) {
-                      return new RaisedButton(
-                        color: Colors.green,
-                        shape: new RoundedRectangleBorder(
-                            borderRadius: new BorderRadius.circular(30.0)),
-                        child: Text('View Restaurant'),
-                        onPressed: () {
-                          loadRestaurant();
-                        },
-                      );
-                    }
+                try {
+                  if (data.hasData) {
+                    var doc = data.data ?? "";
+                    String res = doc['Result'] ?? "";
+                    try {
+                      if (res.length > 0) {
+                        return new RaisedButton(
+                          color: Colors.green,
+                          shape: new RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(30.0)),
+                          child: new Text('View Restaurant',
+                              style: new TextStyle(
+                                  fontSize: 20.0, color: Colors.white)),
+                          onPressed: () {
+                            loadRestaurant();
+                          },
+                        );
+                      }
 
-                    else{
+                      else {
+                        return Center();
+                      }
+                    }
+                    catch (e) {
                       return Center();
                     }
                   }
-                  catch (e){
-                    return Center();
+                  else if (data.hasError) {
+                    return Padding(padding: const EdgeInsets.all(8.0),
+                        child: Text("Unable to load restaurant"));
                   }
 
+                  // By default, show a loading spinner
+                  return Center();
                 }
-                else if (data.hasError) {
-                  return Padding(padding: const EdgeInsets.all(8.0), child: Text("No Preferences Found"));
+                catch(e) {
+                  return Padding(padding: const EdgeInsets.all(8.0),
+                      child: Text("Unable to load restaurant"));
                 }
-
-                // By default, show a loading spinner
-                return Center();
               }
           )
       ),
@@ -298,64 +306,97 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
             child: StreamBuilder(
                 stream: Firestore.instance.collection('groups').document(widget.docId).snapshots(),
                 builder: (context, data) {
-                  if(data.hasData) {
-                    var doc = data.data;
-                    List<dynamic> prefs = doc['Preferences'];
-                    return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ListView.builder(
-//                            itemCount: data.data.preferences.length,
-                              itemCount: prefs.length,
-                            itemBuilder: (c, index) {
-                              return Center(
-                                  child: Card(
-                                      child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: <Widget>[
-                                            //Padding(padding: const EdgeInsets.all(8.0)),
-                                            ListTile(
-                                              title: Text('${prefs[index]}'),
-                                              onTap: () {
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (BuildContext context) {
-                                                    // return object of type Dialog
-                                                    return AlertDialog(
-                                                      title: new Text("Delete this preference?"),
-                                                      //content: new Text("Link to verify account has been sent to your email"),
-                                                      actions: <Widget>[
-                                                        new FlatButton(
-                                                          child: new Text("No"),
-                                                          onPressed: () {
-                                                            Navigator.of(context).pop();
-                                                          },
-                                                        ),
-                                                        new FlatButton(
-                                                          child: new Text("Yes", style: TextStyle(color: Colors.red)),
-                                                          onPressed: () {
-                                                            Firestore.instance.collection('groups').document(widget.docId).updateData({'Preferences':FieldValue.arrayRemove([prefs[index]])});
-                                                            Navigator.of(context).pop();
-                                                          },
-                                                        )
-                                                      ],
+                  try {
+                    if (data.hasData) {
+                      var doc = data.data;
+                      List<dynamic> prefs = doc['Preferences'] ?? [];
+                      return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListView.builder(
+                            //                            itemCount: data.data.preferences.length,
+                              itemCount: prefs.length ?? 0,
+                              itemBuilder: (c, index) {
+                                return Center(
+                                    child: Card(
+                                        child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: <Widget>[
+                                              //Padding(padding: const EdgeInsets.all(8.0)),
+                                              ListTile(
+                                                  title: Text(
+                                                      '${prefs[index]}'),
+                                                  onTap: () {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (
+                                                          BuildContext context) {
+                                                        // return object of type Dialog
+                                                        return AlertDialog(
+                                                          title: new Text(
+                                                              "Delete this preference?"),
+                                                          //content: new Text("Link to verify account has been sent to your email"),
+                                                          actions: <Widget>[
+                                                            new FlatButton(
+                                                              child: new Text(
+                                                                  "No"),
+                                                              onPressed: () {
+                                                                Navigator.of(
+                                                                    context)
+                                                                    .pop();
+                                                              },
+                                                            ),
+                                                            new FlatButton(
+                                                              child: new Text(
+                                                                  "Yes",
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .red)),
+                                                              onPressed: () {
+                                                                Firestore
+                                                                    .instance
+                                                                    .collection(
+                                                                    'groups')
+                                                                    .document(
+                                                                    widget
+                                                                        .docId)
+                                                                    .updateData(
+                                                                    {
+                                                                      'Preferences': FieldValue
+                                                                          .arrayRemove(
+                                                                          [
+                                                                            prefs[index]
+                                                                          ])
+                                                                    });
+                                                                Navigator.of(
+                                                                    context)
+                                                                    .pop();
+                                                              },
+                                                            )
+                                                          ],
+                                                        );
+                                                      },
                                                     );
-                                                  },
-                                                );
-                                              }
-                                            ),
-                                          ])
-                                  )
-                              );
-                            }
-                        )
-                    );
-                  }
-                  else if (data.hasError) {
-                    return Padding(padding: const EdgeInsets.all(8.0), child: Text("No Preferences Found"));
-                  }
+                                                  }
+                                              ),
+                                            ])
+                                    )
+                                );
+                              }
+                          )
+                      );
+                    }
+                    else if (data.hasError) {
+                      return Padding(padding: const EdgeInsets.all(8.0),
+                          child: Text("No Preferences Found"));
+                    }
 
-                  // By default, show a loading spinner
-                  return CircularProgressIndicator();
+                    // By default, show a loading spinner
+                    return CircularProgressIndicator();
+                  }
+                  catch(e) {
+                    return Padding(padding: const EdgeInsets.all(8.0),
+                        child: Text("No Preferences Found"));
+                  }
                 }
             )
         )
@@ -463,7 +504,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
 
   Widget _showChat(){
     return new Padding(
-        padding: const EdgeInsets.fromLTRB(70.0, 400.0, 10.0, 0.0),
+        padding: const EdgeInsets.fromLTRB(60.0, 400.0, 10.0, 0.0),
         child: SizedBox(
           width: 250,
           child: RaisedButton(
@@ -510,38 +551,46 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
           child: StreamBuilder(
               stream: Firestore.instance.collection('groups').document(widget.docId).snapshots(),
               builder: (context, data) {
-                if(data.hasData) {
-                  var doc = data.data;
-                  String res = doc['Result'].toString();
-                  try {
-                    if (res.length == 0 || doc['Result'] == null) {
-                      return new RaisedButton(
-                        elevation: 5.0,
-                        shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-                        color: Colors.blue,
-                        child: new Text('Add Preference',
-                            style: new TextStyle(fontSize: 16.0, color: Colors.white)),
-                        onPressed: () {
-                          _displayAddPref();
-                        },
-                      );
-                    }
+                try {
+                  if (data.hasData) {
+                    var doc = data.data ?? "";
+                    String res = doc['Result'].toString();
+                    try {
+                      if (res.length == 0 || doc['Result'] == null) {
+                        return new RaisedButton(
+                          elevation: 5.0,
+                          shape: new RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(30.0)),
+                          color: Colors.blue,
+                          child: new Text('Add Preference',
+                              style: new TextStyle(
+                                  fontSize: 16.0, color: Colors.white)),
+                          onPressed: () {
+                            _displayAddPref();
+                          },
+                        );
+                      }
 
-                    else{
+                      else {
+                        return Center();
+                      }
+                    }
+                    catch (e) {
                       return Center();
                     }
                   }
-                  catch (e){
-                    return Center();
+                  else if (data.hasError) {
+                    return Padding(padding: const EdgeInsets.all(8.0),
+                        child: Text("No Preferences Found"));
                   }
 
+                  // By default, show a loading spinner
+                  return Center();
                 }
-                else if (data.hasError) {
-                  return Padding(padding: const EdgeInsets.all(8.0), child: Text("No Preferences Found"));
+                catch(e) {
+                  return Padding(padding: const EdgeInsets.all(8.0),
+                      child: Text(""));
                 }
-
-                // By default, show a loading spinner
-                return Center();
               }
           )
       ),
@@ -587,43 +636,52 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
           child: StreamBuilder(
               stream: Firestore.instance.collection('groups').document(widget.docId).snapshots(),
               builder: (context, data) {
-                if(data.hasData) {
-                  var doc = data.data;
-                  String res = doc['Result'].toString();
-                  try {
-                    if (res.length == 0 || doc['Result'] == null) {
-                      return new RaisedButton(
-                        elevation: 5.0,
-                        shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-                        color: Colors.green,
-                        child: new Text('Find A Restaurant',
-                            style: new TextStyle(fontSize: 15.0, color: Colors.white)),
-                        onPressed: () {
-                          setState(() {
-                            generateQuery();
-                            //done = true;
-                            viewPref = false;
-                            viewStart = false;
-                          });
-                        },
-                      );
-                    }
+                try {
+                  if (data.hasData) {
+                    var doc = data.data;
+                    String res = doc['Result'].toString();
+                    try {
+                      if (res.length == 0 || doc['Result'] == null) {
+                        return new RaisedButton(
+                          elevation: 5.0,
+                          shape: new RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(30.0)),
+                          color: Colors.green,
+                          child: new Text('Find A Restaurant',
+                              style: new TextStyle(
+                                  fontSize: 15.0, color: Colors.white)),
+                          onPressed: () {
+                            setState(() {
+                              generateQuery();
+                              //done = true;
+                              viewPref = false;
+                              viewStart = false;
+                            });
+                          },
+                        );
+                      }
 
-                    else{
+                      else {
+                        return Center();
+                      }
+                    }
+                    catch (e) {
                       return Center();
                     }
                   }
-                  catch (e){
-                    return Center();
+                  else if (data.hasError) {
+                    return Padding(padding: const EdgeInsets.all(8.0),
+                        child: Text("No Preferences Found"));
                   }
 
+                  // By default, show a loading spinner
+                  return Center();
                 }
-                else if (data.hasError) {
-                  return Padding(padding: const EdgeInsets.all(8.0), child: Text("No Preferences Found"));
+                catch(e){
+                    return Padding(padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                            ""));
                 }
-
-                // By default, show a loading spinner
-                return Center();
               }
           )
       ),
@@ -633,7 +691,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   void generateQuery() async{
     var gDoc = Firestore.instance.collection('groups').document(widget.docId);
     gDoc.get().then((gDoc) {
-      preferences = gDoc['Preferences'];
+      preferences = gDoc['Preferences']??"";
     });
     await Future.delayed(const Duration(milliseconds: 700), (){});
     String query = preferences.toString().substring(1, preferences.toString().length - 1);
@@ -877,6 +935,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
         ),
         body: Stack(
           children: <Widget>[
+            _buildResultButton(),
 //            _showAddUsers(),
             buildInput(),
             _showPrimaryButton(),
@@ -886,7 +945,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
             _showChat(),
 //            _showAddUser(),
             _showPreferences(),
-            _buildResultButton(),
+            //_buildResultButton(),
 //            _showAddPreferencesButton(),
             //_showCircularProgress(),
           ],

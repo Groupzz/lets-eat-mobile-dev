@@ -403,7 +403,33 @@ class _AccountManagementState extends State<AccountManagement> {
       shape:
       RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
       onPressed: () {
-        _removeUser();
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            // return object of type Dialog
+            return AlertDialog(
+              title: new Text("Are You Sure You Want To Delete Your Account?"),
+              content: new Text("This cannot be undone"),
+              actions: <Widget>[
+                new FlatButton(
+                  child: new Text("No"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                new FlatButton(
+                  child: new Text("Yes", style: TextStyle(color: Colors.red)),
+                  onPressed: () {
+                    _removeUser();
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            );
+          },
+        );
       },
       minWidth: MediaQuery.of(context).size.width,
       padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
