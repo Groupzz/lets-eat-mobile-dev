@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'Restaurants.dart';
+import 'main.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'package:flutter/material.dart';
+import 'package:lets_eat/GroupRestaurant.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MapView extends StatefulWidget {
   @override
@@ -28,6 +31,15 @@ class MapViewState extends State<MapView> {
   var CODE_REDIRECTION = 300;
   var CODE_NOT_FOUND = 404;
   Iterable markers = [];
+
+  _launchURL(String url) async {
+    String url1 = url;
+   if (await canLaunch(url1)) {
+     await launch(url1);
+   } else {
+     throw 'Could not launch $url1';
+   }
+  }
 
 //  Future _getLocation() async {
 //    try {
@@ -121,6 +133,7 @@ class MapViewState extends State<MapView> {
             title: businesses[index].name,
             onTap: () {
               print("tapped");
+              _launchURL(businesses[index].url);
             }
           ),
       );
