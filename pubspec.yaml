@@ -47,7 +47,7 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 
 flutter_icons:
-  image_path: "assets/ACTUALLOGO.png"
+  image_path: "assets/logo.gif"
   android: "launcher_icon"
   ios: true
 
