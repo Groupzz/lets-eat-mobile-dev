@@ -33,27 +33,6 @@ class _AccountManagementState extends State<AccountManagement> {
   new TextEditingController();
   FirebaseUser user;
   String uid;
-  //String username;
-//  Future<FirebaseUser> user = FirebaseAuth.instance.currentUser();
-//  FirebaseUser c =
-
-//  void getCurrentUserInfo() async{
-//    user = await FirebaseAuth.instance.currentUser();
-//    await Future.delayed(const Duration(milliseconds: 700), (){});
-//    //user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
-//
-//
-//    print("UID = " + widget.userId);
-//
-//    Firestore.instance.collection('users').where(
-//        'id', isEqualTo: uid // Get current user id
-//    ).snapshots().listen(
-//      // Update Friends collection that contains current user ID
-//            (data) =>
-//        username = data.documents[0]['username']);
-//    await Future.delayed(const Duration(milliseconds: 700), (){});
-//    print("username = " + username);
-//  }
 
   String _email = "";
   String _username = "";
@@ -210,10 +189,10 @@ class _AccountManagementState extends State<AccountManagement> {
     //getCurrentUserInfo();
 
     print("userid = " + widget.userId);
-    String displayUName = widget?.username ?? "";
+    String displayUName = widget.username ?? "user";
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text('Hello, ' + widget.username),
+        title: new Text('Hello, ' + displayUName),
 //        title: new Text('Hello, '),
       ),
       body: _showButtonList(),

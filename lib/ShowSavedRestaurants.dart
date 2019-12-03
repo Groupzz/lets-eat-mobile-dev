@@ -45,6 +45,7 @@ class _ShowSavedRestaurantsState extends State<ShowSavedRestaurants> {
 
   String uid;
   String RDocID;
+  var temp;
 
   _launchURL(String url) async {
     String url1 = url;
@@ -61,7 +62,7 @@ class _ShowSavedRestaurantsState extends State<ShowSavedRestaurants> {
   Future<List<Restaurants>> loadLikedRestaurants() async{
     final FirebaseUser user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
     uid = user.uid;
-    var temp;
+    //var temp;
 
     ///query gets string of restaurant ids from uid
     await Firestore.instance
@@ -241,7 +242,59 @@ class _ShowSavedRestaurantsState extends State<ShowSavedRestaurants> {
                                                   child: Icon(Icons.star),
                                               ))
                                     ],
-                                  ))),
+                                  )),
+                                    onTap: (){
+                                      showDialog(
+                                        context: context,
+                                        builder: (
+                                            BuildContext context) {
+                                          // return object of type Dialog
+                                          return AlertDialog(
+                                            title: new Text(
+                                                "Unsave This Restaurant?"),
+                                            //content: new Text("Link to verify account has been sent to your email"),
+                                            actions: <Widget>[
+                                              new FlatButton(
+                                                child: new Text(
+                                                    "No"),
+                                                onPressed: () {
+                                                  Navigator.of(
+                                                      context)
+                                                      .pop();
+                                                },
+                                              ),
+                                              new FlatButton(
+                                                child: new Text(
+                                                    "Yes",
+                                                    style: TextStyle(
+                                                        color: Colors
+                                                            .red)),
+                                                onPressed: () {
+                                                  Firestore
+                                                      .instance
+                                                      .collection(
+                                                      'likedRestaurants')
+                                                      .document(
+                                                      temp.documentID)
+                                                      .updateData(
+                                                      {
+                                                        'restaurantIDs': FieldValue
+                                                            .arrayRemove(
+                                                            [
+                                                              current.id
+                                                            ])
+                                                      });
+                                                  Navigator.of(
+                                                      context)
+                                                      .pop();
+                                                },
+                                              )
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                  ),
 //                                  ListTile(
 //                                    title: Text('${snapshot.data.price}')
 //                                  ),

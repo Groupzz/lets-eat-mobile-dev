@@ -27,6 +27,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'dart:async';
 import 'InstantSuggestion.dart';
+import 'MapRestaurant.dart';
 import 'YelpSearch.dart';
 import 'Accounts/LoginSignUp.dart';
 import 'Accounts/signUpPage.dart';
@@ -128,8 +129,6 @@ class _HomeState extends State<Home> {
         longitude.toString() + "&limit=50"; //-118.112858";
 
     //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
-    print("latitude = " + latitude.toString() + "; longitude = " +
-        longitude.toString());
     http.Response response;
     Map<String, dynamic> map;
     response =
@@ -163,6 +162,8 @@ class _HomeState extends State<Home> {
             title: businesses[index].name,
             onTap: () {
               print("tapped");
+              Route route = MaterialPageRoute(builder: (context) => MapRestaurantPage(result: businesses[index],));
+              Navigator.push(context, route);
             }
         ),
       );
@@ -181,14 +182,10 @@ class _HomeState extends State<Home> {
       location.onLocationChanged().listen((LocationData currentLocation) {
         latitude = currentLocation.latitude;
         longitude = currentLocation.longitude;
-//        print('Latitude:$latitude');
-//        print('Longitude:$longitude');
         _currentPosition = CameraPosition(
           target: LatLng(latitude, longitude),
           zoom: 14.4746,
         );
-        print('Latitude:$latitude');
-        print('Longitude:$longitude');
         return LatLng(currentLocation.latitude, currentLocation.longitude);
       });
       //getCurrentUserInfo();
@@ -323,7 +320,7 @@ class _HomeState extends State<Home> {
                       }
                   ),
                   new ListTile(
-                      title: new Text("My Liked Restaurants"),
+                      title: new Text("My Saved Restaurants"),
                       onTap: () {
                         Navigator.push(
                             context,

@@ -690,12 +690,25 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
 
   void generateQuery() async{
     var gDoc = Firestore.instance.collection('groups').document(widget.docId);
+    String location;
+    var lat;
+    var long;
     gDoc.get().then((gDoc) {
       preferences = gDoc['Preferences']??"";
+      location = gDoc['location']??"";
+      lat = gDoc['lat'];
+      long = gDoc['long'];
     });
     await Future.delayed(const Duration(milliseconds: 700), (){});
     String query = preferences.toString().substring(1, preferences.toString().length - 1);
-    print("Preferences = " + query);
+    print("Preferences = " + query + "\nlocation = " + location);
+    if(location.length == 0){
+      query += "&latitude=" + lat.toString() + "&longitude=" + long.toString();
+    }
+    else{
+      query += "&location=" + location;
+    }
+    print("query = " + query);
     findRandomRestaurant(query).then((resultID) {
       Firestore.instance.collection('groups').document(widget.docId).updateData({'Result': resultID});
       print("resultID = " + resultID);
@@ -748,13 +761,8 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     longitude = currentLocation.longitude;
 
     webAddress = "https://api.yelp.com/v3/businesses/search?term=" + query;// + "&limit=50"; //-118.112858";
-    if(!webAddress.contains("location")){
-      webAddress += "&latitude=" + latitude.toString() + "&longitude=" + longitude.toString();
-    }
 
     //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
-    print("latitude = " + latitude.toString() + "; longitude = " +
-        longitude.toString());
     http.Response response;
     Map<String, dynamic> map;
     response =

@@ -57,35 +57,26 @@ class About_entry{
 final List<About_entry> about_list = <About_entry>[
   About_entry(
     question: 'What is Let\'s Eat! and its features?',
-    answer: 'Let\'s Eat! is an application that assists users in deciding what their next meal'
+    answer: 'Let\'s Eat! is an application that helps users decide what their next meal'
   ' is going to be. Sometimes it seems like there are way too many food options to'
   ' decide on. With Let\'s Eat!, you are guaranteed to find a restaurant nearby that'
   ' satisfies your needs.'
   ),
   About_entry(
-      question: 'How to Install?',
-      answer: 'For android, we don\'t know yet'
+      question: 'Why are restaurant results sometimes further than my max distance?',
+      answer: 'In order to find you the best restaurants possible, we sometimes consider highly ranked restauranats that fall a mile or so outside of your specified range\n'
   ),
   About_entry(
-      question: 'What are the components?',
-      answer: 'We are using Flutter in Android Studio for the main app development and Firebase for our account database.'
+      question: 'Why am I getting an error when trying to find a restaurant?',
+      answer: 'If you are applying many filters, the app will try and find a restaurant that satisfies all specified filters.\n\nTry modifying your filters; If your specified filters are too strict, there may be no restaurants around you that match all the criteria.'
   ),
   About_entry(
-      question: 'How to contribute?',
-      answer: 'Our source code is located on Github'
-      ' It is organized by folders that indicate where to find source code for certain aspects of our application.'
-      'Feel free to contribute to our source code by cloning our repository and making changes on your local machine.'
+      question: 'Where can I find the Web App?',
+      answer: 'Our web app is being temporarily hosted at http://192.81.130.63/'
   ),
   About_entry(
-      question: 'What is the support you provide?',
-      answer: 'We offer technical support for users who may have difficulty navigating our app.'
-      ' We are always open to suggestions from fellow developers as to how our mobile'
-      ' application can be improved or ideas for new features for current and future users to enjoy.'
-  ),
-  About_entry(
-      question: 'Where can I get an API Key for Yelp?',
-      answer: 'You need to create a Yelp account or sign in, go to Manage App'
-      ' page from their website, then you will receive an email with your API Key.'
+      question: 'I found a bug!',
+      answer: 'Oh no!  Please send us an email at letseatsc@gmail.com describing the bug, how it occured, and steps to reproduce it if possible'
   ),
 ];
 

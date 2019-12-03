@@ -53,29 +53,6 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
           userId = await widget.auth.signIn(_email, _password);
           print('Signed In: $userId');
         } else {
-//          userId = await widget.auth.signUp(_email, _password);
-////          Firestore.instance.collection('users').add({ // Add user to firestore w/ generated userID
-////            "email": _email,
-////            "id": userId
-////          });
-//
-//          // Create entry in Friends collection w/ newlly created ID
-//          Firestore.instance.collection('friends').add({ // Add user to firestore w/ generated userID
-//            "userID": userId,
-//            "friends": [],
-//          }).then((doc) {
-//            print("Friend ID = " + doc.documentID);
-//            // Add new user to Users collection & include Friends Document ID
-//            Firestore.instance.collection('users').add({ // Add user to firestore w/ generated userID
-//              "email": _email,
-//              "id": userId,
-//              "friendsDocID": doc.documentID  // Document ID for current user's Friends document
-//            });
-//          });
-//
-//          widget.auth.sendEmailVerification();
-//          _showVerifyEmailSentDialog();
-//          print('Signed up user: $userId');
           Route route = MaterialPageRoute(builder: (context) => SignupPage(auth: widget.auth, email: _email, pass: _password,));
           Navigator.push(context, route);
         }
@@ -232,7 +209,15 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
               Icons.mail,
               color: Colors.grey,
             )),
-        validator: (value) => value.isEmpty ? 'Email can\'t be empty' : null,
+        validator: (value) {
+          if(value.isEmpty){
+            return "Email can\'t be empty";
+          }
+          if(!value.contains("@") || !value.contains(".")){
+            return "Email not properly formatted";
+          }
+          return null;
+        },
         onSaved: (value) => _email = value.trim(),
       ),
     );
@@ -251,7 +236,15 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
               Icons.lock,
               color: Colors.grey,
             )),
-        validator: (value) => value.isEmpty ? 'Password can\'t be empty' : null,
+        validator: (value) {
+          if(value.isEmpty){
+            return "Password can\'t be empty";
+          }
+          if(value.length < 6){
+            return "Password must be at least 6 characters";
+          }
+          return null;
+        },
         onSaved: (value) => _password = value.trim(),
       ),
     );

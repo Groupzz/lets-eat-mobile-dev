@@ -5,6 +5,7 @@ import 'Accounts/authentication.dart';
 import 'Accounts/accounts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:location/location.dart';
 import 'Friends.dart';
 import 'Group.dart';
 
@@ -30,8 +31,10 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   String _userId = "";
   List<String> users = [];
   final usernameController = TextEditingController();
+  final locationController = TextEditingController();
   FirebaseUser user;
   QuerySnapshot userData;
+  var location = new Location();
 
 
   @override
@@ -91,7 +94,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   Widget _showFriends() {  // Display ListView of Friends
     //getCurrentUserInfo();
     return new Padding(
-        padding: EdgeInsets.fromLTRB(10.0, 135.0, 0.0, 50.0),
+        padding: EdgeInsets.fromLTRB(10.0, 200.0, 0.0, 70.0),
         child: Center(
             child: FutureBuilder<Group> (
                 future: getFriends(),
@@ -184,12 +187,79 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     );
   }
 
+  Widget _showAddLocation(){
+    _getCurrentUser();
+    return Padding(
+      padding: EdgeInsets.fromLTRB(5.0, 100.0, 0.0, 0.0),
+      child: new TextFormField(
+        controller: locationController,
+        maxLines: 1,
+        keyboardType: TextInputType.text,
+        autofocus: false,
+        decoration: new InputDecoration(
+            hintText: 'Current Location',
+            icon: new Icon(
+              Icons.location_on,
+              color: Colors.grey,
+            )),
+        validator: (value) => value.isEmpty ? 'Username can\'t be empty' : null,
+        onSaved: (value) => users.add(value),
+      ),
+    );
+  }
+
+  Widget _showLocButton() {
+    return new Padding(
+        padding: EdgeInsets.fromLTRB(20.0, 150.0, 20.0, 0.0),
+        child: SizedBox(
+          height: 35.0,
+          child: new RaisedButton(
+            elevation: 5.0,
+            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+            color: Colors.blue,
+            child: new Text('Update Location',
+                style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+            onPressed: (){
+              if(locationController.text.isNotEmpty) {
+                Firestore.instance.collection('groups')
+                    .document(widget.docId)
+                    .updateData(
+                    {
+                      'location': locationController.text
+                    }
+
+                );
+              }
+
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  // return object of type Dialog
+                  return AlertDialog(
+                    title: new Text("Group Location Has Been Updated!"),
+                    content: new Text("This location will be used to find the group's restaurant"),
+                    actions: <Widget>[
+                      new FlatButton(
+                        child: new Text("Dismiss"),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ));
+  }
+
 
   Widget _showPrimaryButton() {
     return new Padding(
-        padding: EdgeInsets.fromLTRB(20.0, 70.0, 20.0, 0.0),
+        padding: EdgeInsets.fromLTRB(20.0, 63.0, 20.0, 0.0),
         child: SizedBox(
-          height: 40.0,
+          height: 35.0,
           child: new RaisedButton(
             elevation: 5.0,
             shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
@@ -254,6 +324,8 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
           children: <Widget>[
             _showAddUsers(),
             _showPrimaryButton(),
+            _showAddLocation(),
+            _showLocButton(),
             _showFriends(),
             _removeUserButton()
             //_showCircularProgress(),

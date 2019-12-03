@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'Friends.dart';
 import 'Group.dart';
+import 'package:location/location.dart';
 import 'CreateGroup.dart';
 import 'ViewGroup.dart';
 
@@ -40,6 +41,7 @@ class _GroupVotePageState extends State<GroupVotePage> {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   FirebaseUser user;
   bool _isEmailVerified = false;
+  var location = new Location();
 
   @override
   void initState(){
@@ -216,11 +218,19 @@ class _GroupVotePageState extends State<GroupVotePage> {
   }
 
   void createGroup() async {
+    var latitude;
+    var longitude;
+    var currentLocation = await location.getLocation();
+    latitude = currentLocation.latitude;
+    longitude = currentLocation.longitude;
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     Firestore.instance.collection('groups').add({ // Add user to firestore w/ generated userID
       "creatorID": user.uid,
       "Participants": [user.displayName],
       "Preferences": [],
+      "lat": latitude,
+      "long": longitude,
+      "location": "",
       "Result": "",
       "Messages": [],
     }).then((doc) {

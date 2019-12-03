@@ -316,6 +316,54 @@ class _FriendsPageState extends State<FriendsPage> {
                             //Padding(padding: const EdgeInsets.all(8.0)),
                             ListTile(
                               title: Text('${data.data.friends[index]}'),
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (
+                                        BuildContext context) {
+                                      // return object of type Dialog
+                                      return AlertDialog(
+                                        title: new Text(
+                                            "Remove Friend?"),
+                                        //content: new Text("Link to verify account has been sent to your email"),
+                                        actions: <Widget>[
+                                          new FlatButton(
+                                            child: new Text(
+                                                "No"),
+                                            onPressed: () {
+                                              Navigator.of(
+                                                  context)
+                                                  .pop();
+                                            },
+                                          ),
+                                          new FlatButton(
+                                            child: new Text(
+                                                "Yes",
+                                                style: TextStyle(
+                                                    color: Colors
+                                                        .red)),
+                                            onPressed: () {
+                                              Firestore.instance.collection('friends').where("id", isEqualTo: data.data.uid).snapshots().listen((doc) {
+                                                Firestore.instance.collection('friends').document((doc.documents[0].documentID)).updateData(
+                                                  {
+                                                    "friends": FieldValue
+                                                        .arrayRemove(
+                                                        [
+                                                          data.data.friends[index]
+                                                        ])
+                                                  }
+                                                );
+                                              });
+                                              Navigator.of(
+                                                  context)
+                                                  .pop();
+                                            },
+                                          )
+                                        ],
+                                      );
+                                    },
+                                  );
+                                }
                             ),
                         ])
                       )

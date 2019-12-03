@@ -8,7 +8,7 @@ class Friends{
 
   Friends.fromSnapshot(DocumentSnapshot snapshot)
       : friends = List.from(snapshot["friends"]),
-        uid = snapshot['userID'];
+        uid = snapshot['id'];
 
 
   Friends(

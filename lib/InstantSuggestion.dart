@@ -100,8 +100,6 @@ class _InstantSuggestionPageState extends State<InstantSuggestionPage> {
     }
 
     //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
-    print("latitude = " + latitude.toString() + "; longitude = " +
-        longitude.toString());
     http.Response response;
     Map<String, dynamic> map;
     response =

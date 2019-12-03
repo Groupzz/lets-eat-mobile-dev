@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:lets_eat/GroupRestaurant.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'MapRestaurant.dart';
 
 class MapView extends StatefulWidget {
   @override
@@ -99,8 +100,6 @@ class MapViewState extends State<MapView> {
         longitude.toString() + "&limit=50"; //-118.112858";
 
     //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
-    print("latitude = " + latitude.toString() + "; longitude = " +
-        longitude.toString());
     http.Response response;
     Map<String, dynamic> map;
     response =
@@ -133,7 +132,8 @@ class MapViewState extends State<MapView> {
             title: businesses[index].name,
             onTap: () {
               print("tapped");
-              _launchURL(businesses[index].url);
+              Route route = MaterialPageRoute(builder: (context) => MapRestaurantPage(result: businesses[index],));
+              Navigator.push(context, route);
             }
           ),
       );

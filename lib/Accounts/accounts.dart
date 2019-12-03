@@ -35,36 +35,6 @@ class _AccountsState extends State<Accounts> {
   DatabaseReference itemRef;
   FirebaseUser user;
   String uid;
-  //String username;
-//  Future<FirebaseUser> user = FirebaseAuth.instance.currentUser();
-//  FirebaseUser c =
-
-//  void getCurrentUserInfo() async{
-//    user = await FirebaseAuth.instance.currentUser();
-//    await Future.delayed(const Duration(milliseconds: 700), (){});
-//    //user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
-//
-//
-//    print("UID = " + widget.userId);
-//
-//    Firestore.instance.collection('users').where(
-//        'id', isEqualTo: uid // Get current user id
-//    ).snapshots().listen(
-//      // Update Friends collection that contains current user ID
-//            (data) =>
-//        username = data.documents[0]['username']);
-//    await Future.delayed(const Duration(milliseconds: 700), (){});
-//    print("username = " + username);
-//  }
-
-  String _email = "";
-  String _username = "";
-  String _resetPasswordEmail = "";
-  String _userId;
-
-  String _errorMessage;
-  bool _isIos;
-  bool _isLoading;
 
     bool _isEmailVerified = false;
 
@@ -226,7 +196,7 @@ class _AccountsState extends State<Accounts> {
     }
 
     Future<List<Group>> getGroups() async {
-      // Get friends list for current user
+      // Get groups list for current user
       //getCurrentUserInfo();
       List<Group> groups = [];
 
@@ -234,7 +204,7 @@ class _AccountsState extends State<Accounts> {
       String username = currentUser.displayName;
 
       await Future.delayed(const Duration(
-          milliseconds: 700), () {}); // Wait for promise to return friendsID
+          milliseconds: 700), () {}); // Wait for promise to return current user
       Firestore.instance.collection("groups").where(
           'Participants', arrayContains: username).snapshots().forEach((
           QuerySnapshot snapshot) {
@@ -262,61 +232,69 @@ class _AccountsState extends State<Accounts> {
               child: FutureBuilder<List<Group>>(
                   future: getGroups(),
                   builder: (BuildContext c, AsyncSnapshot<List<Group>> data) {
-                    if(data.data?.length == 0){
-                      return Padding(padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                              "No Groups Found"));
-                    }
-                    if (data.hasData) {
-                      return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ListView.builder(
-                              itemCount: data.data.length,
-                              itemBuilder: (c, index) {
-                                return Center(
-                                    child: Card(
-                                        child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: <Widget>[
-                                              //Padding(padding: const EdgeInsets.all(8.0)),
-                                              ListTile(
-                                                title: Text('${data.data[index]
-                                                    .participants.toString()
-                                                    .substring(1,
-                                                    data.data[index]
-                                                        .participants
-                                                        .toString()
-                                                        .length - 1)}'),
-                                                onTap: () {
-                                                  Route route = MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          ViewGroupPage(
-                                                              docId: data
-                                                                  .data[index]
-                                                                  .documentID));
-                                                  Navigator.push(
-                                                      context, route);
-                                                },
-                                              ),
-                                            ])
-                                    )
-                                );
-                              }
-                          )
-                      );
-                    }
-                    else if (data.hasError) {
-                      print("error: " + data.error.toString());
-                      return Padding(padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                              "You must be logged in to participate in Group Votes"));
-                    }
-//                  else {
-//                    return Padding(padding: const EdgeInsets.all(8.0), child: Text("No Groups Found"));
-//                  }
+                    try {
+                      if (data.data?.length == 0) {
+                        return Padding(padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                                "No Groups Found"));
+                      }
+                      if (data.hasData) {
+                        return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ListView.builder(
+                                itemCount: data.data.length,
+                                itemBuilder: (c, index) {
+                                  return Center(
+                                      child: Card(
+                                          child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: <Widget>[
+                                                //Padding(padding: const EdgeInsets.all(8.0)),
+                                                ListTile(
+                                                  title: Text(
+                                                      '${data.data[index]
+                                                          .participants
+                                                          .toString()
+                                                          .substring(1,
+                                                          data.data[index]
+                                                              .participants
+                                                              .toString()
+                                                              .length - 1)}'),
+                                                  onTap: () {
+                                                    Route route = MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ViewGroupPage(
+                                                                docId: data
+                                                                    .data[index]
+                                                                    .documentID));
+                                                    Navigator.push(
+                                                        context, route);
+                                                  },
+                                                ),
+                                              ])
+                                      )
+                                  );
+                                }
+                            )
+                        );
+                      }
+                      else if (data.hasError) {
+                        print("error: " + data.error.toString());
+                        return Padding(padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                                "You must be logged in to participate in Group Votes"));
+                      }
+                      //                  else {
+                      //                    return Padding(padding: const EdgeInsets.all(8.0), child: Text("No Groups Found"));
+                      //                  }
 
-                    // By default, show a loading spinner
-                    return CircularProgressIndicator();
+                      // By default, show a loading spinner
+                      return CircularProgressIndicator();
+                    }
+                    catch(e) {
+                      return Padding(padding: const EdgeInsets.all(8.0),
+                          child: Text("No Preferences Found"));
+                    }
                   }
               )
           )
@@ -347,10 +325,10 @@ class _AccountsState extends State<Accounts> {
       //getCurrentUserInfo();
 
       print("userid = " + widget.userId);
-      String displayUName = widget?.username ?? "";
+      String displayUName = widget.username ?? "user";
       return new Scaffold(
         appBar: new AppBar(
-          title: new Text('Hello, ' + widget.username??"user"),
+          title: new Text('Hello, ' + displayUName),
 //        title: new Text('Hello, '),
           actions: <Widget>[
             new FlatButton(
