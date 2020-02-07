@@ -6,6 +6,7 @@ import 'package:dbcrypt/dbcrypt.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'Friends.dart';
+import 'Accounts/login_root.dart';
 
 class FriendsPage extends StatefulWidget {
   FriendsPage({this.auth});
@@ -97,11 +98,49 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 
+  void _showSignInDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("You Must Sign In First"),
+          content: new Text(
+              "You must be signed in to access your friends"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Sign In "),
+              onPressed: () {
+                Route route = MaterialPageRoute(builder: (context) =>
+                    LoginRootPage(auth: new Auth(),));
+                Navigator.push(context, route);
+              },
+            ),
+            new FlatButton(
+              child: new Text("Dismiss"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _checkEmailVerification() async {
     user = await FirebaseAuth.instance.currentUser();
-    _isEmailVerified = await widget.auth.isEmailVerified();
-    if (!_isEmailVerified) {
-      _showVerifyEmailDialog();
+    if(user == null){
+      _showSignInDialog();
+    }
+    else {
+      Future<FirebaseUser>currentUser = widget.auth.getCurrentUser();
+      _isEmailVerified = await widget.auth.isEmailVerified();
+
+      if (!_isEmailVerified) {
+        _showVerifyEmailDialog();
+      }
     }
   }
 

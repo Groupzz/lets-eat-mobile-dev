@@ -21,11 +21,14 @@ import 'YelpRepository.dart';
 import 'GroupChat.dart';
 
 
-
+/**
+ * Displays the selected group.
+ * Users can add preferences, view the group chat, and generate a restaurant from this page
+ */
 class ViewGroupPage extends StatefulWidget {
   ViewGroupPage({this.docId});
 
-  final String docId;
+  final String docId;  // Document ID for Group data
   @override
   _ViewGroupPageState createState() => _ViewGroupPageState();
 }
@@ -41,11 +44,13 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   QuerySnapshot userData;
   String result;
 
+  // Drop down menu options
   List<String> choices = <String>[
     "Reset Group Vote",
     "Delete Group",
   ];
 
+  // Get device's current location
   var location = new Location();
   static const String API_KEY = "p8eXXM3q_ks6WY_FWc2KhV-EmLhSpbJf0P-SATBhAIM4dNCgsp3sH8ogzJPezOT6LzFQlb_vcFfxziHbHuNt8RwxtWY0-vRpx7C0nPz5apIT4A5LYGmaVfuwPrf3WXYx";
   static const Map<String, String> AUTH_HEADER = {"Authorization": "Bearer $API_KEY"};
@@ -59,28 +64,29 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   bool viewFind = true;
 
   void loadRestaurant() async {
+    // Load group document and get the stored result id if it exists
     var resultDoc = Firestore.instance.collection('groups').document(widget.docId);
     resultDoc.get().then((resultDoc) {
-      result = resultDoc['Result']??"";
+      result = resultDoc['Result']??"";  // If a result has not been generated, store an empty string
     });
     await Future.delayed(const Duration(milliseconds: 700), (){});
     print("Restaurant ID result = " + result);
 
-    String siteAddress = "https://api.yelp.com/v3/businesses/" + result; //-118.112858";
+    String siteAddress = "https://api.yelp.com/v3/businesses/" + result; // Load restaurant's yelp site
 
     //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
 
     http.Response response;
     Map<String, dynamic> map;
     response =
-    await http.get(siteAddress, headers: AUTH_HEADER).catchError((resp) {});
+    await http.get(siteAddress, headers: AUTH_HEADER).catchError((resp) {});  // Call Yelp API
 
     //Map<String, dynamic> map;
     // Error handling
     //    response == null
     //    ? response = await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {})
     //    : map = json.decode(response.body);
-    if (response == null || response.statusCode < CODE_OK ||
+    if (response == null || response.statusCode < CODE_OK ||  // Error check
         response.statusCode >= CODE_REDIRECTION) {
       showDialog(
         context: context,
@@ -105,9 +111,9 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
 
     //    Map<String, dynamic> map = json.decode(response.body);
     map = json.decode(response.body);
-    var r = json.decode(response.body);
+    var r = json.decode(response.body); // Decode API response
     print("r == " +  r.toString());
-    Route route = MaterialPageRoute(builder: (context) => GroupRestaurantPage(result: r,));
+    Route route = MaterialPageRoute(builder: (context) => GroupRestaurantPage(result: r,));  // Load page displaying result of group vote
     Navigator.push(context, route);
 //    Iterable jsonList = map["businesses"];
 //    List<Restaurants> businesses = jsonList.map((model) =>
@@ -122,6 +128,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     super.initState();
   }
 
+  // Get currently signed in user
   void _getCurrentUser() async {
     user = await FirebaseAuth.instance.currentUser();
     _userId = user.uid;
@@ -136,6 +143,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
 
   }
 
+  // Add specified username to group
   void _updateData() async{
 
     Firestore.instance.collection('groups').document(widget.docId).updateData({'Participants':FieldValue.arrayUnion([usernameController.text])});
@@ -143,6 +151,8 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
 
     _showSuccess();
   }
+
+  // Display success message for adding user
   void _showSuccess() {
     showDialog(
       context: context,
@@ -164,6 +174,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     );
   }
 
+  // Show dialog box to add a preference
   void _displayAddPref() async {
     return showDialog(
         context: context,
@@ -178,6 +189,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
               new FlatButton(
                 child: new Text('SUBMIT'),
                 onPressed: () {
+                  // Send new preference to group vote document
                   Firestore.instance.collection('groups').document(widget.docId).updateData({'Preferences':FieldValue.arrayUnion([prefController.text])});
                   prefController.clear();
                   Navigator.of(context).pop();
@@ -246,6 +258,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     );
   }
 
+  // Open stream to group document to check if a result has been saved
   Widget _buildResultButton() {
     return new Padding(
       padding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 420.0),
@@ -258,6 +271,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
                     var doc = data.data ?? "";
                     String res = doc['Result'] ?? "";
                     try {
+                      // If result has been saved for the group, display the View Restaurant button
                       if (res.length > 0) {
                         return new RaisedButton(
                           color: Colors.green,
@@ -298,17 +312,19 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     );
   }
 
-  Widget _showPreferences() {  // Display ListView of Friends
+  Widget _showPreferences() {  // Display ListView of Preferences
     //getCurrentUserInfo();
     return new Padding(
         padding: EdgeInsets.fromLTRB(10.0, 135.0, 0.0, 200.0),
         child: Center(
             child: StreamBuilder(
+              // Open stream to group document
                 stream: Firestore.instance.collection('groups').document(widget.docId).snapshots(),
                 builder: (context, data) {
                   try {
                     if (data.hasData) {
                       var doc = data.data;
+                      // Load saved preferences
                       List<dynamic> prefs = doc['Preferences'] ?? [];
                       return Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -403,7 +419,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     );
   }
 
-  Future<Group> getFriends() async{  // Get friends list for current user
+  Future<Group> getFriends() async{  // Get Group document
     await Future.delayed(const Duration(milliseconds: 700), (){});  // Wait for promise to return friendsID
     return Firestore.instance.collection("groups").document(widget.docId).get() // Get friends document for current user
         .then((snapshot) {
@@ -416,6 +432,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     });
   }
 
+  // Show add username text box
   Widget buildInput() {
     return Padding(
         padding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 20.0),
@@ -544,18 +561,23 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
 //        ));
 //  }
 
+
+  // Show button to add a preference if a restaurant has not already been found
   Widget _showPrimaryButton() {
     return new Padding(
       padding: EdgeInsets.fromLTRB(0.0, 0.0, 200.0, 420.0),
       child: Center(
           child: StreamBuilder(
+            // Open stream to group document
               stream: Firestore.instance.collection('groups').document(widget.docId).snapshots(),
               builder: (context, data) {
                 try {
                   if (data.hasData) {
                     var doc = data.data ?? "";
                     String res = doc['Result'].toString();
+                    // Check if a result has been saved
                     try {
+                      // If not, allow preference to be added
                       if (res.length == 0 || doc['Result'] == null) {
                         return new RaisedButton(
                           elevation: 5.0,
@@ -597,6 +619,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     );
   }
 
+  // Show preferences label
   Widget _showPrefsLabel() {
     return new Padding(
       padding: EdgeInsets.fromLTRB(15.0, 120.0, 0.0, 0.0),
@@ -629,6 +652,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
 //        ));
 //  }
 
+  // Show button to start vote (find a restaurant for the group), if one hasn't already been done
   Widget _showStartButton() {
     return new Padding(
       padding: EdgeInsets.fromLTRB(190.0, 0.0, 5.0, 420.0),
@@ -641,6 +665,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
                     var doc = data.data;
                     String res = doc['Result'].toString();
                     try {
+                      // If length of result is positive, don't show the button
                       if (res.length == 0 || doc['Result'] == null) {
                         return new RaisedButton(
                           elevation: 5.0,
@@ -688,11 +713,14 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
     );
   }
 
+  // Prepare & execute Yelp API call
   void generateQuery() async{
+    // Get group document
     var gDoc = Firestore.instance.collection('groups').document(widget.docId);
     String location;
     var lat;
     var long;
+    // Get data from the group document
     gDoc.get().then((gDoc) {
       preferences = gDoc['Preferences']??"";
       location = gDoc['location']??"";
@@ -700,15 +728,20 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
       long = gDoc['long'];
     });
     await Future.delayed(const Duration(milliseconds: 700), (){});
+    // Parse the preferences and add to the  query string
     String query = preferences.toString().substring(1, preferences.toString().length - 1);
     print("Preferences = " + query + "\nlocation = " + location);
+    // Add location to the query
     if(location.length == 0){
+      // Use current location if no location specified
       query += "&latitude=" + lat.toString() + "&longitude=" + long.toString();
     }
     else{
+      // Use specified location
       query += "&location=" + location;
     }
     print("query = " + query);
+    // Call yelp API and store result
     findRandomRestaurant(query).then((resultID) {
       Firestore.instance.collection('groups').document(widget.docId).updateData({'Result': resultID});
       print("resultID = " + resultID);
@@ -746,12 +779,14 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
         ));
   }
 
+  // Delete the group
   void removeGroup() async {
     Navigator.of(context).pop();
     await Firestore.instance.collection('groups').document(widget.docId).delete();
 
   }
 
+  // Call Yelp API to get random restaurant for group
   Future<String> findRandomRestaurant(String query) async {
     String webAddress;
     var latitude;
@@ -875,13 +910,14 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
   Widget build(BuildContext context) {
     _getCurrentUser();
 
-
+    // Side menu display
     Widget _selectPopup() => PopupMenuButton<int>(
       itemBuilder: (context) => [
         PopupMenuItem(
           value: 1,
           child: Text("Reset Group Vote"),
         ),
+
         PopupMenuItem(
           value: 2,
           child: Text("Delete Group", style: TextStyle(color: Colors.red),),
@@ -890,7 +926,9 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
       onCanceled: () {
         print("You have canceled the menu.");
       },
+
       onSelected: (value) {
+        // Reset the group vote
         if (value == 1) {
           Firestore.instance.collection('groups')
               .document(widget.docId)
@@ -899,6 +937,7 @@ class _ViewGroupPageState extends State<ViewGroupPage> {
               .document(widget.docId)
               .updateData({'Preferences': []});
         }
+        // Delete the group
         if (value == 2) {
           showDialog(
               context: context,

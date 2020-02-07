@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'YelpSearch.dart';
 import 'YelpRepository.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
+import 'package:flutter_multiselect/flutter_multiselect.dart';
 
 class searchPage extends StatefulWidget
 {
@@ -27,12 +28,13 @@ class searchPageState extends State<searchPage> {
   var pricepointList = [1,2,3,4];
   double _sliderValue = 10.0;
 
-  List<String> userCuisinePref = [];
+  List<dynamic> userCuisinePref = [];
   List<String> userPricePref = [];
   List<String> userDietPref = [];
+  List<String> openNow = [];
   String cuisineURL="";
   String priceURL="";
-  String _picked = "";
+  //String _picked = "";
 
   void updatePref(){
     String webAddress;
@@ -49,10 +51,15 @@ class searchPageState extends State<searchPage> {
 
         if(priceURL.isNotEmpty)
           {
-            query += "&price=" + priceURL;
+            if(cuisineURL.isEmpty){
+              query += "price=" + priceURL;
+            }
+            else {
+              query += "&price=" + priceURL;
+            }
           }
 
-        if(_picked == "Open Now"){
+        if(openNow.length > 0){
           query += "&open_now=true";
         }
 
@@ -83,7 +90,7 @@ class searchPageState extends State<searchPage> {
           query += "&price=" + priceURL;
         }
 
-        if(_picked == "Open Now"){
+        if(openNow.length > 0){
           query += "&open_now=true";
         }
 
@@ -107,15 +114,20 @@ class searchPageState extends State<searchPage> {
   //Converts cuisine list into URL ready string
   String parseCuisine(){
     String temp = "";
-    for(int i = 0; i<userCuisinePref.length;i++){
-      if(i==0){
-        temp = temp+userCuisinePref[i];
-      }
-      if(i!=0){
-        temp = temp + "+" + userCuisinePref[i];
-      }
+    if(userCuisinePref == null){
+      return "";
     }
-    return temp;
+    else {
+      for (int i = 0; i < userCuisinePref.length; i++) {
+        if (i == 0) {
+          temp = temp + userCuisinePref[i];
+        }
+        if (i != 0) {
+          temp = temp + "+" + userCuisinePref[i];
+        }
+      }
+      return temp;
+    }
   }
 
   String parsePrice(){ //Converts dollar signs to string ints and return URL ready string
@@ -223,7 +235,7 @@ class searchPageState extends State<searchPage> {
 
   Widget _showDistanceSlider(){
     return Padding(
-      padding: const EdgeInsets.fromLTRB(180, 290, 30.0, 0.0),
+      padding: const EdgeInsets.fromLTRB(70, 370, 80.0, 0.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -266,10 +278,10 @@ class searchPageState extends State<searchPage> {
 
   Widget _showPrimaryButton() {
     return new Padding(
-        padding: EdgeInsets.fromLTRB(200.0, 450.0, 5.0, 0.0),
+        padding: EdgeInsets.fromLTRB(90.0, 500.0, 0.0, 30.0),
         child: SizedBox(
           height: 40.0,
-          width: 160.0,
+          width: 200.0,
           child: new RaisedButton(
             elevation: 5.0,
             shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
@@ -301,6 +313,7 @@ class searchPageState extends State<searchPage> {
 
   @override
   Widget build(BuildContext context) {
+
     List<String> _checked = [];
       _isIos = Theme
           .of(context)
@@ -329,13 +342,73 @@ class searchPageState extends State<searchPage> {
 //              ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0.0, 125.0, 0.0, 0.0),
-                child: CheckboxGroup(
-                  labels: cuisineListEthnic,
-                  onSelected: (List<String> selected) => userCuisinePref = selected,
-                ),
+                  child: MultiSelect(
+                      autovalidate: true,
+                      titleText: 'Food Categories',
+                      validator: (value) {
+                        userCuisinePref = value;
+                        print("User prefs = " + userCuisinePref.toString());
+                      },
+                      errorText: 'Please select one or more option(s)',
+                      dataSource: [
+                        {
+                          "display": "American",
+                          "value": "American",
+                        },
+                        {
+                          "display": "Mexican",
+                          "value": "Mexican",
+                        },
+                        {
+                          "display": "Italian",
+                          "value": "Italian",
+                        },
+                        {
+                          "display": "Chinese",
+                          "value": "Chinese",
+                        },
+                        {
+                          "display": "Japanese",
+                          "value": "Japanese",
+                        },
+                        {
+                          "display": "Thai",
+                          "value": "Thai",
+                        },
+                        {
+                          "display": "Indian",
+                          "value": "Indian",
+                        },
+                        {
+                          "display": "French",
+                          "value": "French",
+                        },
+                        {
+                          "display": "Vegetarian",
+                          "value": "Vegetarian",
+                        },
+                        {
+                          "display": "Vegan",
+                          "value": "Vegan",
+                        },
+                      ],
+                      textField: 'display',
+                      valueField: 'value',
+                      filterable: true,
+                      maxLength: 5,
+                      required: false,
+                      value: null,
+                      onSaved: (value) {
+                        print('The value is ');
+                      }
+                  ),
+//                child: CheckboxGroup(
+//                  labels: cuisineListEthnic,
+//                  onSelected: (List<String> selected) => userCuisinePref = selected,
+//                ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(190.0, 270.0, 5.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(100.0, 350.0, 5.0, 0.0),
                 child: Text(
                   'Max Distance:',
                   textScaleFactor: 1.3,
@@ -346,30 +419,18 @@ class searchPageState extends State<searchPage> {
               _showDistanceSlider(),
               _showLocationInput(),
               Padding(
-                padding: const EdgeInsets.fromLTRB(235.0, 370, 5.0, 0.0),
-                child: RadioButtonGroup(
+                padding: const EdgeInsets.fromLTRB(80.0, 420, 5.0, 0.0),
+                child: CheckboxGroup(
                   orientation: GroupedButtonsOrientation.VERTICAL,
                   margin: const EdgeInsets.only(left: 12.0),
-                  onSelected: (String selected) => setState((){
-                    _picked = selected;
-                  }),
+                  onSelected: (List<String> selected) => openNow = selected,
                   labels: <String>[
                     "Open Now"
                   ],
-                  picked: _picked,
-                  itemBuilder: (Radio rb, Text txt, int i){
-                    return Column(
-                      children: <Widget>[
-                        //Icon(Icons.public),
-                        rb,
-                        txt,
-                      ],
-                    );
-                  },
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(190.0, 140.0, 5.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(100.0, 230.0, 5.0, 0.0),
                 child: Text(
                   'Price Preferences:',
                   textScaleFactor: 1.3,
@@ -378,7 +439,7 @@ class searchPageState extends State<searchPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(170.0, 160.0, 5.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(80.0, 260.0, 5.0, 0.0),
                 child: CheckboxGroup(
 
                   //checked: [],
