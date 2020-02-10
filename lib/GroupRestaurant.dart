@@ -31,6 +31,8 @@ class GroupRestaurantPage extends StatefulWidget {
 class _GroupRestaurantPageState extends State<GroupRestaurantPage> {
   //final Repository repository;
   var location = new Location();
+  var ratingsTable = {0:"assets/stars_small_0.png", 1:"assets/stars_small_1.png", 1.5:"assets/stars_small_1_half.png", 2:"assets/stars_small_2.png", 2.5:"assets/stars_small_2_half.png", 3:"assets/stars_small_3.png",
+    3.5:"assets/stars_small_3_half.png", 4:"assets/stars_small_4.png", 4.5:"assets/stars_small_4_half.png", 5:"assets/stars_small_5.png"};
   static const String API_KEY = "p8eXXM3q_ks6WY_FWc2KhV-EmLhSpbJf0P-SATBhAIM4dNCgsp3sH8ogzJPezOT6LzFQlb_vcFfxziHbHuNt8RwxtWY0-vRpx7C0nPz5apIT4A5LYGmaVfuwPrf3WXYx";
   static const Map<String, String> AUTH_HEADER = {"Authorization": "Bearer $API_KEY"};
   final _random = new Random();
@@ -164,10 +166,8 @@ class _GroupRestaurantPageState extends State<GroupRestaurantPage> {
 
     markers = _markers;
 
-    return MaterialApp(
-      title: "Group Result",
-      home: Scaffold(
-        appBar: AppBar(title: Text("Group Vote Result")),
+    return new Scaffold(
+        appBar: AppBar(title: Text(widget.result['name'])),
         body: Center(
         child: Card(
         child: Column(
@@ -182,11 +182,11 @@ class _GroupRestaurantPageState extends State<GroupRestaurantPage> {
                       style: Theme.of(context).textTheme.body1,
                       children: [
                         TextSpan(text: '${loc['display_address'].toString().substring(1, loc['display_address'].toString().length - 1)??""}'
-                            '\n${widget.result['price']??""}           ${widget.result['rating']??""}'),
+                            '\n${widget.result['price']??""}       '),
                         WidgetSpan(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                              child: Icon(Icons.star),
+                            child: Image(
+                              image: AssetImage(ratingsTable[widget.result['rating']]),
+                              fit: BoxFit.fill,
                             ))
                       ],
                     ))
@@ -207,18 +207,24 @@ class _GroupRestaurantPageState extends State<GroupRestaurantPage> {
                     },
                   ),
                   FlatButton(
-                    child: const Text('WEBSITE'),
-                    onPressed: () {
-                      _launchURL(widget.result['url']);
-                      //_launchURL(snapshot.data[index].url);
-                    },
-                  ),
-                  FlatButton(
-                    child: const Text('NAVIGATE'),
+                    child: const Text('Directions'),
                     onPressed: () {
                       _launchURL("google.navigation:q=${coords['latitude']},${coords['longitude']}");
                       //_launchURL(snapshot.data.)
                     },
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(10.0, 1.0, 1.0, 5.0),
+                    child:  FlatButton(
+                      child: Image(
+                        image: AssetImage('assets/yelpLogo.jpg'),
+                        fit: BoxFit.contain,
+                      ),
+                      onPressed: () {
+                        _launchURL(widget.result['url']);
+                        //_launchURL(snapshot.data[index].url);
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -259,7 +265,6 @@ class _GroupRestaurantPageState extends State<GroupRestaurantPage> {
       ),
     ),
     )
-        ),
-      );
+    );
   }
 }

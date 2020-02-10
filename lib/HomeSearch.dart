@@ -33,6 +33,8 @@ class HomeSearchPage extends StatefulWidget {
 class _HomeSearchPageState extends State<HomeSearchPage> {
   //final Repository repository;
   var location = new Location();
+  var ratingsTable = {0:"assets/stars_small_0.png", 1:"assets/stars_small_1.png", 1.5:"assets/stars_small_1_half.png", 2:"assets/stars_small_2.png", 2.5:"assets/stars_small_2_half.png", 3:"assets/stars_small_3.png",
+    3.5:"assets/stars_small_3_half.png", 4:"assets/stars_small_4.png", 4.5:"assets/stars_small_4_half.png", 5:"assets/stars_small_5.png"};
   static const String API_KEY = "p8eXXM3q_ks6WY_FWc2KhV-EmLhSpbJf0P-SATBhAIM4dNCgsp3sH8ogzJPezOT6LzFQlb_vcFfxziHbHuNt8RwxtWY0-vRpx7C0nPz5apIT4A5LYGmaVfuwPrf3WXYx";
   static const Map<String, String> AUTH_HEADER = {"Authorization": "Bearer $API_KEY"};
   final _random = new Random();
@@ -265,11 +267,14 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                               style: Theme.of(context).textTheme.body1,
                                               children: [
                                                 TextSpan(text: '${snapshot.data[index]?.address1??""} ${snapshot.data[index]?.address2??""} ${snapshot.data[index].city}'
-                                                    '\n${snapshot.data[index].price??""}        ${miles.toStringAsFixed(2)} mi.           ${snapshot.data[index].rating??""}'),
+                                                    '\n${snapshot.data[index].price??""}        ${miles.toStringAsFixed(2)} mi.        '),
                                                 WidgetSpan(
                                                     child: Padding(
                                                       padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                                                      child: Icon(Icons.star),
+                                                      child: Image(
+                                                        image: AssetImage(ratingsTable[snapshot.data[index].rating]),
+                                                        fit: BoxFit.fill,
+                                                      ),
                                                     ))
                                               ],
                                             ))),
