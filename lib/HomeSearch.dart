@@ -290,16 +290,23 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                             },
                                           ),
                                           FlatButton(
-                                            child: const Text('WEBSITE'),
-                                            onPressed: () {
-                                              _launchURL(snapshot.data[index].url);
-                                            },
-                                          ),
-                                          FlatButton(
-                                            child: const Text('NAVIGATE'),
+                                            child: const Text('Directions'),
                                             onPressed: () {
                                               _launchURL("google.navigation:q=${snapshot.data[index].latitude},${snapshot.data[index].longitude}");
                                             },
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.fromLTRB(10.0, 1.0, 1.0, 5.0),
+                                            child:  FlatButton(
+                                              child: Image(
+                                                image: AssetImage('assets/yelpLogo.jpg'),
+                                                fit: BoxFit.contain,
+                                              ),
+                                              onPressed: () {
+                                                _launchURL(snapshot.data[index].url);
+                                                //_launchURL(snapshot.data[index].url);
+                                              },
+                                            ),
                                           ),
                                         ],
                                       ),

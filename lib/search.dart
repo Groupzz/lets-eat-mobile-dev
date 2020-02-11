@@ -46,33 +46,31 @@ class searchPageState extends State<searchPage> {
       {
         String query = "";
         if(cuisineURL.isNotEmpty){
-          query = cuisineURL;
-        }
-
-        if(priceURL.isNotEmpty)
-          {
-            if(cuisineURL.isEmpty){
-              query += "price=" + priceURL;
-            }
-            else {
-              query += "&price=" + priceURL;
-            }
-          }
-
-        if(openNow.length > 0){
-          query += "&open_now=true";
+          query = "term=" + cuisineURL;
         }
 
         if(locationController.text.isNotEmpty){
           query += "&location="+locationController.text;
         }
 
-        //query += "+price"
         double meters = _sliderValue.toInt()*1609.34;
         if(meters > 40000.0){
           meters = 40000;
         }
-        query += "&radius=" + meters.toInt().toString();
+        if(query.length > 0){
+          query += "&";
+        }
+        query += "radius=" + meters.toInt().toString() + "&";
+
+        query += "price=" + priceURL;
+
+
+        if(openNow.length > 0){
+          query += "open_now=true";
+        }
+
+        //query += "+price"
+
         print("query = " + query);
         Route route = MaterialPageRoute(builder: (context) => YelpSearchPage(query: query));
 //                    Route route = MaterialPageRoute(builder: (context) => Repository());
@@ -80,11 +78,22 @@ class searchPageState extends State<searchPage> {
       }
     else
       {
-        String query = controller.text;
+        String query = "term=" + controller.text;
         if(cuisineURL.isNotEmpty){
           query += "+" + cuisineURL;
         }
+
+        if(locationController.text.isNotEmpty){
+          query += "&location="+locationController.text;
+        }
         //+ "+" + cuisineURL;
+
+        double meters = _sliderValue.toInt()*1609.34;
+        if(meters > 40000.0){
+          meters = 40000;
+        }
+        query += "&radius=" + meters.toInt().toString();
+
         if(priceURL.isNotEmpty)
         {
           query += "&price=" + priceURL;
@@ -94,15 +103,9 @@ class searchPageState extends State<searchPage> {
           query += "&open_now=true";
         }
 
-        if(locationController.text.isNotEmpty){
-          query += "&location="+locationController.text;
-        }
 
-        double meters = _sliderValue.toInt()*1609.34;
-        if(meters > 40000.0){
-          meters = 40000;
-        }
-        query += "&radius=" + meters.toInt().toString();
+
+
         print("query = " + query);
         Route route = MaterialPageRoute(builder: (context) => YelpSearchPage(query: query));
 //                    Route route = MaterialPageRoute(builder: (context) => Repository());
@@ -135,27 +138,31 @@ class searchPageState extends State<searchPage> {
     if(userPricePref.isEmpty){
       return "1, 2, 3, 4";
     }
-    String prices = "1,";
+    String prices = userPricePref[0].length.toString();
     List<String> priceList = ["\$", "\$\$", "\$\$\$", "\$\$\$\$"];
-    if(userPricePref[0] != "1"){
-      prices = "";
-    }
+//    if(userPricePref[0] != "1"){
+//      prices = "";
+//    }
+    //userPricePref.sort((a,b) => a.length.compareTo(b.length));
     print("userPricePref = " + userPricePref.toString());
-    if(userPricePref.isNotEmpty == true) {
-      for (int i = 0; i < userPricePref.length; i++) {
-        //print("i = " + "\$"*3);
-        for(int j = 1; j<5; j++ ){
-          print("userPricePref[i] = " + userPricePref[i] + "\nPRICE = " + "\$"*j);
-          if(userPricePref[i] == "\$"*j){
-            prices += (j.toString() + ",");
-          }
-        }
-      }
-      print("prices = " + prices);
-      if(prices.endsWith(",")){
-        prices = prices.substring(0, prices.length-1);
-      }
+    for(int i = 1; i < userPricePref.length; i++){
+      prices += ", " + userPricePref[i].length.toString();
     }
+//    if(userPricePref.isNotEmpty == true) {
+//      for (int i = 0; i < userPricePref.length; i++) {
+//        //print("i = " + "\$"*3);
+//        for(int j = 1; j<5; j++ ){
+//          print("userPricePref[i] = " + userPricePref[i] + "\nPRICE = " + "\$"*j);
+//          if(userPricePref[i] == "\$"*j){
+//            prices += (j.toString() + ",");
+//          }
+//        }
+//      }
+//
+//      if(prices.endsWith(",")){
+//        prices = prices.substring(0, prices.length-1);
+//      }
+//    }
     //prices += "test";
 
 //    userPricePref = userPricePrefTemp;
@@ -187,6 +194,7 @@ class searchPageState extends State<searchPage> {
 //      //return "1, 2, 3, 4";
 //      result = "1, 2, 3, 4";
 //    }
+    print("prices = " + prices);
     if(prices.isEmpty){
       prices = "1, 2, 3, 4";
     }

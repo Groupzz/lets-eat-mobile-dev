@@ -20,6 +20,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'Accounts/login_root.dart';
 import 'Accounts/authentication.dart';
+import 'RestaurantInfo.dart';
 
 class YelpSearchPage extends StatefulWidget {
   YelpSearchPage({this.query});
@@ -39,6 +40,7 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
   static const String API_KEY = "p8eXXM3q_ks6WY_FWc2KhV-EmLhSpbJf0P-SATBhAIM4dNCgsp3sH8ogzJPezOT6LzFQlb_vcFfxziHbHuNt8RwxtWY0-vRpx7C0nPz5apIT4A5LYGmaVfuwPrf3WXYx";
   static const Map<String, String> AUTH_HEADER = {"Authorization": "Bearer $API_KEY"};
   final _random = new Random();
+  Restaurants chosenRestaurant = null;
   bool nameSet = false;
   //final String _query;  // search query to be added under "term" of API call
 
@@ -118,11 +120,12 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
     latitude = currentLocation.latitude;
     longitude = currentLocation.longitude;
 
-    webAddress = "https://api.yelp.com/v3/businesses/search?term=" + widget.query + "&limit=50"; //-118.112858";
+    webAddress = "https://api.yelp.com/v3/businesses/search?" + widget.query + "&limit=50"; //-118.112858";
     if(!webAddress.contains("location")){
       webAddress += "&latitude=" + latitude.toString() + "&longitude=" + longitude.toString();
     }
 
+    print("API REQUEST = " + webAddress);
     //webAddress = "https://api.yelp.com/v3/businesses/search?latitude=33.783022&longitude=-118.112858";
     http.Response response;
     Map<String, dynamic> map;
@@ -340,6 +343,16 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
             title: Text('Restaurant'),
           actions: <Widget>[
             IconButton(
+              icon: const Icon(Icons.info),
+              tooltip: 'Restaurant Info',
+              onPressed: () {
+                if(chosenRestaurant != null){
+                  Route route = MaterialPageRoute(builder: (context) => RestaurantInfoPage());
+                  Navigator.push(context, route);
+                }
+              }
+            ),
+            IconButton(
               icon: const Icon(Icons.refresh),
               tooltip: 'New Suggestion',
               onPressed: () {
@@ -359,8 +372,8 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
             future: findRandomRestaurant(),//repository.getBusinesses(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                print("Selected Restaurant = " + snapshot.data.name);
-                print("It is located in " + snapshot.data.city + " at " + snapshot.data?.address1??"" + " " + snapshot.data?.address2??"" + " " + snapshot.data?.address3??"");
+//                print("Selected Restaurant = " + snapshot.data.name);
+//                print("It is located in " + snapshot.data.city + " at " + snapshot.data?.address1??"" + " " + snapshot.data?.address2??"" + " " + snapshot.data?.address3??"");
                 double miles = snapshot.data.distance * 0.000621371;  // Convert meters to miles
 
                 Iterable markers = [];  // Holds list of Restaurant markers (Will hold only 1 marker in this case)
@@ -372,6 +385,8 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
                 });
 
                 markers = _markers;
+
+                chosenRestaurant = snapshot.data;
 
                 return Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -392,7 +407,7 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
                                             style: Theme.of(context).textTheme.body1,
                                             children: [
                                               TextSpan(text: '${snapshot.data?.address1??""} ${snapshot.data?.address2??""} ${snapshot.data.city}'
-                                        '\n${snapshot.data.price??""}        ${miles.toStringAsFixed(2)} mi.       '),
+                                        '\n${snapshot.data.price??""}     ${miles.toStringAsFixed(2)} mi.  '),
                                               WidgetSpan(
                                                 child: Padding(
                                                   padding: const EdgeInsets.symmetric(horizontal: 2.0),
