@@ -66,13 +66,13 @@ class searchPageState extends State<searchPage> {
 
 
         if(openNow.length > 0){
-          query += "open_now=true";
+          query += "&open_now=true";
         }
 
         //query += "+price"
 
         print("query = " + query);
-        Route route = MaterialPageRoute(builder: (context) => YelpSearchPage(query: query));
+        Route route = MaterialPageRoute(builder: (context) => YelpSearchPage(query: query), maintainState: true);
 //                    Route route = MaterialPageRoute(builder: (context) => Repository());
         Navigator.push(context, route);
       }

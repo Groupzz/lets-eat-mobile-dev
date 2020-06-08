@@ -31,7 +31,7 @@ class YelpSearchPage extends StatefulWidget {
   State<StatefulWidget> createState() => new _YelpSearchPageState();
 }
 
-class _YelpSearchPageState extends State<YelpSearchPage> {
+class _YelpSearchPageState extends State<YelpSearchPage> with WidgetsBindingObserver{
   //final Repository repository;
   var location = new Location();
   String restaurantName = "Restaurant";
@@ -40,8 +40,10 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
   static const String API_KEY = "p8eXXM3q_ks6WY_FWc2KhV-EmLhSpbJf0P-SATBhAIM4dNCgsp3sH8ogzJPezOT6LzFQlb_vcFfxziHbHuNt8RwxtWY0-vRpx7C0nPz5apIT4A5LYGmaVfuwPrf3WXYx";
   static const Map<String, String> AUTH_HEADER = {"Authorization": "Bearer $API_KEY"};
   final _random = new Random();
-  Restaurants chosenRestaurant = null;
+  String id = null;
   bool nameSet = false;
+  Restaurants chosen = null;
+  Future<Restaurants> _result;
   //final String _query;  // search query to be added under "term" of API call
 
   //YelpSearchPage(this._query) : super();
@@ -52,6 +54,13 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
 
   String uid;
   String RDocID;
+
+  @override
+  void initState() {
+    super.initState();
+    _result = findRandomRestaurant(); // only create the future once.
+   // super.initState();
+  }
 
   _launchURL(String url) async {
     String url1 = url;
@@ -112,6 +121,11 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
     return result;
   }
 
+  void _onMapCreated(GoogleMapController controller) {
+    setState(() {
+    });
+  }
+
   Future<Restaurants> findRandomRestaurant() async {
     String webAddress;
     var latitude;
@@ -157,6 +171,7 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
     int min = 0;
     int max = businesses.length;
     int i = min + _random.nextInt(max - min);
+    chosen = businesses[i];
     return businesses[i];
 
   }
@@ -346,8 +361,8 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
               icon: const Icon(Icons.info),
               tooltip: 'Restaurant Info',
               onPressed: () {
-                if(chosenRestaurant != null){
-                  Route route = MaterialPageRoute(builder: (context) => RestaurantInfoPage());
+                if(chosen != null){
+                  Route route = MaterialPageRoute(builder: (context) => RestaurantInfoPage(query:chosen.id, name:chosen.name), maintainState: true);
                   Navigator.push(context, route);
                 }
               }
@@ -358,8 +373,9 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
               onPressed: () {
                 //openPage(context);
                 setState(() {
-
+                  _result = findRandomRestaurant();
                 });
+                //_result = findRandomRestaurant();
 //                Navigator.push(context, Maps());
                 //runApp(Server());
               },
@@ -369,7 +385,7 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
         body: Center(
 //          child: FutureBuilder<List<Restaurants>>(
           child: FutureBuilder<Restaurants>(
-            future: findRandomRestaurant(),//repository.getBusinesses(),
+            future: _result,//repository.getBusinesses(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
 //                print("Selected Restaurant = " + snapshot.data.name);
@@ -386,7 +402,7 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
 
                 markers = _markers;
 
-                chosenRestaurant = snapshot.data;
+                id = snapshot.data.id;
 
                 return Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -441,11 +457,12 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
                                               _launchURL("google.navigation:q=${snapshot.data.latitude},${snapshot.data.longitude}");
                                             },
                                           ),
-                                          Padding(
-                                            padding: EdgeInsets.fromLTRB(10.0, 1.0, 1.0, 5.0),
-                                            child:  FlatButton(
+                                          SizedBox(
+                                            width: 80.0,
+                                            height: 80.0,
+                                            child: FlatButton(
                                               child: Image(
-                                                image: AssetImage('assets/yelpLogo.jpg'),
+                                                image: AssetImage('assets/yelpBig.png'),
                                                 fit: BoxFit.contain,
                                               ),
                                               onPressed: () {
@@ -475,6 +492,7 @@ class _YelpSearchPageState extends State<YelpSearchPage> {
                                     width: 400.0,
                                     height: 400.0,
                                   child: GoogleMap(
+                                    onMapCreated: _onMapCreated,
                                     markers: Set.from(markers, ),
                                     mapType: MapType.normal,
                                     zoomGesturesEnabled: true,

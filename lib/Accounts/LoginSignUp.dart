@@ -4,6 +4,8 @@ import 'package:dbcrypt/dbcrypt.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'signUpPage.dart';
 import 'PasswordReset.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginSignUpPage extends StatefulWidget {
   LoginSignUpPage({this.auth, this.onSignedIn});
@@ -28,6 +30,45 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
   FormMode _formMode = FormMode.LOGIN;
   bool _isIos;
   bool _isLoading;
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn googleSignIn = GoogleSignIn();
+
+  Future<String> signInWithGoogle() async {
+    print("Starting");
+    final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+    final GoogleSignInAuthentication googleSignInAuthentication =
+    await googleSignInAccount.authentication;
+    print("SIGN IN COMPLETE");
+
+    final AuthCredential credential = GoogleAuthProvider.getCredential(
+      accessToken: googleSignInAuthentication.accessToken,
+      idToken: googleSignInAuthentication.idToken,
+    );
+
+    print("OBTAINED GOOGLE CREDENTIALS");
+
+    final AuthResult authResult = await _auth.signInWithCredential(credential);
+    final FirebaseUser user = authResult.user;
+    print("AUTHENTICATED");
+
+    assert(!user.isAnonymous);
+    assert(await user.getIdToken() != null);
+
+    print("VALIDATED USER");
+
+    final FirebaseUser currentUser = await _auth.currentUser();
+    assert(user.uid == currentUser.uid);
+    print("SUCCESS!!!!!!");
+
+    return 'signInWithGoogle succeeded: $user';
+  }
+
+  void signOutGoogle() async{
+    await googleSignIn.signOut();
+
+    print("User Sign Out");
+  }
 
   // Check if form is valid before perform login or signup
   bool _validateAndSave() {
@@ -157,12 +198,47 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
               _showEmailInput(),
               _showPasswordInput(),
               _showPrimaryButton(),
+              _signInButton(),
               _showSecondaryButton(),
               _showResetPassword(),
               _showErrorMessage(),
             ],
           ),
         ));
+  }
+
+  Widget _signInButton() {
+    return OutlineButton(
+      splashColor: Colors.grey,
+      onPressed: () {
+        signInWithGoogle().whenComplete(() {
+          widget.onSignedIn();
+        });
+      },
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      highlightElevation: 0,
+      borderSide: BorderSide(color: Colors.grey),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Image(image: AssetImage("assets/google_logo.png"), height: 20.0),
+            Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Text(
+                'Sign in with Google',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.grey,
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _showErrorMessage() {
@@ -279,7 +355,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
 
   Widget _showPrimaryButton() {
     return new Padding(
-        padding: EdgeInsets.fromLTRB(0.0, 45.0, 0.0, 0.0),
+        padding: EdgeInsets.fromLTRB(0.0, 45.0, 0.0, 10.0),
         child: SizedBox(
           height: 40.0,
           child: new RaisedButton(

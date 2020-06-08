@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:lets_eat/FriendsPage.dart';
 import 'package:lets_eat/GroupVotePage.dart';
 import 'package:lets_eat/Accounts/UserYelpPreferences.dart';
@@ -10,6 +11,7 @@ import 'Accounts/userAuth.dart';
 import 'YelpRepository.dart';
 import 'main.dart';
 import 'maps.dart';
+import 'Delivery.dart';
 import 'Accounts/login_root.dart';
 import 'Accounts/userAuth.dart';
 import 'Accounts/accounts.dart';
@@ -42,9 +44,11 @@ class Home extends StatefulWidget {
 
 String uid;
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with WidgetsBindingObserver{
   final searchController = TextEditingController();
   final locController = TextEditingController();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
   FirebaseUser currentUser;
 
   Completer<GoogleMapController> _controller = Completer();
@@ -77,10 +81,18 @@ class _HomeState extends State<Home> {
     });
   }
 
+  Future<void> _handleNotification (Map<dynamic, dynamic> message, bool dialog) async {
+    var data = message['data'] ?? message;
+    String expectedAttribute = data['expectedAttribute'];
+    /// [...]
+  }
+
   @override
   void initState() {
     _getLocation();
     getBusinesses();
+    _firebaseMessaging.requestNotificationPermissions();
+    _firebaseMessaging.configure();
 //    print('test');
 //    print('TestLatitude:$latitude');
 //    print('TestLongitude:$longitude');
@@ -301,6 +313,17 @@ class _HomeState extends State<Home> {
                     },
                   ),
                   new ListTile(
+                    title: new Text('Delivery'),
+                    onTap: () {
+                      //Repository repo = new Repository();
+                      //Route route = MaterialPageRoute(builder: (context) => YelpSearch(repository: Repository()));
+                      Route route = MaterialPageRoute(
+                          builder: (context) => DeliveryPage());
+//                    Route route = MaterialPageRoute(builder: (context) => Repository());
+                      Navigator.push(context, route);
+                    },
+                  ),
+                  new ListTile(
                     title: new Text('Group Voting'),
                     onTap: () {
                       //Repository repo = new Repository();
@@ -415,6 +438,9 @@ class _HomeState extends State<Home> {
                         mapType: MapType.normal,
                         myLocationButtonEnabled: true,
                         myLocationEnabled: true,
+                        onMapCreated: (GoogleMapController controller) {
+                          _controller.complete(controller);
+                        },
                         initialCameraPosition: CameraPosition(
                           target: LatLng(latitude, longitude),
                           zoom: 15.0,

@@ -29,7 +29,7 @@ class HistoryPage extends StatefulWidget {
   State<StatefulWidget> createState() => new _HistoryPageState();
 }
 
-class _HistoryPageState extends State<HistoryPage> {
+class _HistoryPageState extends State<HistoryPage> with WidgetsBindingObserver{
 
   static Future<FirebaseUser> currentUser = FirebaseAuth.instance.currentUser();
   //String uid = currentUser.uid;

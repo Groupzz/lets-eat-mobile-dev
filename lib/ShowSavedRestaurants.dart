@@ -14,6 +14,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'Accounts/login_root.dart';
+import 'RestaurantInfo.dart';
 import 'Accounts/userAuth.dart';
 import 'home.dart';
 import 'About.dart';
@@ -363,55 +364,8 @@ class _ShowSavedRestaurantsState extends State<ShowSavedRestaurants> {
                                     ],
                                   )),
                                     onTap: (){
-                                      showDialog(
-                                        context: context,
-                                        builder: (
-                                            BuildContext context) {
-                                          // return object of type Dialog
-                                          return AlertDialog(
-                                            title: new Text(
-                                                "Unsave This Restaurant?"),
-                                            //content: new Text("Link to verify account has been sent to your email"),
-                                            actions: <Widget>[
-                                              new FlatButton(
-                                                child: new Text(
-                                                    "No"),
-                                                onPressed: () {
-                                                  Navigator.of(
-                                                      context)
-                                                      .pop();
-                                                },
-                                              ),
-                                              new FlatButton(
-                                                child: new Text(
-                                                    "Yes",
-                                                    style: TextStyle(
-                                                        color: Colors
-                                                            .red)),
-                                                onPressed: () {
-                                                  Firestore
-                                                      .instance
-                                                      .collection(
-                                                      'likedRestaurants')
-                                                      .document(
-                                                      temp.documentID)
-                                                      .updateData(
-                                                      {
-                                                        'restaurantIDs': FieldValue
-                                                            .arrayRemove(
-                                                            [
-                                                              current.id
-                                                            ])
-                                                      });
-                                                  Navigator.of(
-                                                      context)
-                                                      .pop();
-                                                },
-                                              )
-                                            ],
-                                          );
-                                        },
-                                      );
+                                      Route route = MaterialPageRoute(builder: (context) => RestaurantInfoPage(query:current.id, name:current.name), maintainState: true);
+                                      Navigator.push(context, route);
                                     },
                                   ),
 //                                  ListTile(
@@ -423,17 +377,72 @@ class _ShowSavedRestaurantsState extends State<ShowSavedRestaurants> {
                                       child: ButtonBar(
                                         children: <Widget>[
                                           FlatButton(
+                                            child: const Text('Unsave'),
+                                            onPressed: (){
+                                              showDialog(
+                                                context: context,
+                                                builder: (
+                                                    BuildContext context) {
+                                                  // return object of type Dialog
+                                                  return AlertDialog(
+                                                    title: new Text(
+                                                        "Unsave This Restaurant?"),
+                                                    //content: new Text("Link to verify account has been sent to your email"),
+                                                    actions: <Widget>[
+                                                      new FlatButton(
+                                                        child: new Text(
+                                                            "No"),
+                                                        onPressed: () {
+                                                          Navigator.of(
+                                                              context)
+                                                              .pop();
+                                                        },
+                                                      ),
+                                                      new FlatButton(
+                                                        child: new Text(
+                                                            "Yes",
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .red)),
+                                                        onPressed: () {
+                                                          Firestore
+                                                              .instance
+                                                              .collection(
+                                                              'likedRestaurants')
+                                                              .document(
+                                                              temp.documentID)
+                                                              .updateData(
+                                                              {
+                                                                'restaurantIDs': FieldValue
+                                                                    .arrayRemove(
+                                                                    [
+                                                                      current.id
+                                                                    ])
+                                                              });
+                                                          Navigator.of(
+                                                              context)
+                                                              .pop();
+                                                        },
+                                                      )
+                                                    ],
+                                                  );
+                                                },
+                                              );
+                                            }
+                                          ),
+                                          FlatButton(
                                             child: const Text('Directions'),
                                             onPressed: () {
                                               //_launchURL(snapshot.data.)
                                               _launchURL("google.navigation:q=${current.latitude},${current.longitude}");
                                             },
                                           ),
-                                          Padding(
-                                            padding: EdgeInsets.fromLTRB(10.0, 1.0, 1.0, 5.0),
-                                            child:  FlatButton(
+                                          SizedBox(
+                                            width: 80.0,
+                                            height: 80.0,
+                                            child: FlatButton(
                                               child: Image(
-                                                image: AssetImage('assets/yelpLogo.jpg'),
+                                                image: AssetImage('assets/yelpBig.png'),
                                                 fit: BoxFit.contain,
                                               ),
                                               onPressed: () {

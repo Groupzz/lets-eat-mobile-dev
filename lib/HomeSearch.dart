@@ -19,6 +19,7 @@ import 'main.dart';
 import 'package:flutter/foundation.dart';
 import 'Accounts/login_root.dart';
 import 'Accounts/authentication.dart';
+import 'RestaurantInfo.dart';
 import 'package:flutter/gestures.dart';
 
 class HomeSearchPage extends StatefulWidget {
@@ -229,7 +230,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
     return MaterialApp(
       title: "Search Results",
       home: Scaffold(
-        appBar: AppBar(title: Text("Search Results")),
+        appBar: AppBar(title: Text("Search Results"),),
         body: Stack(
           children: <Widget>[
             FutureBuilder<List<Restaurants>>(
@@ -267,7 +268,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                               style: Theme.of(context).textTheme.body1,
                                               children: [
                                                 TextSpan(text: '${snapshot.data[index]?.address1??""} ${snapshot.data[index]?.address2??""} ${snapshot.data[index].city}'
-                                                    '\n${snapshot.data[index].price??""}        ${miles.toStringAsFixed(2)} mi.        '),
+                                                    '\n${snapshot.data[index].price??""}     ${miles.toStringAsFixed(2)} mi.  '),
                                                 WidgetSpan(
                                                     child: Padding(
                                                       padding: const EdgeInsets.symmetric(horizontal: 2.0),
@@ -277,7 +278,12 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                                       ),
                                                     ))
                                               ],
-                                            ))),
+                                            )),
+                                      onTap: (){
+                                        Route route = MaterialPageRoute(builder: (context) => RestaurantInfoPage(query:snapshot.data[index].id, name:snapshot.data[index].name), maintainState: true);
+                                        Navigator.push(context, route);
+                                      }
+                                    ),
                                     ButtonTheme.bar(
                                       // make buttons use the appropriate styles for cards
                                       child: ButtonBar(
@@ -295,11 +301,12 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                               _launchURL("google.navigation:q=${snapshot.data[index].latitude},${snapshot.data[index].longitude}");
                                             },
                                           ),
-                                          Padding(
-                                            padding: EdgeInsets.fromLTRB(10.0, 1.0, 1.0, 5.0),
-                                            child:  FlatButton(
+                                          SizedBox(
+                                            width: 80.0,
+                                            height: 80.0,
+                                            child: FlatButton(
                                               child: Image(
-                                                image: AssetImage('assets/yelpLogo.jpg'),
+                                                image: AssetImage('assets/yelpBig.png'),
                                                 fit: BoxFit.contain,
                                               ),
                                               onPressed: () {

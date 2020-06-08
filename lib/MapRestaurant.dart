@@ -20,6 +20,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'Accounts/login_root.dart';
 import 'Accounts/authentication.dart';
+import 'RestaurantInfo.dart';
 
 class MapRestaurantPage extends StatefulWidget {
   MapRestaurantPage({this.result});
@@ -30,7 +31,7 @@ class MapRestaurantPage extends StatefulWidget {
   State<StatefulWidget> createState() => new _MapRestaurantPageState();
 }
 
-class _MapRestaurantPageState extends State<MapRestaurantPage> {
+class _MapRestaurantPageState extends State<MapRestaurantPage> with WidgetsBindingObserver{
   //final Repository repository;
   var location = new Location();
   var ratingsTable = {0:"assets/stars_small_0.png", 1:"assets/stars_small_1.png", 1.5:"assets/stars_small_1_half.png", 2:"assets/stars_small_2.png", 2.5:"assets/stars_small_2_half.png", 3:"assets/stars_small_3.png",
@@ -202,7 +203,16 @@ class _MapRestaurantPageState extends State<MapRestaurantPage> {
     markers = _markers;
 
     return new Scaffold(
-          appBar: AppBar(title: Text('${widget.result.name}')),
+          appBar: AppBar(title: Text('${widget.result.name}'),
+              actions: <Widget>[
+              IconButton(
+              icon: const Icon(Icons.info),
+        tooltip: 'Restaurant Info',
+        onPressed: () {
+            Route route = MaterialPageRoute(builder: (context) => RestaurantInfoPage(query:widget.result.id, name:widget.result.name), maintainState: true);
+            Navigator.push(context, route);
+        }
+    ),]),
           body: Center(
             child: Card(
               child: Column(
@@ -251,11 +261,12 @@ class _MapRestaurantPageState extends State<MapRestaurantPage> {
                             //_launchURL(snapshot.data.)
                           },
                         ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(10.0, 1.0, 1.0, 5.0),
-                          child:  FlatButton(
+                        SizedBox(
+                          width: 80.0,
+                          height: 80.0,
+                          child: FlatButton(
                             child: Image(
-                              image: AssetImage('assets/yelpLogo.jpg'),
+                              image: AssetImage('assets/yelpBig.png'),
                               fit: BoxFit.contain,
                             ),
                             onPressed: () {

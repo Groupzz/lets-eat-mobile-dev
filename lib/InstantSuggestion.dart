@@ -20,13 +20,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'Accounts/login_root.dart';
 import 'Accounts/authentication.dart';
+import 'RestaurantInfo.dart';
 
 class InstantSuggestionPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => new _InstantSuggestionPageState();
 }
 
-class _InstantSuggestionPageState extends State<InstantSuggestionPage> {
+class _InstantSuggestionPageState extends State<InstantSuggestionPage> with WidgetsBindingObserver{
   //final Repository repository;
   var location = new Location();
   var ratingsTable = {0:"assets/stars_small_0.png", 1:"assets/stars_small_1.png", 1.5:"assets/stars_small_1_half.png", 2:"assets/stars_small_2.png", 2.5:"assets/stars_small_2_half.png", 3:"assets/stars_small_3.png",
@@ -34,6 +35,8 @@ class _InstantSuggestionPageState extends State<InstantSuggestionPage> {
   static const String API_KEY = "p8eXXM3q_ks6WY_FWc2KhV-EmLhSpbJf0P-SATBhAIM4dNCgsp3sH8ogzJPezOT6LzFQlb_vcFfxziHbHuNt8RwxtWY0-vRpx7C0nPz5apIT4A5LYGmaVfuwPrf3WXYx";
   static const Map<String, String> AUTH_HEADER = {"Authorization": "Bearer $API_KEY"};
   final _random = new Random();
+  Restaurants chosen = null;
+  Future<Restaurants> _result;
   //final String _query;  // search query to be added under "term" of API call
 
   //YelpSearchPage(this._query) : super();
@@ -44,6 +47,18 @@ class _InstantSuggestionPageState extends State<InstantSuggestionPage> {
 
   String uid;
   String RDocID;
+
+  @override
+  void initState() {
+    super.initState();
+    _result = findRandomRestaurant(); // only create the future once.
+    // super.initState();
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    setState(() {
+    });
+  }
 
   _launchURL(String url) async {
     String url1 = url;
@@ -134,6 +149,7 @@ class _InstantSuggestionPageState extends State<InstantSuggestionPage> {
     int min = 0;
     int max = businesses.length;
     int i = min + _random.nextInt(max - min);
+    chosen = businesses[i];
     return businesses[i];
 
   }
@@ -285,11 +301,22 @@ class _InstantSuggestionPageState extends State<InstantSuggestionPage> {
     return new Scaffold(
 //      title: "Selected Restaurant",
 //      home: Scaffold(
-        appBar: AppBar(title: Text("Instant Suggestion")),
+        appBar: AppBar(title: Text("Instant Suggestion"),
+            actions: <Widget>[
+            IconButton(
+            icon: const Icon(Icons.info),
+        tooltip: 'Restaurant Info',
+        onPressed: () {
+          if(chosen != null){
+            Route route = MaterialPageRoute(builder: (context) => RestaurantInfoPage(query:chosen.id, name:chosen.name), maintainState: true);
+            Navigator.push(context, route);
+          }
+        }
+    ),]),
         body: Center(
 //          child: FutureBuilder<List<Restaurants>>(
           child: FutureBuilder<Restaurants>(
-            future: findRandomRestaurant(),//repository.getBusinesses(),
+            future: _result,//repository.getBusinesses(),
             builder: (context, snapshot) {
               try {
                 if (snapshot.hasData) {
@@ -349,9 +376,9 @@ class _InstantSuggestionPageState extends State<InstantSuggestionPage> {
                                         ""} ${snapshot.data
                                             .city??""}'
                                         '\n${snapshot.data
-                                            .price??""}        ${miles
+                                            .price??""}     ${miles
                                             .toStringAsFixed(
-                                        2)} mi.      '),
+                                        2)} mi.  '),
                                         WidgetSpan(
                                         child: Padding(
                                         padding: const EdgeInsets
@@ -394,11 +421,12 @@ class _InstantSuggestionPageState extends State<InstantSuggestionPage> {
                                                         .data.longitude}");
                                               },
                                             ),
-                                            Padding(
-                                              padding: EdgeInsets.fromLTRB(10.0, 1.0, 1.0, 5.0),
-                                              child:  FlatButton(
+                                            SizedBox(
+                                              width: 80.0,
+                                              height: 80.0,
+                                              child: FlatButton(
                                                 child: Image(
-                                                  image: AssetImage('assets/yelpLogo.jpg'),
+                                                  image: AssetImage('assets/yelpBig.png'),
                                                   fit: BoxFit.contain,
                                                 ),
                                                 onPressed: () {
@@ -415,6 +443,7 @@ class _InstantSuggestionPageState extends State<InstantSuggestionPage> {
                                           width: 400.0,
                                           height: 400.0,
                                           child: GoogleMap(
+                                            onMapCreated: _onMapCreated,
                                             markers: Set.from(markers,),
                                             mapType: MapType.normal,
                                             zoomGesturesEnabled: true,
