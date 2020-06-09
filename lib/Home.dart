@@ -413,6 +413,30 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
                   fit: BoxFit.fill,
                 ),
               ),
+              _showPrimaryButton(),
+              new Container(
+
+                  child: SizedBox(
+
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(60.0, 250.0, 60.0, 50.0),
+                      child: GoogleMap(
+                        markers: Set.from(
+                          markers,
+                        ),
+                        mapType: MapType.normal,
+                        myLocationButtonEnabled: true,
+                        myLocationEnabled: true,
+                        onMapCreated: (GoogleMapController controller) {
+                          _controller.complete(controller);
+                        },
+                        initialCameraPosition: CameraPosition(
+                          target: LatLng(0, 0),
+                          zoom: 5.0,
+                        ),
+                      ),
+                    ),
+                  )),
 //            _showPrimaryButton(),
             ],
           )

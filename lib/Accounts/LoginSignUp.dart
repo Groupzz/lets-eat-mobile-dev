@@ -25,6 +25,9 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
   String _email;
   String _password;
   String _errorMessage;
+  String username;
+  String id;
+  String gmail;
 
   // Initial form is login form
   FormMode _formMode = FormMode.LOGIN;
@@ -33,6 +36,81 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
+
+  void _updateData() async {
+    try {
+      var results = Firestore.instance.collection('users').where(
+          'username', isEqualTo: username // Get current user id
+      );
+
+      var querySnap = await results.getDocuments();
+      var length = querySnap.documents.length;
+
+      String googleUsername = username;
+      if(length > 0){
+        var num = 1;
+        while(length > 0){
+          googleUsername = username + num.toString();
+          results = Firestore.instance.collection('users').where(
+              'username', isEqualTo: googleUsername  // Get current user id
+          );
+
+          var querySnap = await results.getDocuments();
+          length = querySnap.documents.length;
+          num += 1;
+        }
+      }
+
+
+      if (googleUsername.length > 0) {
+        Future<DocumentReference> userDoc;
+
+        Firestore.instance.collection('friends').add(
+            { // Add user to firestore w/ generated userID
+              "id": id,
+              "friends": [],
+            }).then((fDoc) {
+          Firestore.instance.collection('preferences').add(
+              {
+                "id": id,
+              }
+          ).then((pDoc) {
+            Firestore.instance.collection('likedRestaurants').add(
+                {
+                  "id": id,
+                  "restaurantIDs": [],
+                }
+            ).then((lDoc) {
+              print("Friend ID = " + fDoc.documentID);
+              // Add new user to Users collection & include Friends Document ID
+              userDoc = Firestore.instance.collection('users').add(
+                  {
+                    // Add user to firestore w/ generated userID
+                    "email": gmail,
+                    "id": id,
+                    "friendsDocID": fDoc.documentID,
+                    // Document ID for current user's Friends document
+                    "likedRestaurantsID": lDoc.documentID,
+                    "preferencesID": pDoc.documentID,
+                    "firstname": username,
+                    "username": googleUsername,
+                  });
+            });
+          });
+        });
+      }
+    }
+    catch (e) {
+      print('Error: $e');
+      setState(() {
+        _isLoading = false;
+        if (_isIos) {
+          _errorMessage = e.details;
+        } else
+          _errorMessage = e.message;
+      });
+    }
+  }
 
   Future<String> signInWithGoogle() async {
     print("Starting");
@@ -59,6 +137,18 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
 
     final FirebaseUser currentUser = await _auth.currentUser();
     assert(user.uid == currentUser.uid);
+    username = user.displayName;
+    id = user.uid;
+    gmail = user.email;
+    var results = Firestore.instance.collection('users').where(
+        'id', isEqualTo: id // Get current user id
+    );
+
+    var querySnap = await results.getDocuments();
+    var length = querySnap.documents.length;
+    if(length == 0){
+      _updateData();
+    }
     print("SUCCESS!!!!!!");
 
     return 'signInWithGoogle succeeded: $user';

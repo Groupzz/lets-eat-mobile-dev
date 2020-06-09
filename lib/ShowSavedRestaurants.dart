@@ -100,7 +100,7 @@ class _ShowSavedRestaurantsState extends State<ShowSavedRestaurants> {
               "Please verify your account in the link sent to your email"),
           actions: <Widget>[
             new FlatButton(
-              child: new Text("Resent link"),
+              child: new Text("Resend link"),
               onPressed: () {
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();

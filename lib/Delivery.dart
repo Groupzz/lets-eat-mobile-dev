@@ -84,7 +84,7 @@ class DeliveryPageState extends State<DeliveryPage> {
     longitude = currentLocation.longitude;
 
     webAddress = "https://api.yelp.com/v3/transactions/delivery/search?"; //-118.112858";
-    webAddress += "latitude=" + latitude.toString() + "&longitude=" + longitude.toString();
+    webAddress += "latitude=" + latitude.toString() + "&longitude=" + longitude.toString() + "&limit=50";
 
 
     http.Response response = await http.get(webAddress, headers: AUTH_HEADER).catchError((resp) {});
