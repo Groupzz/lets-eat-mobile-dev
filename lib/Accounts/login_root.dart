@@ -4,6 +4,7 @@
  * https://github.com/delay/flutter_firebase_auth_example
  */
 import 'package:flutter/material.dart';
+import 'package:lets_eat/Home.dart';
 import 'LoginSignUp.dart';
 import 'authentication.dart';
 import 'accounts.dart';
@@ -48,6 +49,8 @@ class _LoginRootPageState extends State<LoginRootPage> {
       setState(() {
         _userId = user.uid.toString();
         _username = user.displayName;
+
+//
       });
     });
     setState(() {

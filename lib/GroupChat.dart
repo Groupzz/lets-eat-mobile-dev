@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:lets_eat/GroupRestaurant.dart';
@@ -241,14 +242,38 @@ class _GroupChatPageState extends State<GroupChatPage> with SingleTickerProvider
     FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
     await Future.delayed(const Duration(milliseconds: 700), (){});
     String username = currentUser.displayName;
-    Firestore.instance.collection('groups').document(widget.docId).updateData({'Messages':FieldValue.arrayUnion([username + ":    " + messageController.text])});
+    String amPM = "AM";
+    int hour = DateTime.now().hour;
+    int minute = DateTime.now().minute;
+    String strMin = minute.toString();
+    if(minute < 10){
+      strMin = "0"+minute.toString();
+    }
+    if(hour >= 13){
+      hour -= 12;
+      amPM = "PM";
+    }
+    if(hour == 12){
+      amPM = 'PM';
+    }
+    if(hour == 0){
+      hour = 12;
+    }
+    Firestore.instance.collection('groups').document(widget.docId).updateData(
+        {'Messages':FieldValue.arrayUnion([username + ":  " + messageController.text]),
+        'Timestamps': FieldValue.arrayUnion([DateTime.now().month.toString() + "/" + DateTime.now().day.toString() + 
+        "/" + DateTime.now().year.toString() + "    " +  hour.toString() + ":" + strMin + " " + amPM + " " + DateTime.now().millisecondsSinceEpoch.toString()])}
+    );
     messageController.clear();
   }
 
   Widget _showMessages() {  // Display ListView of messages
     //getCurrentUserInfo();
+    String timestamp;
+    String sender;
+    String message;
     return new Padding(
-        padding: EdgeInsets.fromLTRB(10.0, 100.0, 0.0, 30.0),
+        padding: EdgeInsets.fromLTRB(10.0, 30.0, 0.0, 60.0),
         child: Center(
             child: StreamBuilder(
                 stream: Firestore.instance.collection('groups').document(widget.docId).snapshots(),
@@ -257,12 +282,16 @@ class _GroupChatPageState extends State<GroupChatPage> with SingleTickerProvider
                     if (data.hasData) {
                       var doc = data.data;
                       List<dynamic> prefs = doc['Messages'];
+                      List<dynamic> timestamps = doc['Timestamps'];
                       return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: ListView.builder(
                             //                            itemCount: data.data.preferences.length,
                               itemCount: prefs.length,
                               itemBuilder: (c, index) {
+                                timestamp = timestamps[index].toString().substring(0, timestamps[index].toString().indexOf('M')+1);
+                                sender = prefs[index].toString().substring(0, prefs[index].toString().indexOf(':'));
+                                message = prefs[index].toString().substring(prefs[index].toString().indexOf(':') + 1, prefs[index].toString().length);
                                 return Center(
                                     child: Card(
                                         child: Column(
@@ -270,7 +299,9 @@ class _GroupChatPageState extends State<GroupChatPage> with SingleTickerProvider
                                             children: <Widget>[
                                               //Padding(padding: const EdgeInsets.all(8.0)),
                                               ListTile(
-                                                title: Text('${prefs[index]}'),
+                                                //leading: Text('${sender}', style: TextStyle(color: Colors.grey),),
+                                                title: Text('${message}'),
+                                                subtitle: Text('${sender}             ${timestamp}', textAlign: TextAlign.left,),
                                               ),
                                             ])
                                     )
@@ -386,22 +417,12 @@ class _GroupChatPageState extends State<GroupChatPage> with SingleTickerProvider
     );
   }
 
-
-
-  Widget _showPrefsLabel() {
-    return new Padding(
-      padding: EdgeInsets.fromLTRB(15.0, 75.0, 0.0, 0.0),
-      child: Text("Messages:", style: new TextStyle(fontSize: 18.0)),
-    );
-  }
-
   Widget _showButtonList() {
     return new Container(
       padding: EdgeInsets.all(26.0),
       child: new ListView(
         shrinkWrap: true,
         children: <Widget>[
-          _showPrefsLabel(),
           new SizedBox(
             height: 300.0,
             child: _showMessages()
@@ -416,28 +437,136 @@ class _GroupChatPageState extends State<GroupChatPage> with SingleTickerProvider
 //
   @override
   Widget build(BuildContext context) {
-    _getCurrentUser();
+//    _getCurrentUser();
+//
+//
+//    return new Scaffold(
+//        resizeToAvoidBottomPadding: false,
+//        appBar: AppBar(
+//            title: Text("Group Chat"),
+//
+//        ),
+//        body: WillPopScope(
+//          child: Stack(
+//            children: <Widget>[
+//                  _showPrefsLabel(),
+//                  _showMessages(),
+////                  _showSendMessage(),
+//              Container(
+//                alignment: Alignment.bottomCenter,
+//                width: MediaQuery.of(context).size.width,
+//                child: Container(
+//                  padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+//                  color: Colors.grey[700],
+//                  child: Row(
+//                    children: <Widget>[
+//                      Expanded(
+//                        child: TextField(
+//                          controller: messageController,
+//                          style: TextStyle(
+//                              color: Colors.white
+//                          ),
+//                          decoration: InputDecoration(
+//                              hintText: "Send a message ...",
+//                              hintStyle: TextStyle(
+//                                color: Colors.white38,
+//                                fontSize: 16,
+//                              ),
+//                              border: InputBorder.none
+//                          ),
+//                        ),
+//                      ),
+//
+//                      SizedBox(width: 12.0),
+//
+//                      GestureDetector(
+//                        onTap: () {
+//                          if(messageController.text.isNotEmpty){
+//                            _updateData();
+//                          };
+//                        },
+//                        child: Container(
+//                          height: 50.0,
+//                          width: 50.0,
+//                          decoration: BoxDecoration(
+//                              color: Colors.blueAccent,
+//                              borderRadius: BorderRadius.circular(50)
+//                          ),
+//                          child: Center(child: Icon(Icons.send, color: Colors.white)),
+//                        ),
+//                      )
+//                    ],
+//                  ),
+//                ),
+//              )
+//                //  _showSend(),
+//                ],
+//              ),
+//
+//          onWillPop: onBackPress,
+//        )
+//    );
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Group Chat", style: TextStyle(color: Colors.white)),
+        centerTitle: true,
+        //backgroundColor: Colors.black87,
+        backgroundColor: Colors.blue,
+        elevation: 0.0,
+      ),
+      body: Container(
+        child: Stack(
+          children: <Widget>[
+            _showMessages(),
+            // Container(),
+            Container(
+              alignment: Alignment.bottomCenter,
+              width: MediaQuery.of(context).size.width,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+                color: Colors.grey[400],
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: TextField(
+                        controller: messageController,
+                        style: TextStyle(
+                            color: Colors.white
+                        ),
+                        decoration: InputDecoration(
+                            hintText: "Send a message ...",
+                            hintStyle: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                            border: InputBorder.none
+                        ),
+                      ),
+                    ),
 
+                    SizedBox(width: 12.0),
 
-    return new Scaffold(
-        resizeToAvoidBottomPadding: false,
-        appBar: AppBar(
-            title: Text("Group Chat"),
-
-        ),
-        body: WillPopScope(
-          child: Stack(
-            children: <Widget>[
-                  _showPrefsLabel(),
-                  _showMessages(),
-//                  _showSendMessage(),
-                  buildInput(),
-                //  _showSend(),
-                ],
+                    GestureDetector(
+                      onTap: () {
+                        _updateData();
+                      },
+                      child: Container(
+                        height: 50.0,
+                        width: 50.0,
+                        decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(50)
+                        ),
+                        child: Center(child: Icon(Icons.send, color: Colors.white)),
+                      ),
+                    )
+                  ],
+                ),
               ),
-
-          onWillPop: onBackPress,
-        )
+            )
+          ],
+        ),
+      ),
     );
   }
 

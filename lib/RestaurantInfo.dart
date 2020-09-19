@@ -32,6 +32,157 @@ class RestaurantInfoPage extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() => new _RestaurantInfoPageState();
+
+  static Future<void> saveRestaurantDB(BuildContext c, snap,String rID,String rName) async{
+
+    Firestore.instance
+        .collection('likedRestaurants')
+        .where(
+        'id', isEqualTo: uid)
+        .snapshots()
+        .listen(
+            (data) {
+          Firestore.instance
+              .collection('likedRestaurants')
+              .document(data.documents[0].documentID)
+              .updateData(
+              {'restaurantIDs':FieldValue.arrayUnion([rID])}
+          );
+        }
+    );
+    showDialog(
+      context: c,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Restaurant Saved!"),
+          content: new Text("${rName} has been added to your saved Restaurants"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Dismiss"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  static void saveRestaurant(BuildContext context, String restaurantID,String restaurantName) async{
+    bool success = true;
+    final FirebaseUser user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
+
+    if(user == null){
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            title: new Text("You Must Sign In First"),
+            content: new Text(
+                "You must be signed in to save restaurants"),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text("Sign In "),
+                onPressed: () {
+                  Route route = MaterialPageRoute(builder: (context) =>
+                      LoginRootPage(auth: new Auth(),));
+                  Navigator.push(context, route);
+                },
+              ),
+              new FlatButton(
+                child: new Text("Dismiss"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+    else {
+      try {
+        uid = user.uid;
+        // Check if provided restaurant is already saved in database
+        Firestore.instance
+            .collection('likedRestaurants')
+            .where(
+            'restaurantIDs', isEqualTo: restaurantID)
+            .snapshots()
+            .listen(
+
+                (data) =>
+            data.documents.length == 0
+            // If so, update user's restaurant array w/ new restaurant
+                ? Firestore.instance
+                .collection('users')
+                .where(
+                'id', isEqualTo: uid // Get current user id
+            )
+                .snapshots()
+                .listen(
+              // Update Restaurants collection that contains current user ID
+                    (data) =>
+                    saveRestaurantDB(context, data, restaurantID, restaurantName)
+            )
+            // If not, show error message
+                : showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                // return object of type Dialog
+                return AlertDialog(
+                  title: new Text("Restaurant is already saved"),
+                  //content: new Text("We didn't find a user with that username.  Please make sure the username is correct"),
+                  actions: <Widget>[
+                    new FlatButton(
+                      child: new Text("Dismiss"),
+                      onPressed: () {
+                        success = false;
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            )
+        );
+      }
+      catch (e) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            // return object of type Dialog
+            return AlertDialog(
+              title: new Text("Something Went Wrong!"),
+              content: new Text(
+                  "We were unable to save this restaurant to your account.\n"
+                      "Please make sure you are connected to the internet and try again"),
+              actions: <Widget>[
+                new FlatButton(
+                  child: new Text("Sign In "),
+                  onPressed: () {
+                    Route route = MaterialPageRoute(builder: (context) =>
+                        LoginRootPage(auth: new Auth(),));
+                    Navigator.push(context, route);
+                  },
+                ),
+                new FlatButton(
+                  child: new Text("Dismiss"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
+  }
 }
 
 
@@ -328,156 +479,156 @@ class _RestaurantInfoPageState extends State<RestaurantInfoPage>{
 
   }
 
-  void saveRestaurant(String restaurantID,String restaurantName) async{
-    bool success = true;
-    final FirebaseUser user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
+//  static void saveRestaurant(String restaurantID,String restaurantName) async{
+//    bool success = true;
+//    final FirebaseUser user = await FirebaseAuth.instance.currentUser();//auth.currentUser();
+//
+//    if(user == null){
+//      showDialog(
+//        //context: context,
+//        builder: (BuildContext context) {
+//          // return object of type Dialog
+//          return AlertDialog(
+//            title: new Text("You Must Sign In First"),
+//            content: new Text(
+//                "You must be signed in to save restaurants"),
+//            actions: <Widget>[
+//              new FlatButton(
+//                child: new Text("Sign In "),
+//                onPressed: () {
+//                  Route route = MaterialPageRoute(builder: (context) =>
+//                      LoginRootPage(auth: new Auth(),));
+//                  Navigator.push(context, route);
+//                },
+//              ),
+//              new FlatButton(
+//                child: new Text("Dismiss"),
+//                onPressed: () {
+//                  Navigator.of(context).pop();
+//                },
+//              ),
+//            ],
+//          );
+//        },
+//      );
+//    }
+//    else {
+//      try {
+//        uid = user.uid;
+//        // Check if provided restaurant is already saved in database
+//        Firestore.instance
+//            .collection('likedRestaurants')
+//            .where(
+//            'restaurantIDs', isEqualTo: restaurantID)
+//            .snapshots()
+//            .listen(
+//
+//                (data) =>
+//            data.documents.length == 0
+//            // If so, update user's restaurant array w/ new restaurant
+//                ? Firestore.instance
+//                .collection('users')
+//                .where(
+//                'id', isEqualTo: uid // Get current user id
+//            )
+//                .snapshots()
+//                .listen(
+//              // Update Restaurants collection that contains current user ID
+//                    (data) =>
+//                    saveRestaurantDB(data, restaurantID, restaurantName)
+//            )
+//            // If not, show error message
+//                : showDialog(
+//              context: context,
+//              builder: (BuildContext context) {
+//                // return object of type Dialog
+//                return AlertDialog(
+//                  title: new Text("Restaurant is already saved"),
+//                  //content: new Text("We didn't find a user with that username.  Please make sure the username is correct"),
+//                  actions: <Widget>[
+//                    new FlatButton(
+//                      child: new Text("Dismiss"),
+//                      onPressed: () {
+//                        success = false;
+//                        Navigator.of(context).pop();
+//                      },
+//                    ),
+//                  ],
+//                );
+//              },
+//            )
+//        );
+//      }
+//      catch (e) {
+//        showDialog(
+//          //context: context,
+//          builder: (BuildContext context) {
+//            // return object of type Dialog
+//            return AlertDialog(
+//              title: new Text("Something Went Wrong!"),
+//              content: new Text(
+//                  "We were unable to save this restaurant to your account.\n"
+//                      "Please make sure you are connected to the internet and try again"),
+//              actions: <Widget>[
+//                new FlatButton(
+//                  child: new Text("Sign In "),
+//                  onPressed: () {
+//                    Route route = MaterialPageRoute(builder: (context) =>
+//                        LoginRootPage(auth: new Auth(),));
+//                    Navigator.push(context, route);
+//                  },
+//                ),
+//                new FlatButton(
+//                  child: new Text("Dismiss"),
+//                  onPressed: () {
+//                    Navigator.of(context).pop();
+//                    Navigator.of(context).pop();
+//                  },
+//                ),
+//              ],
+//            );
+//          },
+//        );
+//      }
+//    }
+//  }
 
-    if(user == null){
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          // return object of type Dialog
-          return AlertDialog(
-            title: new Text("You Must Sign In First"),
-            content: new Text(
-                "You must be signed in to save restaurants"),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text("Sign In "),
-                onPressed: () {
-                  Route route = MaterialPageRoute(builder: (context) =>
-                      LoginRootPage(auth: new Auth(),));
-                  Navigator.push(context, route);
-                },
-              ),
-              new FlatButton(
-                child: new Text("Dismiss"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-    else {
-      try {
-        uid = user.uid;
-        // Check if provided restaurant is already saved in database
-        Firestore.instance
-            .collection('likedRestaurants')
-            .where(
-            'restaurantIDs', isEqualTo: restaurantID)
-            .snapshots()
-            .listen(
-
-                (data) =>
-            data.documents.length == 0
-            // If so, update user's restaurant array w/ new restaurant
-                ? Firestore.instance
-                .collection('users')
-                .where(
-                'id', isEqualTo: uid // Get current user id
-            )
-                .snapshots()
-                .listen(
-              // Update Restaurants collection that contains current user ID
-                    (data) =>
-                    saveRestaurantDB(data, restaurantID, restaurantName)
-            )
-            // If not, show error message
-                : showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                // return object of type Dialog
-                return AlertDialog(
-                  title: new Text("Restaurant is already saved"),
-                  //content: new Text("We didn't find a user with that username.  Please make sure the username is correct"),
-                  actions: <Widget>[
-                    new FlatButton(
-                      child: new Text("Dismiss"),
-                      onPressed: () {
-                        success = false;
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                );
-              },
-            )
-        );
-      }
-      catch (e) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            // return object of type Dialog
-            return AlertDialog(
-              title: new Text("Something Went Wrong!"),
-              content: new Text(
-                  "We were unable to save this restaurant to your account.\n"
-                      "Please make sure you are connected to the internet and try again"),
-              actions: <Widget>[
-                new FlatButton(
-                  child: new Text("Sign In "),
-                  onPressed: () {
-                    Route route = MaterialPageRoute(builder: (context) =>
-                        LoginRootPage(auth: new Auth(),));
-                    Navigator.push(context, route);
-                  },
-                ),
-                new FlatButton(
-                  child: new Text("Dismiss"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      }
-    }
-  }
-
-  Future<void> saveRestaurantDB(QuerySnapshot snap,String rID,String rName) async{
-
-    Firestore.instance
-        .collection('likedRestaurants')
-        .where(
-        'id', isEqualTo: uid)
-        .snapshots()
-        .listen(
-            (data) {
-          Firestore.instance
-              .collection('likedRestaurants')
-              .document(data.documents[0].documentID)
-              .updateData(
-              {'restaurantIDs':FieldValue.arrayUnion([rID])}
-          );
-        }
-    );
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          title: new Text("Restaurant Saved!"),
-          content: new Text("${rName} has been added to your saved Restaurants"),
-          actions: <Widget>[
-            new FlatButton(
-              child: new Text("Dismiss"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+//  Future<void> saveRestaurantDB(QuerySnapshot snap,String rID,String rName) async{
+//
+//    Firestore.instance
+//        .collection('likedRestaurants')
+//        .where(
+//        'id', isEqualTo: uid)
+//        .snapshots()
+//        .listen(
+//            (data) {
+//          Firestore.instance
+//              .collection('likedRestaurants')
+//              .document(data.documents[0].documentID)
+//              .updateData(
+//              {'restaurantIDs':FieldValue.arrayUnion([rID])}
+//          );
+//        }
+//    );
+//    showDialog(
+//      context: context,
+//      builder: (BuildContext context) {
+//        // return object of type Dialog
+//        return AlertDialog(
+//          title: new Text("Restaurant Saved!"),
+//          content: new Text("${rName} has been added to your saved Restaurants"),
+//          actions: <Widget>[
+//            new FlatButton(
+//              child: new Text("Dismiss"),
+//              onPressed: () {
+//                Navigator.of(context).pop();
+//              },
+//            ),
+//          ],
+//        );
+//      },
+//    );
+//  }
 
   @override
   Widget build(BuildContext context) {
@@ -573,7 +724,7 @@ class _RestaurantInfoPageState extends State<RestaurantInfoPage>{
                                       FlatButton(
                                         child: const Text('Save'),
                                         onPressed: () {
-                                          saveRestaurant(snapshot.data['id'],snapshot.data['name']);
+                                          RestaurantInfoPage.saveRestaurant(context, snapshot.data['id'],snapshot.data['name']);
                                           //_launchURL(snapshot.data[index].url);
                                         },
                                       ),

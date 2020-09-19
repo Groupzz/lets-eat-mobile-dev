@@ -149,7 +149,7 @@ class MapViewState extends State<MapView> with WidgetsBindingObserver{
 
   @override
   Widget build(BuildContext context) {
-    location.onLocationChanged().listen((LocationData currentLocation) {
+    location.onLocationChanged.listen((LocationData currentLocation) {
       latitude = currentLocation.latitude;
       longitude = currentLocation.longitude;
 //        print('Latitude:$latitude');

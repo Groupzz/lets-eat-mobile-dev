@@ -15,13 +15,29 @@
       },
       "oauth_client": [
         {
+          "client_id": "852218951035-ehqvrijcarg2qj5d588mgkk69e4c36ok.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "lets_eat.project",
+            "certificate_hash": "b6c77a325e64f5a99cf9fe14b1ae66e20409dabe"
+          }
+        },
+        {
+          "client_id": "852218951035-bt3c5k9901o5sumslup8nspt0b7a21n6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "lets_eat.project",
+            "certificate_hash": "933bb7b7f81b5beabac953e808fce0d27f9e75f5"
+          }
+        },
+        {
           "client_id": "852218951035-2uglta94moc83msj9e9o2bkfi7hf0gqd.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyB4h0ckdeEwxIzT1qOhP3W8FXakslNlgX4"
+          "current_key": "AIzaSyCxmCmyMJg5PyCgcnJKz8shJ8C0O6tpdo4"
         }
       ],
       "services": {

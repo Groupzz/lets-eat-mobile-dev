@@ -10,9 +10,11 @@ buildscript {
 
     dependencies {
 //        classpath 'com.android.tools.build:gradle:3.5.0'
-        classpath 'com.android.tools.build:gradle:3.3.2'
+        classpath 'com.android.tools.build:gradle:3.5.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.google.gms:google-services:4.3.2'  // Google Services plugin
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.0.0-beta02'
+
     }
 }
 
@@ -20,6 +22,9 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven {                                    //add this section
+            url "https://maven.google.com"
+        }
     }
 }
 

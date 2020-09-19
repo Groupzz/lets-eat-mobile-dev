@@ -21,6 +21,8 @@ import 'Accounts/login_root.dart';
 import 'Accounts/authentication.dart';
 import 'RestaurantInfo.dart';
 import 'package:flutter/gestures.dart';
+import 'RestaurantInfo.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeSearchPage extends StatefulWidget {
   HomeSearchPage({this.query});
@@ -226,6 +228,29 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
     );
   }
 
+  void updateRecents(String id) async{
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getStringList('recents') ?? 0;
+    if(value == 0){
+      prefs.setStringList('recents', [id]);
+    }
+    else{
+      List<String> recents = value;
+      print(recents.length);
+      if(recents.contains(id)){
+
+      }
+      else if(recents.length >= 5){
+        recents = new List.from([id])..addAll(recents.sublist(0, 4));
+      }
+      else {
+        recents = new List.from([id])..addAll(recents);
+
+      }
+      prefs.setStringList('recents', recents);
+    }
+  }
+
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Search Results",
@@ -280,6 +305,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                               ],
                                             )),
                                       onTap: (){
+                                          updateRecents(snapshot.data[index].id);
                                         Route route = MaterialPageRoute(builder: (context) => RestaurantInfoPage(query:snapshot.data[index].id, name:snapshot.data[index].name), maintainState: true);
                                         Navigator.push(context, route);
                                       }

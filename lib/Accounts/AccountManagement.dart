@@ -110,7 +110,7 @@ class _AccountManagementState extends State<AccountManagement> {
           content: new Text("Please verify account in the link sent to email"),
           actions: <Widget>[
             new FlatButton(
-              child: new Text("Resent link"),
+              child: new Text("Resend link"),
               onPressed: () {
                 Navigator.of(context).pop();
                 _resentVerifyEmail();
@@ -158,27 +158,139 @@ class _AccountManagementState extends State<AccountManagement> {
     super.dispose();
   }
 
+  void changeEmail() async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Change Email'),
+            content: TextField(
+              controller: _emailFilter,
+              decoration: InputDecoration(hintText: "Type Your New Email"),
+            ),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text('SUBMIT'),
+                onPressed: () async {
+                  if(_emailFilter.text.contains('@') && _emailFilter.text.contains('.', _emailFilter.text.indexOf('@'))){
+                    widget.auth.changeEmail(_emailFilter.text.toString());
+                    await Future.delayed(const Duration(milliseconds: 700), () {});
+                    Navigator.pop(context);
+                  }
+                  else{
+                    showBadEmail();
+                  }
+                },
+              )
+            ],
+          );
+        });
+  }
+
+  void changeUsername(){
+    Route route = MaterialPageRoute(builder: (context) => UpdateUNamePage());
+    Navigator.push(context, route);
+  }
+
+  void showBadEmail(){
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Email Not Correctly Formatted'),
+            content: Text('Please Enter A Valid Email Address'),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text('Ok'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              )
+            ],
+          );
+        });
+  }
+
+  void showPasswordResetSent(){
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Check Your Email'),
+            content: Text('We sent you an email with a link to reset your password'),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text('Ok'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              )
+            ],
+          );
+        });
+  }
+  void resetPassword(){
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Change Password'),
+            content: Text('An email with instructions to reset your password will be sent to ${user.email}.  Do you wish to continue?'),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text('No'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              new FlatButton(
+                child: new Text('Yes'),
+                onPressed: () {
+                  widget.auth.sendPasswordResetMail(user.email);
+                  Navigator.pop(context);
+                  showPasswordResetSent();
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  Widget _showOptionsTitle() {
+    return new Padding(
+      padding: EdgeInsets.fromLTRB(10.0, 20.0, 0.0, 0.0),
+      child: Text("Account Options:", textAlign: TextAlign.right, style: new TextStyle(fontSize: 24.0, color: Colors.blueGrey, fontWeight: FontWeight.bold)),
+    );
+  }
+
 
   Widget _showButtonList() {
+    List<String> settings = [ // List of Account Settings options
+      'Change Email',
+      'Change User Info',
+      'Change Username',
+      'Reset Password'];
+    List<Function> routes = [ // Functions for corresponding Account Settings Options
+      changeEmail,
+      changeUserSettings,
+      changeUsername,
+      resetPassword
+    ];
     return new Container(
-      padding: EdgeInsets.all(26.0),
-      child: new ListView(
-        children: <Widget>[
-          _showChangeEmailContainer(),
-          _changeUserInfoContainer(),
-          new SizedBox(
-            height: 40.0,
+      padding: EdgeInsets.fromLTRB(15.0, 60.0, 26.0, 26.0),
+      child: new ListView.separated(
+          separatorBuilder: (context, index) => Divider(
+            color: Colors.black,
           ),
-          _showChangeUsernameContainer(),
-          new SizedBox(
-            height: 40.0,
-          ),
-          _showSentResetPasswordEmailContainer(),
-          new SizedBox(
-            height: 40.0,
-          ),
-          _removeUserContainer(),
-        ],
+        itemCount: settings.length,
+        itemBuilder: (context, index) => InkWell(
+          onTap: (){
+            routes[index]();
+          },
+          //padding: EdgeInsets.all(8.0),
+          child: Center(child: Text("${settings[index]}", textAlign: TextAlign.right, style: TextStyle(fontSize: 28, color: Colors.grey))),
+
+        ),
       ),
     );
   }
@@ -195,7 +307,12 @@ class _AccountManagementState extends State<AccountManagement> {
         title: new Text('Hello, ' + displayUName),
 //        title: new Text('Hello, '),
       ),
-      body: _showButtonList(),
+      body: Stack(
+        children: <Widget>[
+          _showOptionsTitle(),
+          _showButtonList(),
+        ],
+      )
     );
   }
 
@@ -215,6 +332,8 @@ class _AccountManagementState extends State<AccountManagement> {
       );
     }
   }
+
+
 
   _showChangeEmailContainer() {
     return Container(
@@ -421,6 +540,10 @@ class _AccountManagementState extends State<AccountManagement> {
     );
   }
 
+  void changeUserSettings(){
+    Route route = MaterialPageRoute(builder: (context) => UpdatePage());
+    Navigator.push(context, route);
+  }
   _changeUserInfoContainer() {
     return new MaterialButton(
       shape:

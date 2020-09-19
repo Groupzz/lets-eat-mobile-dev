@@ -21,6 +21,7 @@ import 'package:flutter/gestures.dart';
 import 'Accounts/login_root.dart';
 import 'Accounts/authentication.dart';
 import 'RestaurantInfo.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class InstantSuggestionPage extends StatefulWidget {
   @override
@@ -47,6 +48,7 @@ class _InstantSuggestionPageState extends State<InstantSuggestionPage> with Widg
 
   String uid;
   String RDocID;
+  List<String> userRecents;
 
   @override
   void initState() {
@@ -103,7 +105,28 @@ class _InstantSuggestionPageState extends State<InstantSuggestionPage> with Widg
     return result;
   }
 
+  void updateRecents(String id) async{
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getStringList('recents') ?? 0;
+    if(value == 0){
+      prefs.setStringList('recents', [id]);
+    }
+    else{
+      List<String> recents = value;
+      print(recents.length);
+      if(recents.contains(id)){
 
+      }
+      else if(recents.length >= 5){
+        recents = new List.from([id])..addAll(recents.sublist(0, 4));
+      }
+      else {
+        recents = new List.from([id])..addAll(recents);
+
+      }
+      prefs.setStringList('recents', recents);
+    }
+  }
 
   Future<Restaurants> findRandomRestaurant() async {
     String webAddress;
@@ -150,6 +173,8 @@ class _InstantSuggestionPageState extends State<InstantSuggestionPage> with Widg
     int max = businesses.length;
     int i = min + _random.nextInt(max - min);
     chosen = businesses[i];
+    insertRestaurant(chosen);
+    updateRecents(chosen.id);
     return businesses[i];
 
   }

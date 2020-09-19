@@ -114,6 +114,7 @@ class searchPageState extends State<searchPage> {
 
   }
 
+
   //Converts cuisine list into URL ready string
   String parseCuisine(){
     String temp = "";

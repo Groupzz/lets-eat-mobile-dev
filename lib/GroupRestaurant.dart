@@ -178,104 +178,108 @@ class _GroupRestaurantPageState extends State<GroupRestaurantPage> with WidgetsB
             Navigator.push(context, route);
         }
     )],),
-        body: Center(
-        child: Card(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Padding(padding: const EdgeInsets.all(8.0)),
-            ListTile(
-                leading: Image.network(widget.result['image_url']??"", width: 80, height: 80,),
-                title: Text('${widget.result['name']}'),
-                subtitle: RichText(
-                    text: TextSpan(
-                      style: Theme.of(context).textTheme.body1,
-                      children: [
-                        TextSpan(text: '${loc['display_address'].toString().substring(1, loc['display_address'].toString().length - 1)??""}'
-                            '\n${widget.result['price']??""}       '),
-                        WidgetSpan(
-                            child: Image(
-                              image: AssetImage(ratingsTable[widget.result['rating']]),
-                              fit: BoxFit.fill,
-                            ))
-                      ],
-                    ))
-            ),
-//                                    ListTile(
-//                                      title: Text('${snapshot.data.price}')
-//                                    ),
-
-            // make buttons use the appropriate styles for cards
-            ButtonTheme.bar(
-              child: ButtonBar(
+        body: ListView.builder(
+          itemCount: 1,
+          itemBuilder: (context, index) {
+          return Center(
+            child: Card(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  FlatButton(
-                    child: const Text('Save Restaurant'),
-                    onPressed: () {
-                      saveRestaurant(widget.result['id'], widget.result['name']);
-                      //_launchURL(snapshot.data[index].url);
-                    },
+                  Padding(padding: const EdgeInsets.all(8.0)),
+                  ListTile(
+                      leading: Image.network(widget.result['image_url']??"", width: 80, height: 80,),
+                      title: Text('${widget.result['name']}'),
+                      subtitle: RichText(
+                          text: TextSpan(
+                            style: Theme.of(context).textTheme.body1,
+                            children: [
+                              TextSpan(text: '${loc['display_address'].toString().substring(1, loc['display_address'].toString().length - 1)??""}'
+                                  '\n${widget.result['price']??""}       '),
+                              WidgetSpan(
+                                  child: Image(
+                                    image: AssetImage(ratingsTable[widget.result['rating']]),
+                                    fit: BoxFit.fill,
+                                  ))
+                            ],
+                          ))
                   ),
-                  FlatButton(
-                    child: const Text('Directions'),
-                    onPressed: () {
-                      _launchURL("google.navigation:q=${coords['latitude']},${coords['longitude']}");
-                      //_launchURL(snapshot.data.)
-                    },
-                  ),
-                  SizedBox(
-                    width: 80.0,
-                    height: 80.0,
-                    child: FlatButton(
-                      child: Image(
-                        image: AssetImage('assets/yelpBig.png'),
-                        fit: BoxFit.contain,
-                      ),
-                      onPressed: () {
-                        _launchURL(widget.result['url']);
-                        //_launchURL(snapshot.data[index].url);
-                      },
+      //                                    ListTile(
+      //                                      title: Text('${snapshot.data.price}')
+      //                                    ),
+
+                  // make buttons use the appropriate styles for cards
+                  ButtonTheme.bar(
+                    child: ButtonBar(
+                      children: <Widget>[
+                        FlatButton(
+                          child: const Text('Save Restaurant'),
+                          onPressed: () {
+                            saveRestaurant(widget.result['id'], widget.result['name']);
+                            //_launchURL(snapshot.data[index].url);
+                          },
+                        ),
+                        FlatButton(
+                          child: const Text('Directions'),
+                          onPressed: () {
+                            _launchURL("google.navigation:q=${coords['latitude']},${coords['longitude']}");
+                            //_launchURL(snapshot.data.)
+                          },
+                        ),
+                        SizedBox(
+                          width: 80.0,
+                          height: 80.0,
+                          child: FlatButton(
+                            child: Image(
+                              image: AssetImage('assets/yelpBig.png'),
+                              fit: BoxFit.contain,
+                            ),
+                            onPressed: () {
+                              _launchURL(widget.result['url']);
+                              //_launchURL(snapshot.data[index].url);
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+
+                  Container(
+                      width: 400.0,
+                      height: 400.0,
+                      child: GoogleMap(
+                        markers: Set.from(markers, ),
+                        mapType: MapType.normal,
+                        zoomGesturesEnabled: true,
+                        myLocationButtonEnabled: true,
+                        myLocationEnabled: true,
+                        gestureRecognizers: Set()
+                          ..add(Factory<PanGestureRecognizer>(() => PanGestureRecognizer()))
+                          ..add(Factory<ScaleGestureRecognizer>(() => ScaleGestureRecognizer()))
+                          ..add(Factory<TapGestureRecognizer>(() => TapGestureRecognizer()))
+                          ..add(Factory<OneSequenceGestureRecognizer>(() => new EagerGestureRecognizer()))
+                          ..add(Factory<VerticalDragGestureRecognizer>(
+                                  () => VerticalDragGestureRecognizer())),
+
+
+        //                                    gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+        //                                      new Factory<OneSequenceGestureRecognizer>(() => new EagerGestureRecognizer(),
+        //                                      ),
+        //                                    ].toSet(),
+        //
+                        initialCameraPosition: CameraPosition(
+                          bearing: 0,
+                          target: LatLng(coords['latitude'], coords['longitude']),
+                          zoom: 12.3,
+                        ),
+                      )
+
+                ),
                 ],
-              ),
             ),
-
-            Container(
-                width: 400.0,
-                height: 400.0,
-                child: GoogleMap(
-                  markers: Set.from(markers, ),
-                  mapType: MapType.normal,
-                  zoomGesturesEnabled: true,
-                  myLocationButtonEnabled: true,
-                  myLocationEnabled: true,
-                  gestureRecognizers: Set()
-                    ..add(Factory<PanGestureRecognizer>(() => PanGestureRecognizer()))
-                    ..add(Factory<ScaleGestureRecognizer>(() => ScaleGestureRecognizer()))
-                    ..add(Factory<TapGestureRecognizer>(() => TapGestureRecognizer()))
-                    ..add(Factory<OneSequenceGestureRecognizer>(() => new EagerGestureRecognizer()))
-                    ..add(Factory<VerticalDragGestureRecognizer>(
-                            () => VerticalDragGestureRecognizer())),
-
-
-  //                                    gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
-  //                                      new Factory<OneSequenceGestureRecognizer>(() => new EagerGestureRecognizer(),
-  //                                      ),
-  //                                    ].toSet(),
-  //
-                  initialCameraPosition: CameraPosition(
-                    bearing: 0,
-                    target: LatLng(coords['latitude'], coords['longitude']),
-                    zoom: 12.3,
-                  ),
-                )
-
-          )
-          ],
-      ),
-    ),
-    )
+        ),
+      );
+    })
     );
   }
 }

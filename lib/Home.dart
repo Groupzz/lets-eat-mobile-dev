@@ -77,6 +77,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
     setState(() {
       latitude = currentLocation.latitude;
       longitude = currentLocation.longitude;
+      _animateToUser();
       //loading=false;
     });
   }
@@ -186,12 +187,29 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
     });
   }
 
+  _onMapCreated(GoogleMapController controller){
+    setState(() {
+      _controller.complete(controller);
+    });
+  }
 
+  _animateToUser() async {
+    var pos = await location.getLocation();
+    GoogleMapController controller = await _controller.future;
+
+    controller.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(pos.latitude, pos.longitude),
+          zoom: 15.0,
+        )
+    )
+    );
+  }
 
 
     @override
     Widget build(BuildContext context) {
-      location.onLocationChanged().listen((LocationData currentLocation) {
+      location.onLocationChanged.listen((LocationData currentLocation) {
         latitude = currentLocation.latitude;
         longitude = currentLocation.longitude;
         _currentPosition = CameraPosition(
@@ -406,37 +424,35 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
           ),
           body: latitude == null || longitude == null
               ? new Stack(
-            children: <Widget>[
+            children: [
               Positioned.fill( //
                 child: Image(
                   image: AssetImage("assets/mobileHome2.JPG"),
                   fit: BoxFit.fill,
                 ),
               ),
-              _showPrimaryButton(),
-              new Container(
-
-                  child: SizedBox(
-
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(60.0, 250.0, 60.0, 50.0),
-                      child: GoogleMap(
-                        markers: Set.from(
-                          markers,
-                        ),
-                        mapType: MapType.normal,
-                        myLocationButtonEnabled: true,
-                        myLocationEnabled: true,
-                        onMapCreated: (GoogleMapController controller) {
-                          _controller.complete(controller);
-                        },
-                        initialCameraPosition: CameraPosition(
-                          target: LatLng(0, 0),
-                          zoom: 5.0,
-                        ),
-                      ),
-                    ),
-                  )),
+//              _showPrimaryButton(),
+//              new Container(
+//
+//                  child: SizedBox(
+//
+//                    child: Padding(
+//                      padding: EdgeInsets.fromLTRB(60.0, 250.0, 60.0, 50.0),
+//                      child: GoogleMap(
+//                        markers: Set.from(
+//                          markers,
+//                        ),
+//                        mapType: MapType.normal,
+//                        myLocationButtonEnabled: true,
+//                        myLocationEnabled: true,
+//                        onMapCreated: _onMapCreated,
+//                        initialCameraPosition: CameraPosition(
+//                          target: LatLng(latitude ?? 0, longitude ?? 0),
+//                          zoom: 5.0,
+//                        ),
+//                      ),
+//                    ),
+//                  )),
 //            _showPrimaryButton(),
             ],
           )
@@ -460,11 +476,10 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
                           markers,
                         ),
                         mapType: MapType.normal,
+                        indoorViewEnabled: true,
                         myLocationButtonEnabled: true,
                         myLocationEnabled: true,
-                        onMapCreated: (GoogleMapController controller) {
-                          _controller.complete(controller);
-                        },
+                        onMapCreated: _onMapCreated,
                         initialCameraPosition: CameraPosition(
                           target: LatLng(latitude, longitude),
                           zoom: 15.0,
