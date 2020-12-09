@@ -310,7 +310,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
                 children: <Widget>[
                   new DrawerHeader(child: new Text('Menu'),),
                   new ListTile(
-                    title: new Text('My Account'),
+                    title: new Text('My Account'), 
                     onTap: () {
                       Route route = MaterialPageRoute(builder: (context) =>
                           LoginRootPage(auth: new Auth(),));
