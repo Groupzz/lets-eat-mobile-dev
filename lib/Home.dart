@@ -163,7 +163,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
     List<Restaurants> businesses = results.map((model) =>
         Restaurants.fromJson(model)).toList();
 
-    Iterable _markers = Iterable.generate(50, (index) {
+    Iterable _markers = Iterable.generate(results.length, (index) { // try changing 50 to length of results
       Map result = results[index];
       LatLng latLngMarker = LatLng(
           businesses[index].latitude, businesses[index].longitude);

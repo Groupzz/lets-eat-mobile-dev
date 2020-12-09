@@ -287,11 +287,12 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
               _showLogo(),
               _showEmailInput(),
               _showPasswordInput(),
+              _showErrorMessage(),
               _showPrimaryButton(),
               _signInButton(),
               _showSecondaryButton(),
               _showResetPassword(),
-              _showErrorMessage(),
+              //_showErrorMessage(),
             ],
           ),
         ));
@@ -391,7 +392,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
 
   Widget _showPasswordInput() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
+      padding: const EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 10.0),
       child: new TextFormField(
         maxLines: 1,
         obscureText: true,
@@ -443,9 +444,10 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
     );
   }
 
+  // Login Button
   Widget _showPrimaryButton() {
     return new Padding(
-        padding: EdgeInsets.fromLTRB(0.0, 45.0, 0.0, 10.0),
+        padding: EdgeInsets.fromLTRB(0.0, 25.0, 0.0, 10.0),
         child: SizedBox(
           height: 40.0,
           child: new RaisedButton(

@@ -263,6 +263,44 @@ class _AccountManagementState extends State<AccountManagement> {
     );
   }
 
+  Widget _showPrivacyTitle() {
+    return new Padding(
+      padding: EdgeInsets.fromLTRB(10.0, 300.0, 0.0, 0.0),
+      child: Text("Privacy Options:", textAlign: TextAlign.right, style: new TextStyle(fontSize: 24.0, color: Colors.blueGrey, fontWeight: FontWeight.bold)),
+    );
+  }
+
+  Widget _showPrivacyOptionsList() {
+    List<String> settings = [ // List of Privacy Settings options
+      'Clear Recently Viewed Restaurants',
+      'Disable Restaurant Tracking',
+      'Disable Friends/Groups'
+    ];
+    List<Function> routes = [ // Functions for corresponding Account Settings Options
+      changeEmail,
+      changeUserSettings,
+      changeUsername,
+      resetPassword
+    ];
+    return new Container(
+      padding: EdgeInsets.fromLTRB(15.0, 350.0, 26.0, 26.0),
+      child: new ListView.separated(
+        separatorBuilder: (context, index) => Divider(
+          color: Colors.black,
+        ),
+        itemCount: settings.length,
+        itemBuilder: (context, index) => InkWell(
+          onTap: (){
+            routes[index]();
+          },
+          //padding: EdgeInsets.all(8.0),
+          child: Center(child: Text("${settings[index]}", textAlign: TextAlign.center, style: TextStyle(fontSize: 22, color: Colors.grey))),
+
+        ),
+      ),
+    );
+  }
+
 
   Widget _showButtonList() {
     List<String> settings = [ // List of Account Settings options
@@ -311,6 +349,8 @@ class _AccountManagementState extends State<AccountManagement> {
         children: <Widget>[
           _showOptionsTitle(),
           _showButtonList(),
+          _showPrivacyTitle(),
+          _showPrivacyOptionsList()
         ],
       )
     );

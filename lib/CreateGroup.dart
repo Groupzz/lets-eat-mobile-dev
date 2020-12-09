@@ -29,8 +29,10 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   AuthStatus authStatus = AuthStatus.NOT_DETERMINED;
   //String _password;
   String _userId = "";
+  String currentLoc = "Current Location";
   List<String> users = [];
   final usernameController = TextEditingController();
+  final nameController = TextEditingController();
   final locationController = TextEditingController();
   FirebaseUser user;
   QuerySnapshot userData;
@@ -94,7 +96,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   Widget _showFriends() {  // Display ListView of Friends
     //getCurrentUserInfo();
     return new Padding(
-        padding: EdgeInsets.fromLTRB(10.0, 200.0, 0.0, 70.0),
+        padding: EdgeInsets.fromLTRB(10.0, 40.0, 0.0, 270.0),
         child: Center(
             child: FutureBuilder<Group> (
                 future: getFriends(),
@@ -254,19 +256,102 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
         ));
   }
 
+  void _displayAddPref() async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Enter Username'),
+            content: TextField(
+              controller: nameController,
+              decoration: InputDecoration(hintText: "Username"),
+            ),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text('SUBMIT'),
+                onPressed: () {
+                  // Send new preference to group vote document
+                  Firestore.instance.collection('groups').document(widget.docId).updateData({'Preferences':FieldValue.arrayUnion([nameController.text])});
+                  nameController.clear();
+                  Navigator.of(context).pop();
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("Your Preference has been added!"),
+                          actions: <Widget>[
+                            new FlatButton(
+                              child: new Text("Dismiss"),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            )
+                          ],
+                        );
+                      }
+                  );
+                },
+              )
+            ],
+          );
+        });
+  }
 
-  Widget _showPrimaryButton() {
+  void _displayChangeLoc() async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Enter Location'),
+            content: TextField(
+              controller: locationController,
+              decoration: InputDecoration(hintText: "Location"),
+            ),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text('SUBMIT'),
+                onPressed: () {
+                  currentLoc = locationController.text;
+                  Navigator.of(context).pop();
+                  setState(() {
+
+                  });
+                },
+              )
+            ],
+          );
+        });
+  }
+
+
+  Widget _showAddUserButton() {
     return new Padding(
-        padding: EdgeInsets.fromLTRB(20.0, 63.0, 20.0, 0.0),
+        padding: EdgeInsets.fromLTRB(30.0, 350.0, 20.0, 0.0),
         child: SizedBox(
-          height: 35.0,
+          height: 50.0,
           child: new RaisedButton(
             elevation: 5.0,
-            shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-            color: Colors.blue,
-            child: new Text('Add To Group',
+            //shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+            color: Colors.blueGrey[200],
+            child: new Text('Add Users',
                 style: new TextStyle(fontSize: 20.0, color: Colors.white)),
-            onPressed: _updateData,
+            onPressed: _displayAddPref,
+          ),
+        ));
+  }
+
+  Widget _showChangeLocationButton() {
+    return new Padding(
+        padding: EdgeInsets.fromLTRB(190.0, 350.0, 30.0, 0.0),
+        child: SizedBox(
+          height: 50.0,
+          child: new RaisedButton(
+            elevation: 5.0,
+            //shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+            color: Colors.blueGrey[200],
+            child: new Text('Change Location', textAlign: TextAlign.center,
+                style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+            onPressed: _displayChangeLoc,
           ),
         ));
   }
@@ -274,6 +359,28 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   void removeGroup() async {
     await Firestore.instance.collection('groups').document(widget.docId).delete();
     Navigator.of(context).pop();
+  }
+
+  Widget _showCurrentUsers() {
+    return new Padding(
+      padding: EdgeInsets.fromLTRB(10.0, 20.0, 0.0, 0.0),
+      child: Text("Current Users:", textAlign: TextAlign.right, style: new TextStyle(fontSize: 24.0, color: Colors.blueGrey, fontWeight: FontWeight.bold)),
+    );
+  }
+
+  Widget _showCurrentLocationTitle() {
+    return new Padding(
+      padding: EdgeInsets.fromLTRB(120.0, 430.0, 30.0, 20.0),
+      child: Text("Location:", textAlign: TextAlign.center, style: new TextStyle(fontSize: 24.0, color: Colors.blueGrey, fontWeight: FontWeight.bold)),
+    );
+  }
+
+  Widget _showCurrentLocation() {
+    return new Padding(
+      padding: EdgeInsets.fromLTRB(30.0, 400.0, 30.0, 20.0),
+      child: Center(
+        child: Text(currentLoc, textAlign: TextAlign.center, style: new TextStyle(fontSize: 24.0, color: Colors.blueGrey, fontWeight: FontWeight.bold)),
+    ));
   }
 
   Widget _removeUserButton() {
@@ -285,8 +392,8 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
           child: new RaisedButton(
             elevation: 5.0,
             shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-            color: Colors.red,
-            child: new Text('Delete Group',
+            color: Colors.red[400],
+            child: new Text('Delete Group', textAlign: TextAlign.center,
                 style: new TextStyle(fontSize: 20.0, color: Colors.white)),
             onPressed: () {
               removeGroup();
@@ -322,12 +429,16 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
         ),
         body: Stack(
           children: <Widget>[
-            _showAddUsers(),
-            _showPrimaryButton(),
-            _showAddLocation(),
-            _showLocButton(),
+            _showCurrentUsers(),
+//            _showAddUsers(),
+            _showAddUserButton(),
+            _showChangeLocationButton(),
+//            _showAddLocation(),
+//            _showLocButton(),
             _showFriends(),
-            _removeUserButton()
+            _removeUserButton(),
+            _showCurrentLocationTitle(),
+            _showCurrentLocation()
             //_showCircularProgress(),
           ],
         )

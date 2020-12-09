@@ -218,7 +218,7 @@ class _MapRestaurantPageState extends State<MapRestaurantPage> with WidgetsBindi
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Padding(padding: const EdgeInsets.all(8.0)),
+                  Padding(padding: const EdgeInsets.all(1.0)),
                   ListTile(
                       leading: Image.network(widget.result.imageUrl??"", width: 80, height: 80,),
                       title: Text('${widget.result.name}'),
